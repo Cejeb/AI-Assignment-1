@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  raylib::Window window(1900, 1000, "Raylib OpenAI NPCs");
+  raylib::Window window(1280, 720, "Raylib OpenAI NPCs");
 
   SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
 
@@ -70,6 +70,9 @@ int main(int argc, char *argv[])
   const float box_ypos = (float)window.GetHeight() - 200;
   const float box_height_small = (float)window.GetHeight() - box_ypos - border;
   const float box_height_large = (float)window.GetHeight() - (2 * border);
+  const int lines_of_text_small = 4;
+  const int lines_of_text_large = 15;
+  int lines_of_text = lines_of_text_small;
   Rectangle text_box_small{ border, box_ypos, box_width, box_height_small };
   Rectangle text_box_large{ border, border,   box_width, box_height_large };
   Rectangle* text_box = &text_box_small;
@@ -99,6 +102,7 @@ int main(int argc, char *argv[])
           {
             text_box = &text_box_small;
             tail_index = &tail_index_small;
+            lines_of_text = lines_of_text_small;
           }
           else
           {
@@ -119,28 +123,30 @@ int main(int argc, char *argv[])
 
           std::string response_str{};
           const auto stop = std::optional{std::vector{human_stop, reaper_stop}};
-std::cout << (reaper_nature + prompt + '\n' + reaper_stop) << std::endl;
-          oai_help.submit(reaper_nature + prompt + '\n' + reaper_stop, response_str, stop);
-std::cout << response_str << '\n';
-prompt.push_back('\n');
-prompt = prompt + reaper_stop;
+          prompt.push_back('\n');
+          std::cout << (reaper_nature + prompt + reaper_stop) << std::endl;
+            
+          oai_help.submit(reaper_nature + prompt +  reaper_stop, response_str, stop);
+          response_str.push_back('\n');
+          std::cout << response_str;
+          response_str = reaper_stop + response_str;
           for (auto c : response_str)
           {
             update_prompt(prompt, c, font_size, max_text_width,
                           tail_index_large, tail_index_small, nchars_entered);
           }
-          prompt.push_back('\n\n');
-          prompt = prompt;
-          for (auto c : human_stop) {
-              update_prompt(prompt, c, font_size, max_text_width,
+          for (auto d : human_stop) {
+              update_prompt(prompt, d, font_size, max_text_width,
                   tail_index_large, tail_index_small, nchars_entered);
           }
+
           }
           break;
 
         case KEY_UP:
           text_box = &text_box_large;
           tail_index = &tail_index_large;
+          lines_of_text = lines_of_text_large;
           break;
 
         case KEY_BACKSPACE:
@@ -165,6 +171,7 @@ prompt = prompt + reaper_stop;
           /*update_prompt(prompt, key, font_size, max_text_width, tail_index_large,
                         tail_index_small, nchars_entered);*/
           const char* psz = &prompt[prompt.rfind('\n') + 1];
+          std::cout << psz;
           if ((char)key == ' ' && MeasureText(psz, font_size) > max_text_width)
           {
             prompt.push_back('\n');
@@ -231,9 +238,9 @@ prompt = prompt + reaper_stop;
     ClearBackground(RAYWHITE);
 
     all_ground_cells.draw_cell(0, 0);
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < 24; i++)
     {
-      for (int j = 0; j < 8; j++)
+      for (int j = 0; j < 12; j++)
       {
         grnd1.draw_cell(2+i, 2+j, i % grnd1.get_frame_ids_size());
       }
@@ -261,7 +268,30 @@ prompt = prompt + reaper_stop;
       {
         s.push_back('_');
       }
-      DrawText(s.c_str(), (*text_box).x + 12, (*text_box).y + 12, font_size, WHITE);
+      std::string help_s{};
+      int number_newlines =0;
+      //counts amount of new lines in string
+      for (int i = 0; i < s.size(); i++) {
+          if (s[i] == '\n') {
+              number_newlines++;
+          }
+      }
+      if (number_newlines <= lines_of_text) {
+          help_s = s;
+      }
+      else {
+          for (int i = 0; i < lines_of_text; i++) {
+              if (s.find_last_of('\n')) {
+                  help_s = s.substr(s.find_last_of('\n'), s.size()) + help_s;
+                  s.resize(s.find_last_of('\n'));
+              }
+          }
+      }
+      if (help_s.at(0) == '\n') {
+          help_s.erase(0, 1);
+      }
+      //std::cout << help_s;
+      DrawText(help_s.c_str(), (*text_box).x + 12, (*text_box).y + 12, font_size, WHITE);
     }
 
     EndDrawing();
@@ -278,8 +308,8 @@ void update_prompt(std::string& prompt, char c, const int font_size,
   if (c == ' ' && MeasureText(psz, font_size) > max_text_width)
   {
     prompt.push_back('\n');
-    tail_index_large = prompt.find('\n', tail_index_large) + 1;
-    tail_index_small = prompt.find('\n', tail_index_small) + 1;
+    tail_index_large = prompt.find_last_of('\n', tail_index_large) + 1;
+    tail_index_small = prompt.find_last_of('\n', tail_index_small) + 1;
   }
   else
   {
