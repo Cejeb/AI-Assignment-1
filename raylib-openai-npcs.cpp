@@ -34,6 +34,10 @@ int main(int argc, char *argv[])
   raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
   Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
 
+  //Sprites for Gems
+  raylib::Texture tex3{ "../resources/time_fantasy/gems.png" };
+  Sprite gem{ tex3, 6, 3, { 80, 80 }, { 1 } };
+
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
   int ncols = 12, nrows = 8;
   int id = 3;
