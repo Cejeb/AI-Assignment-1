@@ -35,8 +35,8 @@ int main(int argc, char *argv[])
   Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
 
   //Sprites for Gems
-  raylib::Texture tex3{ "../resources/time_fantasy/gems.png" };
-  Sprite gem{ tex3, 6, 3, { 80, 80 }, { 1 } };
+  raylib::Texture tex4{ "../resources/time_fantasy/gems.png" };
+  Sprite gem{ tex4, 6, 3, { 80, 80 }, { 1 } };
 
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
   int ncols = 12, nrows = 8;
