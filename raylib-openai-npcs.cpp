@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
   //Sprites for Gems
   raylib::Texture tex4{ "../resources/time_fantasy/gems.png" };
-  Sprite gem{ tex4, 6, 3, { 80, 80 }, { 1 } };
+  Sprite gem{ tex4, 6, 2, { 80, 80 }, { 1 } };
 
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
   int ncols = 12, nrows = 8;
@@ -297,6 +297,8 @@ int main(int argc, char *argv[])
       //std::cout << help_s;
       DrawText(help_s.c_str(), (*text_box).x + 12, (*text_box).y + 12, font_size, WHITE);
     }
+
+    gem.draw();
 
     EndDrawing();
   }
