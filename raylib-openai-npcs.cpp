@@ -1,6 +1,7 @@
 #include "sprite.hpp"
 #include "openai-helper.hpp"
 #include "raylib-cpp.hpp"
+#include "entity.cpp"
 #include <string>
 #include <optional>
 #include <vector>
@@ -27,8 +28,7 @@ int main(int argc, char *argv[])
   }
 
   //Initial x and y values for the first gem.
-  float gem_x = randomFloat(100.0f, 1700.0f);
-  float gem_y = randomFloat(100.0f, 900.0f);
+  
 
   
 
@@ -36,7 +36,11 @@ int main(int argc, char *argv[])
   int gems_collected = 0;
 
   //sets the window size of the game
-  raylib::Window window(1800, 1000, "Raylib OpenAI NPCs");
+  int window_x = 1800;
+  int window_y = 1000;
+  float gem_x = randomFloat(100.0f, (float)window_x - 100);
+  float gem_y = randomFloat(100.0f, (float)window_y - 100);
+  raylib::Window window(window_x, window_y, "Raylib OpenAI NPCs");
 
   SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
 
@@ -73,7 +77,17 @@ int main(int argc, char *argv[])
   Sprite grey_right{ tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
   id += ncols;
   Sprite grey_up   { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
-
+  raylib::Texture tex6{ "../resources/time_fantasy/ayy_gray_3x.png" };
+  //entity zombie;
+  Vector2 zombie_pos{ randomFloat(100.0f, window_x - 100), randomFloat(100.0f, window_y - 100) };
+      Sprite zombie_down{ tex6, 3, 4, 
+          zombie_pos,{1,2,3},6 };
+      Sprite zombie_left{ tex6, 3, 4,
+          zombie_pos,{4,5,6},6 };
+      Sprite zombie_right{ tex6, 3, 4,
+    zombie_pos,{7,8,9},6 };
+      Sprite zombie_up{ tex6, 3, 4,
+    zombie_pos,{10,11,12},6 };
   //Texture used for the ground material
   raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
   ncols = 8; nrows = 16;
@@ -85,6 +99,8 @@ int main(int argc, char *argv[])
 
   //sets the speed of the knight, and the default sprite to use.
   Sprite* grey_knight = &grey_right;
+  Sprite* zombie_sprite = &zombie_right;
+  entity zombie(zombie_sprite, zombie_pos, 100, 2.5);
   const float grey_speed = 2.5f;
 
   //Variable to Check if the player is colliding with the reaper
@@ -108,7 +124,8 @@ int main(int argc, char *argv[])
   Rectangle text_box_small{ border, box_ypos, box_width, box_height_small };
   Rectangle text_box_large{ border, border,   box_width, box_height_large };
   Rectangle* text_box = &text_box_small;
-
+  
+ 
   //sets up the strings used to split up sections of text with the AI
   const std::string human_stop = "Human: ";
   const std::string reaper_stop = "Grim Reaper: ";
@@ -307,7 +324,6 @@ int main(int argc, char *argv[])
         unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
         Vector2 sword_pos = grey_knight->get_posn();
 
-        std::cout << " x:" << sword.get_origin().x << " y:" << sword.get_origin().y;
         if (last_sword == 0 || milliseconds - last_sword >= 500 || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
             if (grey_knight == &grey_down) {
                 sword.set_angle(90);
@@ -341,6 +357,7 @@ int main(int argc, char *argv[])
         
 
     }
+   zombie.get_sprite().draw();
     //Draws the reaper and character in the appropriate order for which is infront
     if (grey_posn.y < reaper.get_posn().y)
     {
@@ -352,7 +369,7 @@ int main(int argc, char *argv[])
       reaper.draw();
       (*grey_knight).draw();
     }
-
+    
     //Draws the gem and character in the appropriate order for which is infront
     if (grey_posn.y < gem.get_posn().y)
     {
