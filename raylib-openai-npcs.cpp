@@ -11,6 +11,11 @@ void update_prompt(std::string& prompt, char c, const int font_size,
                    const float max_text_width, int& tail_index_large,
                    int& tail_index_small, int& nchars_entered);
 
+float randomFloat(float min, float max)    
+{    
+    return (min + 1) + (((float) rand()) / (float) RAND_MAX) * (max - (min + 1));    
+}
+
 int main(int argc, char *argv[])
 {
   using namespace aipfg;
@@ -21,7 +26,17 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  raylib::Window window(1280, 720, "Raylib OpenAI NPCs");
+  //Initial x and y values for the first gem.
+  float gem_x = randomFloat(100.0f, 1700.0f);
+  float gem_y = randomFloat(100.0f, 900.0f);
+
+  
+
+  //variable to track the number of gems collected
+  int gems_collected = 0;
+
+  //sets the window size of the game
+  raylib::Window window(1800, 1000, "Raylib OpenAI NPCs");
 
   SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
 
@@ -38,13 +53,16 @@ int main(int argc, char *argv[])
   raylib::Texture tex4{ "../resources/time_fantasy/gems.png" };
   int gcols = 7, grows = 3;
   int gid = 1;
-  Vector2 gem_posn{ 140.0f, 100.0f };
+  Vector2 gem_posn{ gem_x, gem_y };
   Sprite gem{ tex4, gcols, grows, gem_posn, { gid }, 1 };
 
+  //loads the texture sheet and setup for the sprites the Knight uses
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
   int ncols = 12, nrows = 8;
   int id = 3;
   Vector2 grey_posn{ 40.0f, 100.0f };
+
+  //Sets which sprite to use for each direction
   Sprite grey_down { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
   id += ncols;
   Sprite grey_left { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
@@ -53,8 +71,8 @@ int main(int argc, char *argv[])
   id += ncols;
   Sprite grey_up   { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
 
-  raylib::Texture tex3{ "../resources/time_fantasy"
-                        "/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
+  //Texture used for the ground material
+  raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
   ncols = 8; nrows = 16;
   std::vector<int> frame_ids(ncols*nrows);
   std::iota(frame_ids.begin(), frame_ids.end(), 0);
@@ -62,12 +80,16 @@ int main(int argc, char *argv[])
   all_ground_cells.set_animation(true);
   Sprite grnd1 { tex3, ncols, nrows, { 50, 300 }, { 1, 2, 3, 4 } };
 
+  //sets the speed of the knight, and the default sprite to use.
   Sprite* grey_knight = &grey_right;
   const float grey_speed = 2.5f;
 
-  bool reaper_collision = false; // currently colliding with the reaper?
+  //Variable to Check if the player is colliding with the reaper
+  bool reaper_collision = false; 
 
-  const int font_size = 30; // n.b. "spacing" varies with the font & font size
+  // n.b. "spacing" varies with the font & font size
+  const int font_size = 30; 
+
   //bool display_text_box = true; SetExitKey(0); // debug
   bool display_text_box = false;
   const float border = 20;
@@ -84,6 +106,7 @@ int main(int argc, char *argv[])
   Rectangle text_box_large{ border, border,   box_width, box_height_large };
   Rectangle* text_box = &text_box_small;
 
+  //sets up the strings used to split up sections of text with the AI
   const std::string human_stop = "Human: ";
   const std::string reaper_stop = "Grim Reaper: ";
   const std::string new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
@@ -94,7 +117,8 @@ int main(int argc, char *argv[])
   int* tail_index = &tail_index_small;
   int nchars_entered = 0;
 
-  while (!window.ShouldClose()) // Detect window close button or ESC key
+  //Detect window close button or ESC key
+  while (!window.ShouldClose()) 
   {
     music.Update();
 
@@ -150,12 +174,14 @@ int main(int argc, char *argv[])
           }
           break;
 
+        //Makes the text box larger so the player can more easily read their chat with the reaper
         case KEY_UP:
           text_box = &text_box_large;
           tail_index = &tail_index_large;
           lines_of_text = lines_of_text_large;
           break;
 
+        //Allows the player to delete text from their current entry with the reaper.
         case KEY_BACKSPACE:
           if (nchars_entered > 0)
           {
@@ -173,7 +199,8 @@ int main(int argc, char *argv[])
 
       while (int key = GetCharPressed())
       {
-        if ((key >= 32) && (key <= 125)) // e.g. don't grab the ESC key
+        //Sets which characters can be entered, so only normal letters and numbers, and not functional keys such as ESC
+        if ((key >= 32) && (key <= 125)) 
         {
           /*update_prompt(prompt, key, font_size, max_text_width, tail_index_large,
                         tail_index_small, nchars_entered);*/
@@ -196,6 +223,7 @@ int main(int argc, char *argv[])
     }
     else
     {
+      //Changes the sprite and moves the character in the appropriate direction base on the characters input.
       if (IsKeyDown(KEY_DOWN))
       {
         grey_posn.y += grey_speed;
@@ -223,8 +251,10 @@ int main(int argc, char *argv[])
 
       (*grey_knight).set_posn(grey_posn);
 
+      //Detects the player being close enough to the reaper to "collide"
       if (Vector2Distance(grey_posn, reaper.get_posn()) < 30.0f)
       {
+        //makes sure player is not already colliding with the reaper
         if (!reaper_collision)
         {
           reaper_collision = true;
@@ -238,22 +268,40 @@ int main(int argc, char *argv[])
       {
         reaper_collision = false;
       }
+
+      //Detects the player collecting a gem and updates the gems collected variable.
+      if (Vector2Distance(grey_posn, gem.get_posn()) < 30.0f)
+      {
+          gem_x = randomFloat(100.0f, 1700.0f);
+          gem_y = randomFloat(100.0f, 900.0f);
+          gem_posn = { gem_x , gem_y };
+          gem.set_posn(gem_posn);
+          coin_sound.Play();
+          gems_collected++;
+      }
     }
 
+    
+    //Converts the gems collected integer into a string that can be displayed
+    std::string gem_string = "Gems Collected: " + std::to_string(gems_collected);
+
+    //begins drawing the sprites and text onto the screen
     BeginDrawing();
 
+    //makes a white background behind everything
     ClearBackground(RAYWHITE);
 
+    //draws the ground using a selection of sprites from the ground texture file.
     all_ground_cells.draw_cell(0, 0);
-    for (int i = 0; i < 24; i++)
+    for (int i = 0; i < 32; i++)
     {
-      for (int j = 0; j < 12; j++)
+      for (int j = 0; j < 16; j++)
       {
         grnd1.draw_cell(2+i, 2+j, i % grnd1.get_frame_ids_size());
       }
     }
 
-    // Drawn from back (-ve y coord) to front (+ve y coord)
+    //Draws the reaper and character in the appropriate order for which is infront
     if (grey_posn.y < reaper.get_posn().y)
     {
       (*grey_knight).draw();
@@ -263,6 +311,18 @@ int main(int argc, char *argv[])
     {
       reaper.draw();
       (*grey_knight).draw();
+    }
+
+    //Draws the gem and character in the appropriate order for which is infront
+    if (grey_posn.y < gem.get_posn().y)
+    {
+        (*grey_knight).draw();
+        gem.draw();
+    }
+    else
+    {
+        gem.draw();
+        (*grey_knight).draw();
     }
 
     if (display_text_box)
@@ -301,7 +361,8 @@ int main(int argc, char *argv[])
       DrawText(help_s.c_str(), (*text_box).x + 12, (*text_box).y + 12, font_size, WHITE);
     }
 
-    gem.draw();
+    //Draws text onto the screen displaying how many gems have been collected.
+    DrawText(gem_string.c_str(), 50, 50, 30, BLACK);
 
     EndDrawing();
   }
