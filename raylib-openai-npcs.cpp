@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
 
   raylib::AudioDevice audio{}; // necessary: initialises the audio
   raylib::Sound coin_sound{ "../resources/audio/coin.wav" };
+  raylib::Sound sword_sound{ "../resources/audio/sword.wav" };
   raylib::Music music{ "../resources/audio/Magic-Clock-Shop.mp3" };
   float music_volume_normal = 1.0f, music_volume_quiet = 0.4f;
   music.Play();
@@ -61,6 +62,8 @@ int main(int argc, char *argv[])
   int ncols = 12, nrows = 8;
   int id = 3;
   Vector2 grey_posn{ 40.0f, 100.0f };
+  raylib::Texture tex5{ "../resources/time_fantasy/sword.png" };
+  Sprite sword{ tex5, 1, 1 , grey_posn, {1} , 1};
 
   //Sets which sprite to use for each direction
   Sprite grey_down { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
@@ -116,7 +119,7 @@ int main(int argc, char *argv[])
   int tail_index_small = prompt.find(reaper_stop) - 1;
   int* tail_index = &tail_index_small;
   int nchars_entered = 0;
-
+  unsigned int last_sword = (unsigned int)(GetTime() * 1000.0);
   //Detect window close button or ESC key
   while (!window.ShouldClose()) 
   {
@@ -214,7 +217,7 @@ int main(int argc, char *argv[])
           }
           else
           {
-            prompt.push_back((char)key);
+              prompt.push_back((char)key);
           }
 
           nchars_entered++;
@@ -223,71 +226,70 @@ int main(int argc, char *argv[])
     }
     else
     {
-      //Changes the sprite and moves the character in the appropriate direction base on the characters input.
-      if (IsKeyDown(KEY_DOWN))
-      {
-        grey_posn.y += grey_speed;
-        grey_knight = &grey_down;
-        (*grey_knight).set_animation(true);
-      }
-      if (IsKeyDown(KEY_UP))
-      {
-        grey_posn.y -= grey_speed;
-        grey_knight = &grey_up;
-        (*grey_knight).set_animation(true);
-      }
-      if (IsKeyDown(KEY_LEFT))
-      {
-        grey_posn.x -= grey_speed;
-        grey_knight = &grey_left;
-        (*grey_knight).set_animation(true);
-      }
-      if (IsKeyDown(KEY_RIGHT))
-      {
-        grey_posn.x += grey_speed;
-        grey_knight = &grey_right;
-        (*grey_knight).set_animation(true);
-      }
-
-      (*grey_knight).set_posn(grey_posn);
-
-      //Detects the player being close enough to the reaper to "collide"
-      if (Vector2Distance(grey_posn, reaper.get_posn()) < 30.0f)
-      {
-        //makes sure player is not already colliding with the reaper
-        if (!reaper_collision)
+        //Changes the sprite and moves the character in the appropriate direction base on the characters input.
+        if (IsKeyDown(KEY_DOWN))
         {
-          reaper_collision = true;
-          display_text_box = true;
-          SetExitKey(0);
-          coin_sound.Play();
-          music.SetVolume(music_volume_quiet);
+            grey_posn.y += grey_speed;
+            grey_knight = &grey_down;
+            (*grey_knight).set_animation(true);
         }
-      }
-      else
-      {
-        reaper_collision = false;
-      }
+        if (IsKeyDown(KEY_UP))
+        {
+            grey_posn.y -= grey_speed;
+            grey_knight = &grey_up;
+            (*grey_knight).set_animation(true);
+        }
+        if (IsKeyDown(KEY_LEFT))
+        {
+            grey_posn.x -= grey_speed;
+            grey_knight = &grey_left;
+            (*grey_knight).set_animation(true);
+        }
+        if (IsKeyDown(KEY_RIGHT))
+        {
+            grey_posn.x += grey_speed;
+            grey_knight = &grey_right;
+            (*grey_knight).set_animation(true);
+        }
 
-      //Detects the player collecting a gem and updates the gems collected variable.
-      if (Vector2Distance(grey_posn, gem.get_posn()) < 30.0f)
-      {
-          gem_x = randomFloat(100.0f, 1700.0f);
-          gem_y = randomFloat(100.0f, 900.0f);
-          gem_posn = { gem_x , gem_y };
-          gem.set_posn(gem_posn);
-          coin_sound.Play();
-          gems_collected++;
-      }
+        (*grey_knight).set_posn(grey_posn);
+
+        //Detects the player being close enough to the reaper to "collide"
+        if (Vector2Distance(grey_posn, reaper.get_posn()) < 30.0f)
+        {
+            //makes sure player is not already colliding with the reaper
+            if (!reaper_collision)
+            {
+                reaper_collision = true;
+                display_text_box = true;
+                SetExitKey(0);
+                coin_sound.Play();
+                music.SetVolume(music_volume_quiet);
+            }
+        }
+        else
+        {
+            reaper_collision = false;
+        }
+
+        //Detects the player collecting a gem and updates the gems collected variable.
+        if (Vector2Distance(grey_posn, gem.get_posn()) < 30.0f)
+        {
+            gem_x = randomFloat(100.0f, 1700.0f);
+            gem_y = randomFloat(100.0f, 900.0f);
+            gem_posn = { gem_x , gem_y };
+            gem.set_posn(gem_posn);
+            coin_sound.Play();
+            gems_collected++;
+        }
     }
 
-    
+
     //Converts the gems collected integer into a string that can be displayed
     std::string gem_string = "Gems Collected: " + std::to_string(gems_collected);
 
     //begins drawing the sprites and text onto the screen
     BeginDrawing();
-
     //makes a white background behind everything
     ClearBackground(RAYWHITE);
 
@@ -295,12 +297,50 @@ int main(int argc, char *argv[])
     all_ground_cells.draw_cell(0, 0);
     for (int i = 0; i < 32; i++)
     {
-      for (int j = 0; j < 16; j++)
-      {
-        grnd1.draw_cell(2+i, 2+j, i % grnd1.get_frame_ids_size());
-      }
+        for (int j = 0; j < 16; j++)
+        {
+            grnd1.draw_cell(2 + i, 2 + j, i % grnd1.get_frame_ids_size());
+        }
     }
 
+    if (IsKeyPressed(KEY_SPACE) || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
+        unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
+        Vector2 sword_pos = grey_knight->get_posn();
+
+        std::cout << " x:" << sword.get_origin().x << " y:" << sword.get_origin().y;
+        if (last_sword == 0 || milliseconds - last_sword >= 500 || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
+            if (grey_knight == &grey_down) {
+                sword.set_angle(90);
+                sword_pos.x = sword_pos.x + 70;
+                sword_pos.y = sword_pos.y + 80;
+            }
+            else if (grey_knight == &grey_left) {
+                sword_pos.x = sword_pos.x + 30;
+                sword_pos.y = sword_pos.y + 100;
+                sword.set_angle(180);
+            }
+            else if (grey_knight == &grey_up) {
+                sword_pos.x = sword_pos.x + 5;
+                sword_pos.y = sword_pos.y + 40;
+                sword.set_angle(270);
+
+            }
+            if (grey_knight == &grey_right) {
+                sword.set_angle(0);
+                sword_pos.x = sword_pos.x + 30;
+                sword_pos.y = sword_pos.y + 40;
+            }
+            sword_sound.Play();
+            sword.set_posn(sword_pos);
+            sword.draw();
+            if (!((unsigned int)(GetTime() * 1000.0) - last_sword <= 200)) {
+                last_sword = (unsigned int)(GetTime() * 1000.0);
+            }
+        }
+ 
+        
+
+    }
     //Draws the reaper and character in the appropriate order for which is infront
     if (grey_posn.y < reaper.get_posn().y)
     {
