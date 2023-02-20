@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
   raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
   Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
 
-  //Sprites for Gems
+  //Sprites for Gems. Each gem has 6 different rotations, and there are 3 gems.
   raylib::Texture tex4{ "../resources/time_fantasy/gems.png" };
   int gcols = 7, grows = 3;
-  int gid = 3;
+  int gid = 1;
   Vector2 gem_posn{ 140.0f, 100.0f };
   Sprite gem{ tex4, gcols, grows, gem_posn, { gid }, 1 };
 
