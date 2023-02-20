@@ -35,8 +35,14 @@ int main(int argc, char *argv[])
   Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
 
   //Sprites for Gems
+  //raylib::Texture tex4{ "../resources/time_fantasy/gems.png" };
+  //Sprite gem{ tex4, 6, 2, { 240, 240 }, { 1 } };
+
   raylib::Texture tex4{ "../resources/time_fantasy/gems.png" };
-  Sprite gem{ tex4, 6, 2, { 80, 80 }, { 1 } };
+  int gcols = 6, grows = 2;
+  int gid = 3;
+  Vector2 gem_posn{ 140.0f, 100.0f };
+  Sprite gem{ tex4, gcols, grows, gem_posn, { 8 }, 1 };
 
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
   int ncols = 12, nrows = 8;
