@@ -6,6 +6,7 @@
 #include <vector>
 #include <numeric> // std::iota
 #include <iostream>
+#include <algorithm>
 
 void update_prompt(std::string& prompt, char c, const int font_size,
                    const float max_text_width, int& tail_index_large,
@@ -289,39 +290,35 @@ int main(int argc, char *argv[])
         reaper_collision = false;
       }
 
-      //Detects the player collecting a gem and updates the gems collected variable.
-      if (Vector2Distance(grey_posn, dimond_gem.get_posn()) < 30.0f)
+      //Detects the player collecting a dimond and updates the dimonds collected variable.
+      if (Vector2Distance(grey_posn, dimond_gem.get_posn()) < 40.0f)
       {
           d_gem_x = randomFloat(100.0f, 900.0f);
           d_gem_y = randomFloat(100.0f, 500.0f);
           d_gem_posn = { d_gem_x , d_gem_y };
           dimond_gem.set_posn(d_gem_posn);
           coin_sound.Play();
-          gems_collected++;
           diamond_collected++;
       }
 
     
-      //Detects the player collecting a gem and updates the gems collected variable.
-      if (Vector2Distance(grey_posn, emerald_gem.get_posn()) < 30.0f)
+      //Detects the player collecting a emerald and updates the emeralds collected variable.
+      if (Vector2Distance(grey_posn, emerald_gem.get_posn()) < 40.0f)
       {
           e_gem_x = randomFloat(150.0f, 950.0f);
           e_gem_y = randomFloat(150.0f, 550.0f);
           e_gem_posn = { e_gem_x , e_gem_y };
           emerald_gem.set_posn(e_gem_posn);
           coin_sound.Play();
-          gems_collected++;
           emerald_collected++;
-
       }
-  
     }
     
 
     //Converts the gems collected integer into a string that can be displayed
-    std::string gem_string = "total score: " + std::to_string((diamond_collected*10)+ (emerald_collected*5));
-    std::string diamond_string = "Diamond Collected: " + std::to_string(diamond_collected);
-    std::string emerald_string = "Emerald Collected: " + std::to_string(emerald_collected);
+    std::string gem_string = "Total Score: " + std::to_string((diamond_collected*10)+ (emerald_collected*5));
+    std::string diamond_string = "Diamonds Collected: " + std::to_string(diamond_collected);
+    std::string emerald_string = "Emeralds Collected: " + std::to_string(emerald_collected);
 
     //begins drawing the sprites and text onto the screen
     BeginDrawing();
@@ -339,41 +336,18 @@ int main(int argc, char *argv[])
       }
     }
 
-    //Draws the reaper and character in the appropriate order for which is infront
-    if (grey_posn.y < reaper.get_posn().y)
+    //Draws the characters and gems in the appropriate order for which is infront
+    std::vector<Sprite*> vsp{ grey_knight, &reaper, &dimond_gem, &emerald_gem };
+    std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
+        return s1->get_posn().y < s2->get_posn().y;
+        }
+    );
+
+    for (const auto& s : vsp)
     {
-      (*grey_knight).draw();
-      reaper.draw();
-    }
-    else
-    {
-      reaper.draw();
-      (*grey_knight).draw();
+        s->draw();     
     }
 
-    //Draws the gem and character in the appropriate order for which is infront
-    if (grey_posn.y < dimond_gem.get_posn().y)
-    {
-        (*grey_knight).draw();
-        dimond_gem.draw();
-    }
-    else
-    {
-        dimond_gem.draw();
-        (*grey_knight).draw();
-    }
-
-    
-    if (grey_posn.y < emerald_gem.get_posn().y)
-    {
-        (*grey_knight).draw();
-        emerald_gem.draw();
-    }
-    else
-    {
-        emerald_gem.draw();
-        (*grey_knight).draw();
-    }
 
     if (display_text_box)
     {
@@ -393,6 +367,7 @@ int main(int argc, char *argv[])
               number_newlines++;
           }
       }
+
       if (number_newlines <= lines_of_text) {
           help_s = s;
       }
