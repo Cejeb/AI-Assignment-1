@@ -36,12 +36,11 @@ int main(int argc, char *argv[])
   int gems_collected = 0;
 
   //sets the window size of the game
-  int window_x = 1800;
-  int window_y = 1000;
-  float gem_x = randomFloat(100.0f, (float)window_x - 100);
-  float gem_y = randomFloat(100.0f, (float)window_y - 100);
-  raylib::Window window(window_x, window_y, "Raylib OpenAI NPCs");
 
+
+  raylib::Window window(1800, 1000, "Raylib OpenAI NPCs");
+  float gem_x = randomFloat(100.0f, (float)window.GetWidth() - 100);
+  float gem_y = randomFloat(100.0f, (float)window.GetHeight() - 100);
   SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
 
   raylib::AudioDevice audio{}; // necessary: initialises the audio
@@ -59,7 +58,7 @@ int main(int argc, char *argv[])
   int gcols = 6, grows = 3;
   int gid = 1;
   Vector2 gem_posn{ gem_x, gem_y };
-  Sprite gem{ tex4, gcols, grows, gem_posn, {0,1,2,3,4,5 }, 6 };
+  Sprite gem{ tex4, gcols, grows, gem_posn, {0,1,2,3,4,5}, 6 };
   
   //loads the texture sheet and setup for the sprites the Knight uses
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
@@ -79,7 +78,7 @@ int main(int argc, char *argv[])
   Sprite grey_up   { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
   raylib::Texture tex6{ "../resources/time_fantasy/ayy_gray_3x.png" };
   //entity zombie;
-  Vector2 zombie_pos{ randomFloat(100.0f, window_x - 100), randomFloat(100.0f, window_y - 100) };
+  Vector2 zombie_pos{ randomFloat(100.0f, window.GetWidth() - 100), randomFloat(100.0f, window.GetHeight() - 100) };
       Sprite zombie_down{ tex6, 3, 4, 
           zombie_pos,{0,1,2},6 };
       Sprite zombie_left{ tex6, 3, 4,
@@ -292,15 +291,15 @@ int main(int argc, char *argv[])
         //Detects the player collecting a gem and updates the gems collected variable.
         if (Vector2Distance(grey_posn, gem.get_posn()) < 30.0f)
         {
-            gem_x = randomFloat(100.0f, window_x -100);
-            gem_y = randomFloat(100.0f, window_y -100);
+            gem_x = randomFloat(100.0f, window.GetWidth() -100);
+            gem_y = randomFloat(100.0f, window.GetHeight() -100);
             gem_posn = { gem_x , gem_y };
             gem.set_posn(gem_posn);
             coin_sound.Play();
             gems_collected++;
         }
     }
-
+    //TO-DO: Collision handling
     if (zombie.get_pos().x + zombie.get_pos().y -
         (grey_knight->get_posn().x + grey_knight->get_posn().y) < 500) {
         if (abs(zombie.get_pos().x - grey_knight->get_posn().x)
