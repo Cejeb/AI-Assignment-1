@@ -55,12 +55,12 @@ int main(int argc, char *argv[])
   Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
 
   //Sprites for Gems. Each gem has 6 different rotations, and there are 3 gems.
-  raylib::Texture tex4{ "../resources/time_fantasy/gems.png" };
-  int gcols = 7, grows = 3;
+  raylib::Texture tex4{ "../resources/time_fantasy/gems_cut.png" };
+  int gcols = 6, grows = 3;
   int gid = 1;
   Vector2 gem_posn{ gem_x, gem_y };
-  Sprite gem{ tex4, gcols, grows, gem_posn, { gid }, 1 };
-
+  Sprite gem{ tex4, gcols, grows, gem_posn, {0,1,2,3,4,5 }, 6 };
+  
   //loads the texture sheet and setup for the sprites the Knight uses
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
   int ncols = 12, nrows = 8;
@@ -303,7 +303,6 @@ int main(int argc, char *argv[])
 
     if (zombie.get_pos().x + zombie.get_pos().y -
         (grey_knight->get_posn().x + grey_knight->get_posn().y) < 500) {
-        //std::cout << "run";
         if (abs(zombie.get_pos().x - grey_knight->get_posn().x)
             >= abs(zombie.get_pos().y - grey_knight->get_posn().y)) {
 
@@ -312,30 +311,26 @@ int main(int argc, char *argv[])
                 zombie.set_pos({ zombie.get_pos().x - zombie.get_speed()
                     , zombie.get_pos().y });
                 zombie.set_sprite(zombie_left);
-
-
             }
             else {
                 zombie.set_pos({ zombie.get_pos().x + zombie.get_speed()
                    , zombie.get_pos().y });
                 zombie.set_sprite(zombie_right);
-
             }
         }
             else if (zombie.get_pos().y - grey_knight->get_posn().y >= 0) {
                 zombie.set_pos({ zombie.get_pos().x
                                     , zombie.get_pos().y - zombie.get_speed() });
                 zombie.set_sprite(zombie_up);
- 
             }
             else {
                 zombie.set_pos({ zombie.get_pos().x
                                     , zombie.get_pos().y + zombie.get_speed() });
                 zombie.set_sprite(zombie_down);
-
             }
             (*zombie.get_sprite()).set_posn(zombie.get_pos());
-            (*zombie.get_sprite()).set_animation(true);
+            //TO-DO: find out why animation causes a division by zero
+            //(*zombie.get_sprite()).set_animation(true);
         }
 
     
@@ -408,6 +403,7 @@ int main(int argc, char *argv[])
     }
     
     //Draws the gem and character in the appropriate order for which is infront
+    gem.set_animation(true);
     if (grey_posn.y < gem.get_posn().y)
     {
         (*grey_knight).draw();

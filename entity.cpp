@@ -7,6 +7,8 @@ namespace aipfg {
 		float hp_;
 		float speed_;
 		bool isHostile_;
+		int damage;
+
 	public:
 		void set_sprite(Sprite sprite) { sprite_ = &sprite; }
 		Sprite* get_sprite() { return sprite_; }
