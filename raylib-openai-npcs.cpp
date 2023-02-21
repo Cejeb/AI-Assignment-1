@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
   id += ncols;
   Sprite grey_up   { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
   raylib::Texture tex6{ "../resources/time_fantasy/ayy_gray_3x.png" };
+  
   //entity zombie;
   Vector2 zombie_pos{ randomFloat(100.0f, window.GetWidth() - 100), randomFloat(100.0f, window.GetHeight() - 100) };
       Sprite zombie_down{ tex6, 3, 4, 
@@ -87,6 +88,8 @@ int main(int argc, char *argv[])
     zombie_pos,{6,7,8},6 };
       Sprite zombie_up{ tex6, 3, 4,
     zombie_pos,{9,10,11},6 };
+      std::vector<Sprite> zombie_vector = { zombie_down, zombie_left, zombie_right, zombie_up };
+      //Sprite zombie_array[4] = { zombie_down, zombie_left, zombie_right, zombie_up };
   //Texture used for the ground material
   raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
   ncols = 8; nrows = 16;
@@ -99,7 +102,8 @@ int main(int argc, char *argv[])
   //sets the speed of the knight, and the default sprite to use.
   Sprite* grey_knight = &grey_right;
   Sprite* zombie_sprite = &zombie_down;
-  entity zombie(zombie_sprite, zombie_pos, 100, 1.5, true);
+  (*zombie_sprite).set_animation(false);
+  entity zombie(zombie_sprite, 100, 1.5, true,15);
   const float grey_speed = 2.5f;
 
   //Variable to Check if the player is colliding with the reaper
@@ -300,7 +304,7 @@ int main(int argc, char *argv[])
         }
     }
     //TO-DO: Collision handling
-    if (zombie.get_pos().x + zombie.get_pos().y -
+  /*  if (zombie.get_pos().x + zombie.get_pos().y -
         (grey_knight->get_posn().x + grey_knight->get_posn().y) < 500) {
         if (abs(zombie.get_pos().x - grey_knight->get_posn().x)
             >= abs(zombie.get_pos().y - grey_knight->get_posn().y)) {
@@ -332,7 +336,8 @@ int main(int argc, char *argv[])
             //(*zombie.get_sprite()).set_animation(true);
         }
 
-    
+    */
+   
     //Converts the gems collected integer into a string that can be displayed
     std::string gem_string = "Gems Collected: " + std::to_string(gems_collected);
 
@@ -388,7 +393,10 @@ int main(int argc, char *argv[])
         
 
     }
+    zombie.follow(grey_knight, 500, zombie_vector);
+    //(*zombie.get_sprite()).set_animation(false);
    (*zombie.get_sprite()).draw();
+   //std::cout << "Test";
     //Draws the reaper and character in the appropriate order for which is infront
     if (grey_posn.y < reaper.get_posn().y)
     {
