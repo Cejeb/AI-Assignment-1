@@ -23,6 +23,13 @@ int main(int argc, char *argv[])
 
   raylib::Window window(1280, 720, "Raylib OpenAI NPCs");
 
+
+  Camera2D camera = { 0 };
+  //camera.target = (Vector2){ grey_knight.x + 20.0f, grey_knight.y + 20.0f };
+  //camera.offset = (Vector2){ screenWidth / 2.0f, screenHeight / 2.0f };
+  camera.rotation = 0.0f;
+  camera.zoom = 1.0f;
+
   SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
 
   raylib::AudioDevice audio{}; // necessary: initialises the audio
@@ -164,6 +171,8 @@ int main(int argc, char *argv[])
           break;
       }
 
+
+
       while (int key = GetCharPressed())
       {
         if ((key >= 32) && (key <= 125)) // e.g. don't grab the ESC key
@@ -233,9 +242,35 @@ int main(int argc, char *argv[])
       }
     }
 
+    // Camera target follows player
+    //camera.target = (Vector2){ player.x + 20, player.y + 20 };
+
+    // Camera rotation controls
+    if (IsKeyDown(KEY_A)) camera.rotation--;
+    else if (IsKeyDown(KEY_S)) camera.rotation++;
+
+    // Limit camera rotation to 80 degrees (-40 to 40)
+    if (camera.rotation > 40) camera.rotation = 40;
+    else if (camera.rotation < -40) camera.rotation = -40;
+
+    // Camera zoom controls
+    camera.zoom += ((float)GetMouseWheelMove() * 0.05f);
+
+    if (camera.zoom > 3.0f) camera.zoom = 3.0f;
+    else if (camera.zoom < 0.1f) camera.zoom = 0.1f;
+
+    // Camera reset (zoom and rotation)
+    if (IsKeyPressed(KEY_R))
+    {
+        camera.zoom = 1.0f;
+        camera.rotation = 0.0f;
+    }
+
     BeginDrawing();
 
     ClearBackground(RAYWHITE);
+
+    BeginMode2D(camera);
 
     all_ground_cells.draw_cell(0, 0);
     for (int i = 0; i < 24; i++)
@@ -290,6 +325,9 @@ int main(int argc, char *argv[])
       if (help_s.at(0) == '\n') {
           help_s.erase(0, 1);
       }
+
+      EndMode2D();
+
       //std::cout << help_s;
       DrawText(help_s.c_str(), (*text_box).x + 12, (*text_box).y + 12, font_size, WHITE);
     }
