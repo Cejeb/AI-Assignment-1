@@ -30,9 +30,13 @@ int main(int argc, char *argv[])
   //Initial x and y values for the diamond.
   float d_gem_x = randomFloat(100.0f, 900.0f);
   float d_gem_y = randomFloat(100.0f, 500.0f);
+
   //Initial x and y values for the emerald.
   float e_gem_x = randomFloat(150.0f, 950.0f);
   float e_gem_y = randomFloat(150.0f, 550.0f);
+  //Initial x and y values for the garnet.
+  float g_gem_x = randomFloat(200.0f, 1000.0f);
+  float g_gem_y = randomFloat(200.0f, 600.0f);
 
   
 
@@ -40,6 +44,7 @@ int main(int argc, char *argv[])
   int gems_collected = 0;
   int diamond_collected = 0;
   int emerald_collected = 0;
+  int garnet_collected = 0;
 
   //sets the window size of the game
   raylib::Window window(1200, 570, "Raylib OpenAI NPCs");
@@ -55,27 +60,42 @@ int main(int argc, char *argv[])
   raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
   Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
 
-  //Sprites for Gems. Each gem has 6 different rotations, and there are 3 gems.
+  //Sprite for diamond.
   raylib::Texture diamond_tex{ "../resources/time_fantasy/diamond.png" };
   int d_cols = 6, d_rows = 1;
-  //int gid = 1;
+  int d_id = 1;
   Vector2 d_gem_posn{ d_gem_x, d_gem_y };
-  //Sprite gem{ tex4, gcols, grows, gem_posn, { gid }, 1 };
+  //Sprite dimond_gem{ diamond_tex, d_cols, d_rows, d_gem_posn, { d_id }, 1 };
   std::vector<int> frame_id_diamond(d_cols * d_rows);
   std::iota(frame_id_diamond.begin(), frame_id_diamond.end(), 0);
   Sprite dimond_gem{ diamond_tex, d_cols, d_rows, d_gem_posn, frame_id_diamond, 7 };
   dimond_gem.set_animation(true);
 
-  //NEW Sprite
+  //Vector2 position = { 350.0f, 280.0f };
+  //Rectangle frameRec = { 0.0f, 0.0f, (float)diamond_tex.width / 6, (float)diamond_tex.height };
+
+  //Sprite for emerald.
   raylib::Texture emerald_tex{ "../resources/time_fantasy/emerald.png" };
   int e_cols = 6, e_rows = 1;
- // int e_id = 5;
+  //int e_id = 5;
   Vector2 e_gem_posn{ e_gem_x, e_gem_y };
   //Sprite emerald_gem{ emerald_tex, e_cols, e_rows, e_gem_posn, { e_id }, 1 };
   std::vector<int> frame_id_emerald(e_cols * e_rows);
   std::iota(frame_id_emerald.begin(), frame_id_emerald.end(), 0);
   Sprite emerald_gem{ emerald_tex, e_cols, e_rows, e_gem_posn, frame_id_emerald, 7 };
   emerald_gem.set_animation(true);
+
+  //Sprite for garnet.
+  raylib::Texture garnet_tex{ "../resources/time_fantasy/garnet.png" };
+  int g_cols = 6, g_rows = 1;
+  //int g_id = 5;
+  Vector2 g_gem_posn{ g_gem_x, g_gem_y };
+  //Sprite emerald_gem{ garnet_tex, e_cols, e_rows, e_gem_posn, { e_id }, 1 };
+  std::vector<int> frame_id_garnet(g_cols * g_rows);
+  std::iota(frame_id_garnet.begin(), frame_id_garnet.end(), 0);
+  Sprite garnet_gem{ garnet_tex, g_cols, g_rows, g_gem_posn, frame_id_garnet, 7 };
+  garnet_gem.set_animation(true);
+
  
   //loads the texture sheet and setup for the sprites the Knight uses
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
@@ -201,7 +221,7 @@ int main(int argc, char *argv[])
           tail_index = &tail_index_large;
           lines_of_text = lines_of_text_large;
           break;
-
+       
         //Allows the player to delete text from their current entry with the reaper.
         case KEY_BACKSPACE:
           if (nchars_entered > 0)
@@ -273,7 +293,7 @@ int main(int argc, char *argv[])
       (*grey_knight).set_posn(grey_posn);
 
       //Detects the player being close enough to the reaper to "collide"
-      if (Vector2Distance(grey_posn, reaper.get_posn()) < 30.0f)
+      if (Vector2Distance(grey_posn, reaper.get_posn()) < 40.0f)
       {
         //makes sure player is not already colliding with the reaper
         if (!reaper_collision)
@@ -301,8 +321,7 @@ int main(int argc, char *argv[])
           diamond_collected++;
       }
 
-    
-      //Detects the player collecting a emerald and updates the emeralds collected variable.
+        //Detects the player collecting a emerald and updates the emeralds collected variable.
       if (Vector2Distance(grey_posn, emerald_gem.get_posn()) < 40.0f)
       {
           e_gem_x = randomFloat(150.0f, 950.0f);
@@ -312,13 +331,25 @@ int main(int argc, char *argv[])
           coin_sound.Play();
           emerald_collected++;
       }
+
+      //Detects the player collecting a garnet and updates the garnets collected variable.
+      if (Vector2Distance(grey_posn, garnet_gem.get_posn()) < 40.0f)
+      {
+          g_gem_x = randomFloat(150.0f, 950.0f);
+          g_gem_y = randomFloat(150.0f, 550.0f);
+          g_gem_posn = { g_gem_x , g_gem_y };
+          garnet_gem.set_posn(g_gem_posn);
+          coin_sound.Play();
+          garnet_collected++;
+      }
     }
     
 
     //Converts the gems collected integer into a string that can be displayed
-    std::string gem_string = "Total Score: " + std::to_string((diamond_collected*10)+ (emerald_collected*5));
+    std::string gem_string = "Total Score: " + std::to_string((diamond_collected*10)+ (emerald_collected*5)+ (garnet_collected*5));
     std::string diamond_string = "Diamonds Collected: " + std::to_string(diamond_collected);
     std::string emerald_string = "Emeralds Collected: " + std::to_string(emerald_collected);
+    std::string garnet_string = "Garnets Collected: " + std::to_string(garnet_collected);
 
     //begins drawing the sprites and text onto the screen
     BeginDrawing();
@@ -337,7 +368,7 @@ int main(int argc, char *argv[])
     }
 
     //Draws the characters and gems in the appropriate order for which is infront
-    std::vector<Sprite*> vsp{ grey_knight, &reaper, &dimond_gem, &emerald_gem };
+    std::vector<Sprite*> vsp{ grey_knight, &reaper, &dimond_gem, &emerald_gem, &garnet_gem };
     std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
         return s1->get_posn().y < s2->get_posn().y;
         }
@@ -387,9 +418,10 @@ int main(int argc, char *argv[])
     }
 
     //Draws text onto the screen displaying how many gems have been collected.
-    DrawText(gem_string.c_str(), 50, 30, 20, BLACK);
-    DrawText(diamond_string.c_str(), 50, 50, 20, BLACK);
-    DrawText(emerald_string.c_str(), 50, 70, 20, BLACK);
+    DrawText(gem_string.c_str(), 50, 10, 20, BLACK);
+    DrawText(diamond_string.c_str(), 50, 30, 20, BLACK);
+    DrawText(emerald_string.c_str(), 50, 50, 20, BLACK);
+    DrawText(garnet_string.c_str(), 50, 70, 20, BLACK);
 
     EndDrawing();
   }
