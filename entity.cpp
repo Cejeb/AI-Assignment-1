@@ -6,9 +6,10 @@ namespace aipfg {
 		//raylib::Texture tex_;
 		float hp_;
 		float speed_;
+		bool isHostile_;
 	public:
-		//void set_sprite(Sprite sprite) { sprite_ = sprite; }
-		Sprite get_sprite() { return *sprite_; }
+		void set_sprite(Sprite sprite) { sprite_ = &sprite; }
+		Sprite* get_sprite() { return sprite_; }
 		void set_pos(Vector2 pos) { pos_ = pos; }
 		Vector2 get_pos() { return pos_; }
 		void set_hp(float hp) { hp_ = hp; }
@@ -17,11 +18,12 @@ namespace aipfg {
 		float get_hp() { return hp_; }
 		void set_speed(float speed) { speed_ = speed; }
 		float get_speed() { return speed_; }
-		entity(Sprite* sprite, Vector2 pos, float hp, float speed)
+		entity(Sprite* sprite, Vector2 pos, float hp, float speed, bool isHostile)
 			: sprite_{ sprite },
 			pos_{ pos },
 			hp_{ hp},
-		speed_{ speed }
+		speed_{ speed },
+			isHostile_{isHostile}
 		{}
 
 		
