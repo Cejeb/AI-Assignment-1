@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
         }
     }
     
-    std::cout << "collision: " << detectCollision(zombie, knight);
+   
     //Converts the gems collected integer into a string that can be displayed
     std::string gem_string = "Gems Collected: " + std::to_string(gems_collected);
 
@@ -381,7 +381,8 @@ int main(int argc, char *argv[])
         gem.draw();
         (*knight.get_sprite()).draw();
     }
-
+    knight.draw_health();
+    zombie.draw_health();
     if (display_text_box)
     {
       Color light_gray_transparent{ 80, 80, 80, 192 }; // 192/256 nontransparent

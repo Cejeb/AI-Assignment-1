@@ -103,7 +103,14 @@ namespace aipfg {
 
 			(*get_sprite()).set_posn(get_pos());
 					}
-
+		void draw_health() {
+			int diff = (100 -get_sprite()->get_sprite_width()  ) / 2;
+			DrawRectangle(get_pos().x -diff, get_pos().y , 100, 10, GRAY);
+			if (get_isHostile())
+				DrawRectangle(get_pos().x - diff, get_pos().y , get_hp(), 10, RED);
+			else
+				DrawRectangle(get_pos().x - diff, get_pos().y, 85, 10, GREEN);
+		}
 		
 	};
 }
