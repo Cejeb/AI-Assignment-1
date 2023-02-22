@@ -16,7 +16,17 @@ float randomFloat(float min, float max)
 {    
     return (min + 1) + (((float) rand()) / (float) RAND_MAX) * (max - (min + 1));    
 }
-
+//uses AABB for collision detection
+bool detectCollision(aipfg::entity entity1, aipfg::entity entity2) {
+    Rectangle rect1 = entity1.calculate_rectangle();
+    Rectangle rect2 = entity2.calculate_rectangle();
+    if (rect1.x < rect2.x + rect2.width &&
+        rect1.x + rect1.width > rect2.x &&
+        rect1.y < rect2.y + rect2.height &&
+        rect1.height + rect1.y > rect2.y)
+        return true;
+    else return false;
+}
 int main(int argc, char *argv[])
 {
   using namespace aipfg;
@@ -323,7 +333,7 @@ int main(int argc, char *argv[])
         }
     }
     
-   
+    std::cout << "collision: " << detectCollision(zombie, knight);
     //Converts the gems collected integer into a string that can be displayed
     std::string gem_string = "Gems Collected: " + std::to_string(gems_collected);
 
@@ -346,7 +356,7 @@ int main(int argc, char *argv[])
     zombie.follow(knight, 500, zombie_vector);
    (*zombie.get_sprite()).draw();
    if (isSwordActive) sword.draw();
-   //std::cout << "Test";
+   
     //Draws the reaper and character in the appropriate order for which is infront
     if (grey_posn.y < reaper.get_posn().y)
     {
