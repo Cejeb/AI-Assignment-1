@@ -17,15 +17,33 @@ float randomFloat(float min, float max)
     return (min + 1) + (((float) rand()) / (float) RAND_MAX) * (max - (min + 1));    
 }
 //uses AABB for collision detection
-bool detectCollision(aipfg::entity entity1, aipfg::entity entity2) {
-    Rectangle rect1 = entity1.calculate_rectangle();
-    Rectangle rect2 = entity2.calculate_rectangle();
+bool detectCollision(Rectangle rect1, Rectangle rect2) {
     if (rect1.x < rect2.x + rect2.width &&
         rect1.x + rect1.width > rect2.x &&
         rect1.y < rect2.y + rect2.height &&
         rect1.height + rect1.y > rect2.y)
         return true;
     else return false;
+}
+void damage(aipfg::entity &knight, std::vector <aipfg::entity*> &enemies, Rectangle sword_rect) {
+    for (int i = 0; i < enemies.size(); i++) {
+        if (detectCollision((*enemies.at(i)).calculate_rectangle(), sword_rect) && 
+            (unsigned int)(GetTime() * 1000.0) - (*enemies.at(i)).get_lastdamage() > 1000) {
+
+            (*enemies.at(i)).set_hp((*enemies.at(i)).get_hp() - knight.get_damage());
+            (*enemies.at(i)).set_lastdamage((unsigned int)(GetTime() * 1000.0));
+            if ((*enemies.at(i)).get_hp() <= 0) {
+                //enemies.erase(i);
+            }
+            std::cout << "damage sword :" << (*enemies.at(i)).get_hp();
+        }
+        if (detectCollision((*enemies.at(i)).calculate_rectangle(), knight.calculate_rectangle()) &&
+            (unsigned int)(GetTime() * 1000.0) - knight.get_lastdamage() > 1000) {
+            knight.set_hp(knight.get_hp() - (*enemies.at(i)).get_damage());
+            knight.set_lastdamage((unsigned int)(GetTime() * 1000.0));
+            std::cout << "damage knight :" << knight.get_hp();
+        }
+    }
 }
 int main(int argc, char *argv[])
 {
@@ -115,9 +133,11 @@ int main(int argc, char *argv[])
   Sprite* zombie_sprite = &zombie_down;
   (*zombie_sprite).set_animation(false);
   entity zombie(zombie_sprite, 100, 1.5, true,15);
+  std::vector <entity*> enemies;
+  enemies.push_back(&zombie);
   entity knight(grey_knight, 100, 2.5, false, 25);
   const float grey_speed = 2.5f;
-
+  Rectangle sword_rect{};
   //Variable to Check if the player is colliding with the reaper
   bool reaper_collision = false; 
 
@@ -260,37 +280,44 @@ int main(int argc, char *argv[])
     {
         //Changes the sprite and moves the character in the appropriate direction base on the characters input.
         knight.move(grey_vector);
+        //sword functionality
         isSwordActive = false;
+        sword_rect={};
         if (IsKeyPressed(KEY_SPACE) || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
             unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
             Vector2 sword_pos = knight.get_pos();
 
             if (last_sword == 0 || milliseconds - last_sword >= 500 || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
-     
+                int sword_height = 40;
+                int sword_width = 114;
                 if (knight.get_sprite() == &grey_vector.at(0)) {
-                   
+                   //down
                     sword.set_angle(90);
                     sword_pos.x = sword_pos.x + 70;
                     sword_pos.y = sword_pos.y + 80;
+                    sword_rect = { sword_pos.x - sword_height - 12, sword_pos.y + 5, (float)sword_height, (float)sword_width };
                 }
                 else if (knight.get_sprite() == &grey_vector.at(1)) {
-                   
+                   //left
                     sword_pos.x = sword_pos.x + 30;
                     sword_pos.y = sword_pos.y + 100;
                     sword.set_angle(180);
+                    sword_rect = { sword_pos.x- sword_width-5, sword_pos.y- sword_height-12, (float)sword_width, (float)sword_height };
                 }
                 else if (knight.get_sprite() == &grey_vector.at(3)) {
-                    
+                    //up
                     sword_pos.x = sword_pos.x + 5;
                     sword_pos.y = sword_pos.y + 40;
                     sword.set_angle(270);
+                    sword_rect = { sword_pos.x+ 13, sword_pos.y - sword_width - 5, (float)sword_height, (float)sword_width };
 
                 }
                 else if (knight.get_sprite() == &grey_vector.at(2)) {
-                   
+                   //right
                     sword.set_angle(0);
                     sword_pos.x = sword_pos.x + 30;
                     sword_pos.y = sword_pos.y + 40;
+                    sword_rect = { sword_pos.x + 5, sword_pos.y+ 12, (float)sword_width, (float)sword_height };
                 }
                 sword_sound.Play();
                 sword.set_posn(sword_pos);
@@ -352,37 +379,37 @@ int main(int argc, char *argv[])
         }
     }
 
-    
+    damage(knight, enemies, sword_rect);
     zombie.follow(knight, 500, zombie_vector);
-   (*zombie.get_sprite()).draw();
+    zombie.draw();
    if (isSwordActive) sword.draw();
    
     //Draws the reaper and character in the appropriate order for which is infront
     if (grey_posn.y < reaper.get_posn().y)
     {
-      (*knight.get_sprite()).draw();
+      knight.draw();
+
       reaper.draw();
     }
     else
     {
       reaper.draw();
-      (*knight.get_sprite()).draw();
+      knight.draw();
     }
     
     //Draws the gem and character in the appropriate order for which is infront
     gem.set_animation(true);
     if (knight.get_pos().y < gem.get_posn().y)
     {
-        (*knight.get_sprite()).draw();
+        knight.draw();
         gem.draw();
     }
     else
     {
         gem.draw();
-        (*knight.get_sprite()).draw();
+        knight.draw();
     }
-    knight.draw_health();
-    zombie.draw_health();
+
     if (display_text_box)
     {
       Color light_gray_transparent{ 80, 80, 80, 192 }; // 192/256 nontransparent

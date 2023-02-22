@@ -9,7 +9,7 @@ namespace aipfg {
 		float speed_{};
 		bool isHostile_{};
 		int damage_{};
-
+		unsigned int lastdamage_{0};
 	public:
 		void set_sprite(Sprite& sprite) { sprite_ = &sprite; }
 		Sprite* get_sprite() { return sprite_; }
@@ -24,6 +24,8 @@ namespace aipfg {
 		bool get_isHostile() { return isHostile_; }
 		int get_damage() { return damage_; }
 		void set_damage(int damage) { damage_ = damage; }
+		void set_lastdamage(unsigned int lastdamage) { lastdamage_ = lastdamage; }
+		unsigned int get_lastdamage() { return lastdamage_; }
 		entity(Sprite* sprite, float hp, float speed, bool isHostile, int damage)
 			: sprite_{ sprite },
 			pos_{ (*sprite).get_posn()},
@@ -109,8 +111,11 @@ namespace aipfg {
 			if (get_isHostile())
 				DrawRectangle(get_pos().x - diff, get_pos().y , get_hp(), 10, RED);
 			else
-				DrawRectangle(get_pos().x - diff, get_pos().y, 85, 10, GREEN);
+				DrawRectangle(get_pos().x - diff, get_pos().y, get_hp(), 10, GREEN);
 		}
-		
+		void draw(){
+			(*get_sprite()).draw();
+			draw_health();
+		}
 	};
 }
