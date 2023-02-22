@@ -32,13 +32,13 @@ namespace aipfg {
 			isHostile_{isHostile},
 			damage_{damage}
 		{ }
-		void follow(Sprite* sprite, int distance, std::vector<Sprite> &vector) {
+		void follow(entity entity, int distance, std::vector<Sprite> &vector) {
 			if (get_pos().x + get_pos().y -
-				(sprite->get_posn().x + sprite->get_posn().y) < distance) {
-				if (abs(get_pos().x - sprite->get_posn().x)
-					>= abs(get_pos().y - sprite->get_posn().y)) {
+				(entity.get_pos().x + entity.get_pos().y) < distance) {
+				if (abs(get_pos().x - entity.get_pos().x)
+					>= abs(get_pos().y - entity.get_pos().y)) {
 
-					if (get_pos().x - sprite->get_posn().x >= 0) {
+					if (get_pos().x - entity.get_pos().x >= 0) {
 
 						set_pos({ get_pos().x - get_speed()
 							, get_pos().y });
@@ -50,7 +50,7 @@ namespace aipfg {
 						set_sprite(vector.at(2));
 					}
 				}
-				else if (get_pos().y - sprite->get_posn().y >= 0) {
+				else if (get_pos().y - entity.get_pos().y >= 0) {
 					set_pos({ get_pos().x
 										, get_pos().y - get_speed() });
 					set_sprite(vector.at(3));
@@ -68,6 +68,41 @@ namespace aipfg {
 				(*get_sprite()).set_animation(false);
 			}
 		}
+		Rectangle calculate_rectangle() {
+			return { get_pos().x, get_pos().y, (float)(*get_sprite()).get_sprite_height(),(float)(*get_sprite()).get_sprite_width() };
+		}
+		void move(std::vector<Sprite> &sprite_vector) {
+			if (IsKeyDown(KEY_DOWN))
+			{
+				set_pos({ get_pos().x 
+						, get_pos().y + get_speed() });
+				set_sprite(sprite_vector.at(0));
+				(*get_sprite()).set_animation(true);
+			}
+			if (IsKeyDown(KEY_UP))
+			{
+				set_pos({ get_pos().x
+				, get_pos().y - get_speed() });
+				set_sprite(sprite_vector.at(3));
+				(*get_sprite()).set_animation(true);
+			}
+			if (IsKeyDown(KEY_LEFT))
+			{
+				set_pos({ get_pos().x - get_speed()
+				, get_pos().y  });
+				set_sprite(sprite_vector.at(1));
+				(*get_sprite()).set_animation(true);
+			}
+			if (IsKeyDown(KEY_RIGHT))
+			{
+				set_pos({ get_pos().x + get_speed()
+				, get_pos().y });
+				set_sprite(sprite_vector.at(2));
+				(*get_sprite()).set_animation(true);
+			}
+
+			(*get_sprite()).set_posn(get_pos());
+					}
 
 		
 	};

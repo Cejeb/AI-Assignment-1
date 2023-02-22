@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   Vector2 grey_posn{ 40.0f, 100.0f };
   raylib::Texture tex5{ "../resources/time_fantasy/sword.png" };
   Sprite sword{ tex5, 1, 1 , grey_posn, {1} , 1};
-
+  bool isSwordActive{ false };
   //Sets which sprite to use for each direction
   Sprite grey_down { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
   id += ncols;
@@ -76,6 +76,7 @@ int main(int argc, char *argv[])
   Sprite grey_right{ tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
   id += ncols;
   Sprite grey_up   { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
+  std::vector<Sprite> grey_vector = { grey_down, grey_left, grey_right, grey_up };
   raylib::Texture tex6{ "../resources/time_fantasy/ayy_gray_3x.png" };
   
   //entity zombie;
@@ -89,7 +90,7 @@ int main(int argc, char *argv[])
       Sprite zombie_up{ tex6, 3, 4,
     zombie_pos,{9,10,11},6 };
       std::vector<Sprite> zombie_vector = { zombie_down, zombie_left, zombie_right, zombie_up };
-      //Sprite zombie_array[4] = { zombie_down, zombie_left, zombie_right, zombie_up };
+ 
   //Texture used for the ground material
   raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
   ncols = 8; nrows = 16;
@@ -104,6 +105,7 @@ int main(int argc, char *argv[])
   Sprite* zombie_sprite = &zombie_down;
   (*zombie_sprite).set_animation(false);
   entity zombie(zombie_sprite, 100, 1.5, true,15);
+  entity knight(grey_knight, 100, 2.5, false, 25);
   const float grey_speed = 2.5f;
 
   //Variable to Check if the player is colliding with the reaper
@@ -145,7 +147,7 @@ int main(int argc, char *argv[])
   {
     music.Update();
 
-    (*grey_knight).set_animation(false);
+    (*knight.get_sprite()).set_animation(false);
 
     if (display_text_box)
     {
@@ -247,35 +249,52 @@ int main(int argc, char *argv[])
     else
     {
         //Changes the sprite and moves the character in the appropriate direction base on the characters input.
-        if (IsKeyDown(KEY_DOWN))
-        {
-            grey_posn.y += grey_speed;
-            grey_knight = &grey_down;
-            (*grey_knight).set_animation(true);
-        }
-        if (IsKeyDown(KEY_UP))
-        {
-            grey_posn.y -= grey_speed;
-            grey_knight = &grey_up;
-            (*grey_knight).set_animation(true);
-        }
-        if (IsKeyDown(KEY_LEFT))
-        {
-            grey_posn.x -= grey_speed;
-            grey_knight = &grey_left;
-            (*grey_knight).set_animation(true);
-        }
-        if (IsKeyDown(KEY_RIGHT))
-        {
-            grey_posn.x += grey_speed;
-            grey_knight = &grey_right;
-            (*grey_knight).set_animation(true);
-        }
+        knight.move(grey_vector);
+        isSwordActive = false;
+        if (IsKeyPressed(KEY_SPACE) || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
+            unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
+            Vector2 sword_pos = knight.get_pos();
 
-        (*grey_knight).set_posn(grey_posn);
+            if (last_sword == 0 || milliseconds - last_sword >= 500 || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
+     
+                if (knight.get_sprite() == &grey_vector.at(0)) {
+                   
+                    sword.set_angle(90);
+                    sword_pos.x = sword_pos.x + 70;
+                    sword_pos.y = sword_pos.y + 80;
+                }
+                else if (knight.get_sprite() == &grey_vector.at(1)) {
+                   
+                    sword_pos.x = sword_pos.x + 30;
+                    sword_pos.y = sword_pos.y + 100;
+                    sword.set_angle(180);
+                }
+                else if (knight.get_sprite() == &grey_vector.at(3)) {
+                    
+                    sword_pos.x = sword_pos.x + 5;
+                    sword_pos.y = sword_pos.y + 40;
+                    sword.set_angle(270);
 
+                }
+                else if (knight.get_sprite() == &grey_vector.at(2)) {
+                   
+                    sword.set_angle(0);
+                    sword_pos.x = sword_pos.x + 30;
+                    sword_pos.y = sword_pos.y + 40;
+                }
+                sword_sound.Play();
+                sword.set_posn(sword_pos);
+                isSwordActive = true;
+                if (!((unsigned int)(GetTime() * 1000.0) - last_sword <= 200)) {
+                    last_sword = (unsigned int)(GetTime() * 1000.0);
+                }
+            }
+
+
+
+        }
         //Detects the player being close enough to the reaper to "collide"
-        if (Vector2Distance(grey_posn, reaper.get_posn()) < 30.0f)
+        if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 30.0f)
         {
             //makes sure player is not already colliding with the reaper
             if (!reaper_collision)
@@ -293,7 +312,7 @@ int main(int argc, char *argv[])
         }
 
         //Detects the player collecting a gem and updates the gems collected variable.
-        if (Vector2Distance(grey_posn, gem.get_posn()) < 30.0f)
+        if (Vector2Distance(knight.get_pos(), gem.get_posn()) < 30.0f)
         {
             gem_x = randomFloat(100.0f, window.GetWidth() -100);
             gem_y = randomFloat(100.0f, window.GetHeight() -100);
@@ -303,40 +322,7 @@ int main(int argc, char *argv[])
             gems_collected++;
         }
     }
-    //TO-DO: Collision handling
-  /*  if (zombie.get_pos().x + zombie.get_pos().y -
-        (grey_knight->get_posn().x + grey_knight->get_posn().y) < 500) {
-        if (abs(zombie.get_pos().x - grey_knight->get_posn().x)
-            >= abs(zombie.get_pos().y - grey_knight->get_posn().y)) {
-
-            if (zombie.get_pos().x - grey_knight->get_posn().x >= 0) {
-
-                zombie.set_pos({ zombie.get_pos().x - zombie.get_speed()
-                    , zombie.get_pos().y });
-                zombie.set_sprite(zombie_left);
-            }
-            else {
-                zombie.set_pos({ zombie.get_pos().x + zombie.get_speed()
-                   , zombie.get_pos().y });
-                zombie.set_sprite(zombie_right);
-            }
-        }
-            else if (zombie.get_pos().y - grey_knight->get_posn().y >= 0) {
-                zombie.set_pos({ zombie.get_pos().x
-                                    , zombie.get_pos().y - zombie.get_speed() });
-                zombie.set_sprite(zombie_up);
-            }
-            else {
-                zombie.set_pos({ zombie.get_pos().x
-                                    , zombie.get_pos().y + zombie.get_speed() });
-                zombie.set_sprite(zombie_down);
-            }
-            (*zombie.get_sprite()).set_posn(zombie.get_pos());
-            //TO-DO: find out why animation causes a division by zero
-            //(*zombie.get_sprite()).set_animation(true);
-        }
-
-    */
+    
    
     //Converts the gems collected integer into a string that can be displayed
     std::string gem_string = "Gems Collected: " + std::to_string(gems_collected);
@@ -356,70 +342,34 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (IsKeyPressed(KEY_SPACE) || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
-        unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
-        Vector2 sword_pos = grey_knight->get_posn();
-
-        if (last_sword == 0 || milliseconds - last_sword >= 500 || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
-            if (grey_knight == &grey_down) {
-                sword.set_angle(90);
-                sword_pos.x = sword_pos.x + 70;
-                sword_pos.y = sword_pos.y + 80;
-            }
-            else if (grey_knight == &grey_left) {
-                sword_pos.x = sword_pos.x + 30;
-                sword_pos.y = sword_pos.y + 100;
-                sword.set_angle(180);
-            }
-            else if (grey_knight == &grey_up) {
-                sword_pos.x = sword_pos.x + 5;
-                sword_pos.y = sword_pos.y + 40;
-                sword.set_angle(270);
-
-            }
-            if (grey_knight == &grey_right) {
-                sword.set_angle(0);
-                sword_pos.x = sword_pos.x + 30;
-                sword_pos.y = sword_pos.y + 40;
-            }
-            sword_sound.Play();
-            sword.set_posn(sword_pos);
-            sword.draw();
-            if (!((unsigned int)(GetTime() * 1000.0) - last_sword <= 200)) {
-                last_sword = (unsigned int)(GetTime() * 1000.0);
-            }
-        }
- 
-        
-
-    }
-    zombie.follow(grey_knight, 500, zombie_vector);
-    //(*zombie.get_sprite()).set_animation(false);
+    
+    zombie.follow(knight, 500, zombie_vector);
    (*zombie.get_sprite()).draw();
+   if (isSwordActive) sword.draw();
    //std::cout << "Test";
     //Draws the reaper and character in the appropriate order for which is infront
     if (grey_posn.y < reaper.get_posn().y)
     {
-      (*grey_knight).draw();
+      (*knight.get_sprite()).draw();
       reaper.draw();
     }
     else
     {
       reaper.draw();
-      (*grey_knight).draw();
+      (*knight.get_sprite()).draw();
     }
     
     //Draws the gem and character in the appropriate order for which is infront
     gem.set_animation(true);
-    if (grey_posn.y < gem.get_posn().y)
+    if (knight.get_pos().y < gem.get_posn().y)
     {
-        (*grey_knight).draw();
+        (*knight.get_sprite()).draw();
         gem.draw();
     }
     else
     {
         gem.draw();
-        (*grey_knight).draw();
+        (*knight.get_sprite()).draw();
     }
 
     if (display_text_box)
