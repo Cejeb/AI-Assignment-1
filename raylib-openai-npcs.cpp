@@ -90,8 +90,9 @@ int main(int argc, char *argv[])
   // n.b. "spacing" varies with the font & font size
   const int font_size = 30; 
 
-  //bool display_text_box = true; SetExitKey(0); // debug
-  bool display_text_box = false;
+  //bool reaper_text_box = true; SetExitKey(0); // debug
+  //The code for the text box when speaking to the reaper
+  bool reaper_display_text_box = false;
   const float border = 20;
   const float box_width = (float)window.GetWidth() - (2 * border);
   const float average_word_size = MeasureText("Abcdef", font_size);
@@ -106,16 +107,45 @@ int main(int argc, char *argv[])
   Rectangle text_box_large{ border, border,   box_width, box_height_large };
   Rectangle* text_box = &text_box_small;
 
-  //sets up the strings used to split up sections of text with the AI
+  //sets up the strings used to split up sections of text with the Reaper AI
   const std::string human_stop = "Human: ";
   const std::string reaper_stop = "Grim Reaper: ";
   const std::string new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
   std::string prompt = new_lines + reaper_stop +
-                       "Why are you here?\n" + human_stop;
+      "Why are you here?\n" + human_stop;
   int tail_index_large = 0;
   int tail_index_small = prompt.find(reaper_stop) - 1;
   int* tail_index = &tail_index_small;
   int nchars_entered = 0;
+
+  //bool reaper_text_box = true; SetExitKey(0); // debug
+  //The code for the text box when speaking to the fairy
+  bool fairy_display_text_box = false;
+  const float fairy_border = 20;
+  const float fairy_box_width = (float)window.GetWidth() - (2 * fairy_border);
+  const float fairy_average_word_size = MeasureText("Abcdef", font_size);
+  const float fairy_max_text_width = fairy_box_width - fairy_average_word_size;
+  const float fairy_box_ypos = (float)window.GetHeight() - 200;
+  const float fairy_box_height_small = (float)window.GetHeight() - fairy_box_ypos - fairy_border;
+  const float fairy_box_height_large = (float)window.GetHeight() - (2 * fairy_border);
+  const int fairy_lines_of_text_small = 4;
+  const int fairy_lines_of_text_large = 15;
+  int fairy_lines_of_text = fairy_lines_of_text_small;
+  Rectangle fairy_text_box_small{ fairy_border, fairy_box_ypos, fairy_box_width, fairy_box_height_small };
+  Rectangle fairy_text_box_large{ fairy_border, fairy_border,   fairy_box_width, fairy_box_height_large };
+  Rectangle* fairy_text_box = &fairy_text_box_small;
+
+  //sets up the strings used to split up sections of text with the fairy AI. Human_stop is commented out as this is defined already in the reaper section above
+  //but has been temporarily kept here incase required as a separate one to be renamed for fairy AI.
+  //const std::string human_stop = "Human: ";
+  const std::string fairy_stop = "Grim Reaper: ";
+  const std::string fairy_new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
+  std::string fairy_prompt = fairy_new_lines + fairy_stop +
+                       "Why are you here?\n" + human_stop;
+  int fairy_tail_index_large = 0;
+  int fairy_tail_index_small = fairy_prompt.find(fairy_stop) - 1;
+  int* fairy_tail_index = &fairy_tail_index_small;
+  int fairy_nchars_entered = 0;
 
   //Detect window close button or ESC key
   while (!window.ShouldClose()) 
@@ -124,7 +154,8 @@ int main(int argc, char *argv[])
 
     (*grey_knight).set_animation(false);
 
-    if (display_text_box)
+    //This section activates when the player approaches the reaper to speak to them.
+    if (reaper_display_text_box)
     {
       switch (GetKeyPressed())
       {
@@ -138,7 +169,7 @@ int main(int argc, char *argv[])
           else
           {
             SetExitKey(KEY_ESCAPE);
-            display_text_box = false;
+            reaper_display_text_box = false;
             music.SetVolume(music_volume_normal);
           }
           break;
@@ -221,7 +252,104 @@ int main(int argc, char *argv[])
         }
       }
     }
-    else
+    //This section activates when the player summons the fairy to speak to.
+    else if (fairy_display_text_box)
+    {
+        switch (GetKeyPressed())
+        {
+        case KEY_ESCAPE:
+            if (fairy_text_box == &fairy_text_box_large)
+            {
+                fairy_text_box = &fairy_text_box_small;
+                fairy_tail_index = &fairy_tail_index_small;
+                fairy_lines_of_text = fairy_lines_of_text_small;
+            }
+            else
+            {
+                SetExitKey(KEY_ESCAPE);
+                fairy_display_text_box = false;
+                music.SetVolume(music_volume_normal);
+            }
+            break;
+
+        case KEY_ENTER:
+        {
+            std::cout << "KEY_ENTER PRESSED!\n";
+            const std::string reaper_nature =
+                "The following is a conversation with the grim reaper. The grim "
+                "reaper is a personified force. In some mythologies, the grim "
+                "reaper causes the victim's death by coming to collect that "
+                " person's soul.\n\n";
+
+            std::string response_str{};
+            const auto stop = std::optional{ std::vector{human_stop, reaper_stop} };
+            prompt.push_back('\n');
+            std::cout << (reaper_nature + prompt + reaper_stop) << std::endl;
+
+            oai_help.submit(reaper_nature + prompt + reaper_stop, response_str, stop);
+            response_str.push_back('\n');
+            std::cout << response_str;
+            response_str = reaper_stop + response_str;
+            for (auto c : response_str)
+            {
+                update_prompt(prompt, c, font_size, max_text_width,
+                    tail_index_large, tail_index_small, nchars_entered);
+            }
+            for (auto d : human_stop) {
+                update_prompt(prompt, d, font_size, max_text_width,
+                    tail_index_large, tail_index_small, nchars_entered);
+            }
+
+        }
+        break;
+
+        //Makes the text box larger so the player can more easily read their chat with the reaper
+        case KEY_UP:
+            text_box = &text_box_large;
+            tail_index = &tail_index_large;
+            lines_of_text = lines_of_text_large;
+            break;
+
+            //Allows the player to delete text from their current entry with the reaper.
+        case KEY_BACKSPACE:
+            if (nchars_entered > 0)
+            {
+                bool reposition = prompt.back() == '\n'; // last char is newline
+                prompt.pop_back();
+                nchars_entered--;
+                if (reposition)
+                {
+                    tail_index_large = prompt.rfind('\n', tail_index_large - 2) + 1;
+                    tail_index_small = prompt.rfind('\n', tail_index_small - 2) + 1;
+                }
+            }
+            break;
+        }
+
+        while (int key = GetCharPressed())
+        {
+            //Sets which characters can be entered, so only normal letters and numbers, and not functional keys such as ESC
+            if ((key >= 32) && (key <= 125))
+            {
+                /*update_prompt(prompt, key, font_size, max_text_width, tail_index_large,
+                              tail_index_small, nchars_entered);*/
+                const char* psz = &prompt[prompt.rfind('\n') + 1];
+                std::cout << psz;
+                if ((char)key == ' ' && MeasureText(psz, font_size) > max_text_width)
+                {
+                    prompt.push_back('\n');
+                    tail_index_large = prompt.find('\n', tail_index_large) + 1;
+                    tail_index_small = prompt.find('\n', tail_index_small) + 1;
+                }
+                else
+                {
+                    prompt.push_back((char)key);
+                }
+
+                nchars_entered++;
+            }
+        }
+    }
     {
       //Changes the sprite and moves the character in the appropriate direction base on the characters input.
       if (IsKeyDown(KEY_DOWN))
@@ -258,7 +386,7 @@ int main(int argc, char *argv[])
         if (!reaper_collision)
         {
           reaper_collision = true;
-          display_text_box = true;
+          reaper_display_text_box = true;
           SetExitKey(0);
           coin_sound.Play();
           music.SetVolume(music_volume_quiet);
@@ -267,6 +395,12 @@ int main(int argc, char *argv[])
       else
       {
         reaper_collision = false;
+      }
+
+      //Using the N key (Navi!) to detect when the player is speaking to the fairy
+      if (IsKeyDown(KEY_N))
+      {
+          fairy_display_text_box = true;
       }
 
       //Detects the player collecting a gem and updates the gems collected variable.
@@ -325,7 +459,8 @@ int main(int argc, char *argv[])
         (*grey_knight).draw();
     }
 
-    if (display_text_box)
+    //Displays the text box for speaking to the reaper
+    if (reaper_display_text_box)
     {
       Color light_gray_transparent{ 80, 80, 80, 192 }; // 192/256 nontransparent
       DrawRectangleRec(*text_box, light_gray_transparent);
