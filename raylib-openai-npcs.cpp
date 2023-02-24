@@ -25,24 +25,55 @@ bool detectCollision(Rectangle rect1, Rectangle rect2) {
         return true;
     else return false;
 }
+//TO-DO: Draw a game over screen
+void drawGameOver(int x, int y) {
+    DrawRectangle(0, 0, x, y, GRAY);
+    DrawText("Game Over!", x / 3, y / 6, 120, BLACK);
+}
 void damage(aipfg::entity &knight, std::vector <aipfg::entity*> &enemies, Rectangle sword_rect) {
-    for (int i = 0; i < enemies.size(); i++) {
-        if (detectCollision((*enemies.at(i)).calculate_rectangle(), sword_rect) && 
+    int i = 0;
+    while (i < enemies.size())
+    {
+        Rectangle enemyrect = (*enemies.at(i)).calculate_rectangle();
+        //slightly shifted as enemy and player cannot move into each other
+        enemyrect.x -= 1;
+        enemyrect.y -= 1;
+        enemyrect.width += 2;
+        enemyrect.height += 2;
+        if (detectCollision(enemyrect, knight.calculate_rectangle())) {
+            if ((unsigned int)(GetTime() * 1000.0) - knight.get_lastdamage() > 1000) {
+                knight.set_hp(knight.get_hp() - (*enemies.at(i)).get_damage());
+                knight.set_lastdamage((unsigned int)(GetTime() * 1000.0));
+                if (knight.get_hp() <= 0) {
+                    std::cout << "Dead";
+                }
+        }
+        }
+        if (detectCollision((*enemies.at(i)).calculate_rectangle(), sword_rect) &&
             (unsigned int)(GetTime() * 1000.0) - (*enemies.at(i)).get_lastdamage() > 1000) {
 
             (*enemies.at(i)).set_hp((*enemies.at(i)).get_hp() - knight.get_damage());
             (*enemies.at(i)).set_lastdamage((unsigned int)(GetTime() * 1000.0));
             if ((*enemies.at(i)).get_hp() <= 0) {
-                //enemies.erase(i);
+                delete enemies.at(i);
+                enemies.erase(enemies.begin() + i);
+                i--;
             }
-            std::cout << "damage sword :" << (*enemies.at(i)).get_hp();
         }
-        if (detectCollision((*enemies.at(i)).calculate_rectangle(), knight.calculate_rectangle()) &&
-            (unsigned int)(GetTime() * 1000.0) - knight.get_lastdamage() > 1000) {
-            knight.set_hp(knight.get_hp() - (*enemies.at(i)).get_damage());
-            knight.set_lastdamage((unsigned int)(GetTime() * 1000.0));
-            std::cout << "damage knight :" << knight.get_hp();
-        }
+        i++;
+    }
+}
+
+void generate_enemies(std::vector <aipfg::entity*> &enemies, int amount, aipfg::Sprite* sprite, int x, int y) {
+    for (int i = 0; i < amount; i++) {
+        float XE = randomFloat(100.0f, x - 100);
+        float YE = randomFloat(100.0f, y - 100);
+        aipfg::Sprite* localsprite = new aipfg::Sprite((*sprite));
+        (*localsprite).set_posn({ XE, YE });
+        aipfg::entity* entity = new aipfg::entity(localsprite, 100, 1.5, true, 15);
+        //(*entity).get_sprite()->set_posn({ XE, YE });
+        (*entity).set_pos({ XE, YE});
+        enemies.push_back(entity);
     }
 }
 int main(int argc, char *argv[])
@@ -117,7 +148,7 @@ int main(int argc, char *argv[])
     zombie_pos,{6,7,8},6 };
       Sprite zombie_up{ tex6, 3, 4,
     zombie_pos,{9,10,11},6 };
-      std::vector<Sprite> zombie_vector = { zombie_down, zombie_left, zombie_right, zombie_up };
+      std::vector<Sprite*> zombie_vector = { &zombie_down, &zombie_left, &zombie_right, &zombie_up };
  
   //Texture used for the ground material
   raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
@@ -131,11 +162,10 @@ int main(int argc, char *argv[])
   //sets the speed of the knight, and the default sprite to use.
   Sprite* grey_knight = &grey_right;
   Sprite* zombie_sprite = &zombie_down;
-  (*zombie_sprite).set_animation(false);
-  entity zombie(zombie_sprite, 100, 1.5, true,15);
+  //(*zombie_sprite).set_animation(false);
   std::vector <entity*> enemies;
-  enemies.push_back(&zombie);
-  entity knight(grey_knight, 100, 2.5, false, 25);
+  generate_enemies(enemies, 5, zombie_sprite, window.GetWidth(), window.GetHeight());
+  entity knight(grey_knight, 100, 2.6, false, 25);
   const float grey_speed = 2.5f;
   Rectangle sword_rect{};
   //Variable to Check if the player is colliding with the reaper
@@ -279,7 +309,7 @@ int main(int argc, char *argv[])
     else
     {
         //Changes the sprite and moves the character in the appropriate direction base on the characters input.
-        knight.move(grey_vector);
+        knight.move(grey_vector, enemies);
         //sword functionality
         isSwordActive = false;
         sword_rect={};
@@ -380,8 +410,12 @@ int main(int argc, char *argv[])
     }
 
     damage(knight, enemies, sword_rect);
-    zombie.follow(knight, 500, zombie_vector);
-    zombie.draw();
+    for (int i = 0; i < enemies.size(); i++) {
+        (*enemies.at(i)).follow(knight, 300, zombie_vector);
+        (*enemies.at(i)).draw();
+        //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
+    }
+
    if (isSwordActive) sword.draw();
    
     //Draws the reaper and character in the appropriate order for which is infront
@@ -409,7 +443,10 @@ int main(int argc, char *argv[])
         gem.draw();
         knight.draw();
     }
-
+    //DrawRectangle(knight.calculate_rectangle().x, knight.calculate_rectangle().y, knight.calculate_rectangle().width, knight.calculate_rectangle().height, BLACK);
+    Vector2 knightcenter = { knight.calculate_rectangle().x + knight.calculate_rectangle().width /2, knight.calculate_rectangle().y + knight.calculate_rectangle().height/2 };
+    //DrawCircleLines(knightcenter.x, knightcenter.y, 300, BLACK);
+    //drawGameOver(1800, 1000);
     if (display_text_box)
     {
       Color light_gray_transparent{ 80, 80, 80, 192 }; // 192/256 nontransparent

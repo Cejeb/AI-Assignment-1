@@ -34,74 +34,142 @@ namespace aipfg {
 			isHostile_{isHostile},
 			damage_{damage}
 		{ }
-		void follow(entity entity, int distance, std::vector<Sprite> &vector) {
-			if (get_pos().x + get_pos().y -
-				(entity.get_pos().x + entity.get_pos().y) < distance) {
+		void follow(entity entity, int distance, std::vector<Sprite*> &vector) {
+			Rectangle entityrect = entity.calculate_rectangle();
+			Rectangle selfrect = calculate_rectangle();
+			Vector2 entitycenter = { entityrect.x+ entityrect.width /2, entityrect.y + entityrect.height /2 };
+			//if (get_pos().x + get_pos().y -
+			//	(entity.get_pos().x + entity.get_pos().y) < distance) {
+				if (CheckCollisionCircleRec(entitycenter, (float)distance, calculate_rectangle())){
 				if (abs(get_pos().x - entity.get_pos().x)
 					>= abs(get_pos().y - entity.get_pos().y)) {
 
 					if (get_pos().x - entity.get_pos().x >= 0) {
-
+						selfrect.x -= get_speed();
+						if (!CheckCollisionRecs(entityrect, selfrect)) {
 						set_pos({ get_pos().x - get_speed()
 							, get_pos().y });
-						set_sprite(vector.at(1));
+							set_sprite((*vector.at(1)));
+					}
 					}
 					else {
-						set_pos({ get_pos().x + get_speed()
-						   , get_pos().y });
-						set_sprite(vector.at(2));
+						selfrect.x += get_speed();
+						if (!CheckCollisionRecs(entityrect, selfrect)) {
+							set_pos({ get_pos().x + get_speed()
+							   , get_pos().y });
+							set_sprite((*vector.at(2)));
+						}
 					}
 				}
 				else if (get_pos().y - entity.get_pos().y >= 0) {
-					set_pos({ get_pos().x
-										, get_pos().y - get_speed() });
-					set_sprite(vector.at(3));
+					selfrect.y -= get_speed();
+					if (!CheckCollisionRecs(entityrect, selfrect)) {
+						set_pos({ get_pos().x
+											, get_pos().y - get_speed() });
+						set_sprite((*vector.at(3)));
+					}
 				}
 				else {
-					set_pos({ get_pos().x
-										, get_pos().y + get_speed() });
-					set_sprite(vector.at(0));
+					selfrect.y += get_speed();
+					if (!CheckCollisionRecs(entityrect, selfrect)) {
+						set_pos({ get_pos().x
+											, get_pos().y + get_speed() });
+						set_sprite((*vector.at(0)));
+					}
 				}
+				
 				(*get_sprite()).set_posn(get_pos());
-				//TO-DO: find out why animation causes a division by zero
 				(*get_sprite()).set_animation(true);
 			}
 			else {
+				(*get_sprite()).set_posn(get_pos());
 				(*get_sprite()).set_animation(false);
 			}
+			
 		}
 		Rectangle calculate_rectangle() {
-			return { get_pos().x, get_pos().y, (float)(*get_sprite()).get_sprite_height(),(float)(*get_sprite()).get_sprite_width() };
+			return { get_pos().x + 12, get_pos().y + 23,(float)(*get_sprite()).get_sprite_width()-26, (float)(*get_sprite()).get_sprite_height() - 23 };
 		}
-		void move(std::vector<Sprite> &sprite_vector) {
+		void move(std::vector<Sprite> &sprite_vector, std::vector<entity*> enemies) {
+			Rectangle selfrect = calculate_rectangle();
+
 			if (IsKeyDown(KEY_DOWN))
 			{
-				set_pos({ get_pos().x 
-						, get_pos().y + get_speed() });
-				set_sprite(sprite_vector.at(0));
-				(*get_sprite()).set_animation(true);
+				selfrect.y += get_speed();
+				bool collision = false;
+				for (int i = 0; i < enemies.size(); i++) {
+					Rectangle entityrect = (*enemies.at(i)).calculate_rectangle();
+					if (CheckCollisionRecs(entityrect, selfrect)) {
+						collision = true;
+						break;
+					}
+				}
+				if (!collision) {
+					set_pos({ get_pos().x
+							, get_pos().y + get_speed() });
+					set_sprite(sprite_vector.at(0));
+					(*get_sprite()).set_animation(true);
+				}
 			}
+				
+			
 			if (IsKeyDown(KEY_UP))
 			{
-				set_pos({ get_pos().x
-				, get_pos().y - get_speed() });
-				set_sprite(sprite_vector.at(3));
-				(*get_sprite()).set_animation(true);
-			}
+				selfrect.y -= get_speed();
+				bool collision = false;
+				for (int i = 0; i < enemies.size(); i++) {
+					Rectangle entityrect = (*enemies.at(i)).calculate_rectangle();
+					if (CheckCollisionRecs(entityrect, selfrect)) {
+						collision = true;
+						break;
+					}
+				}
+				if (!collision) {
+						set_pos({ get_pos().x
+						, get_pos().y - get_speed() });
+						set_sprite(sprite_vector.at(3));
+						(*get_sprite()).set_animation(true);
+					}
+				}
+			
 			if (IsKeyDown(KEY_LEFT))
 			{
-				set_pos({ get_pos().x - get_speed()
-				, get_pos().y  });
-				set_sprite(sprite_vector.at(1));
-				(*get_sprite()).set_animation(true);
-			}
+				selfrect.x -= get_speed();
+				bool collision = false;
+				for (int i = 0; i < enemies.size(); i++) {
+					Rectangle entityrect = (*enemies.at(i)).calculate_rectangle();
+					if (CheckCollisionRecs(entityrect, selfrect)) {
+						collision = true;
+						break;
+					}
+				}
+				if (!collision) {
+						set_pos({ get_pos().x - get_speed()
+						, get_pos().y });
+						set_sprite(sprite_vector.at(1));
+						(*get_sprite()).set_animation(true);
+					}
+				}
+			
 			if (IsKeyDown(KEY_RIGHT))
 			{
-				set_pos({ get_pos().x + get_speed()
-				, get_pos().y });
-				set_sprite(sprite_vector.at(2));
-				(*get_sprite()).set_animation(true);
-			}
+				selfrect.x += get_speed();
+				bool collision = false;
+				for (int i = 0; i < enemies.size(); i++) {
+					Rectangle entityrect = (*enemies.at(i)).calculate_rectangle();
+					if (CheckCollisionRecs(entityrect, selfrect)) {
+						collision = true;
+						break;
+					}
+				}
+				if (!collision) {
+						set_pos({ get_pos().x + get_speed()
+						, get_pos().y });
+						set_sprite(sprite_vector.at(2));
+						(*get_sprite()).set_animation(true);
+					}
+				}
+			
 
 			(*get_sprite()).set_posn(get_pos());
 					}
