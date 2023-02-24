@@ -38,8 +38,6 @@ namespace aipfg {
 			Rectangle entityrect = entity.calculate_rectangle();
 			Rectangle selfrect = calculate_rectangle();
 			Vector2 entitycenter = { entityrect.x+ entityrect.width /2, entityrect.y + entityrect.height /2 };
-			//if (get_pos().x + get_pos().y -
-			//	(entity.get_pos().x + entity.get_pos().y) < distance) {
 				if (CheckCollisionCircleRec(entitycenter, (float)distance, calculate_rectangle())){
 				if (abs(get_pos().x - entity.get_pos().x)
 					>= abs(get_pos().y - entity.get_pos().y)) {
@@ -104,11 +102,11 @@ namespace aipfg {
 						break;
 					}
 				}
+				set_sprite(sprite_vector.at(0));
+				(*get_sprite()).set_animation(true);
 				if (!collision) {
 					set_pos({ get_pos().x
 							, get_pos().y + get_speed() });
-					set_sprite(sprite_vector.at(0));
-					(*get_sprite()).set_animation(true);
 				}
 			}
 				
@@ -124,11 +122,11 @@ namespace aipfg {
 						break;
 					}
 				}
+				set_sprite(sprite_vector.at(3));
+				(*get_sprite()).set_animation(true);
 				if (!collision) {
 						set_pos({ get_pos().x
 						, get_pos().y - get_speed() });
-						set_sprite(sprite_vector.at(3));
-						(*get_sprite()).set_animation(true);
 					}
 				}
 			
@@ -143,11 +141,11 @@ namespace aipfg {
 						break;
 					}
 				}
+				set_sprite(sprite_vector.at(1));
+				(*get_sprite()).set_animation(true);
 				if (!collision) {
 						set_pos({ get_pos().x - get_speed()
 						, get_pos().y });
-						set_sprite(sprite_vector.at(1));
-						(*get_sprite()).set_animation(true);
 					}
 				}
 			
@@ -162,11 +160,11 @@ namespace aipfg {
 						break;
 					}
 				}
+				set_sprite(sprite_vector.at(2));
+				(*get_sprite()).set_animation(true);
 				if (!collision) {
 						set_pos({ get_pos().x + get_speed()
 						, get_pos().y });
-						set_sprite(sprite_vector.at(2));
-						(*get_sprite()).set_animation(true);
 					}
 				}
 			

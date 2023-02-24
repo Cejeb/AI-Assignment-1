@@ -30,7 +30,7 @@ void drawGameOver(int x, int y) {
     DrawRectangle(0, 0, x, y, GRAY);
     DrawText("Game Over!", x / 3, y / 6, 120, BLACK);
 }
-void damage(aipfg::entity &knight, std::vector <aipfg::entity*> &enemies, Rectangle sword_rect) {
+void damage(aipfg::entity &knight, std::vector <aipfg::entity*> &enemies, Rectangle sword_rect, raylib::Sound &attacksound) {
     int i = 0;
     while (i < enemies.size())
     {
@@ -43,6 +43,7 @@ void damage(aipfg::entity &knight, std::vector <aipfg::entity*> &enemies, Rectan
         if (detectCollision(enemyrect, knight.calculate_rectangle())) {
             if ((unsigned int)(GetTime() * 1000.0) - knight.get_lastdamage() > 1000) {
                 knight.set_hp(knight.get_hp() - (*enemies.at(i)).get_damage());
+                attacksound.Play();
                 knight.set_lastdamage((unsigned int)(GetTime() * 1000.0));
                 if (knight.get_hp() <= 0) {
                     std::cout << "Dead";
@@ -71,7 +72,6 @@ void generate_enemies(std::vector <aipfg::entity*> &enemies, int amount, aipfg::
         aipfg::Sprite* localsprite = new aipfg::Sprite((*sprite));
         (*localsprite).set_posn({ XE, YE });
         aipfg::entity* entity = new aipfg::entity(localsprite, 100, 1.5, true, 15);
-        //(*entity).get_sprite()->set_posn({ XE, YE });
         (*entity).set_pos({ XE, YE});
         enemies.push_back(entity);
     }
@@ -106,6 +106,7 @@ int main(int argc, char *argv[])
   raylib::Sound coin_sound{ "../resources/audio/coin.wav" };
   raylib::Sound sword_sound{ "../resources/audio/sword.wav" };
   raylib::Music music{ "../resources/audio/Magic-Clock-Shop.mp3" };
+  raylib::Sound zombie_sound{ "../resources/audio/zombie.wav" };
   float music_volume_normal = 1.0f, music_volume_quiet = 0.4f;
   music.Play();
 
@@ -409,7 +410,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    damage(knight, enemies, sword_rect);
+    damage(knight, enemies, sword_rect, zombie_sound);
     for (int i = 0; i < enemies.size(); i++) {
         (*enemies.at(i)).follow(knight, 300, zombie_vector);
         (*enemies.at(i)).draw();
