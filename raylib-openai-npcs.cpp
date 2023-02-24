@@ -275,28 +275,28 @@ int main(int argc, char* argv[])
             case KEY_ENTER:
             {
                 std::cout << "KEY_ENTER PRESSED!\n";
-                const std::string reaper_nature =
-                    "The following is a conversation with the grim reaper. The grim "
-                    "reaper is a personified force. In some mythologies, the grim "
-                    "reaper causes the victim's death by coming to collect that "
-                    " person's soul.\n\n";
+                const std::string fairy_nature =
+                    "The following is a conversation with Navi. Navi "
+                    "is a personified force in a fairy body. Navi is a companion "
+                    "who will be sarcastic and unhelpful to the player, often stating the obvious. "
+                    "Navi knows the player is meant to be collecting gems, but will not be helpful in telling them this. \n\n";
 
-                std::string response_str{};
-                const auto stop = std::optional{ std::vector{human_stop, reaper_stop} };
-                prompt.push_back('\n');
-                std::cout << (reaper_nature + prompt + reaper_stop) << std::endl;
+                std::string fairy_response_str{};
+                const auto stop = std::optional{ std::vector{human_stop, fairy_stop} };
+                fairy_prompt.push_back('\n');
+                std::cout << (fairy_nature + fairy_prompt + fairy_stop) << std::endl;
 
-                oai_help.submit(reaper_nature + prompt + reaper_stop, response_str, stop);
-                response_str.push_back('\n');
-                std::cout << response_str;
-                response_str = reaper_stop + response_str;
-                for (auto c : response_str)
+                oai_help.submit(fairy_nature + fairy_prompt + fairy_stop, fairy_response_str, stop);
+                fairy_response_str.push_back('\n');
+                std::cout << fairy_response_str;
+                fairy_response_str = fairy_stop + fairy_response_str;
+                for (auto c : fairy_response_str)
                 {
-                    update_prompt(prompt, c, font_size, max_text_width,
+                    update_prompt(fairy_prompt, c, font_size, max_text_width,
                         tail_index_large, tail_index_small, nchars_entered);
                 }
                 for (auto d : human_stop) {
-                    update_prompt(prompt, d, font_size, max_text_width,
+                    update_prompt(fairy_prompt, d, font_size, max_text_width,
                         tail_index_large, tail_index_small, nchars_entered);
                 }
 
