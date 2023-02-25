@@ -23,10 +23,11 @@ int main(int argc, char *argv[])
 
   raylib::Window window(1280, 720, "Raylib OpenAI NPCs");
 
-
   Camera2D camera = { 0 };
-  //camera.target = (Vector2){ grey_knight.x + 20.0f, grey_knight.y + 20.0f };
-  //camera.offset = (Vector2){ screenWidth / 2.0f, screenHeight / 2.0f };
+  Vector2 grey_posn{ 40.0f, 100.0f };
+
+  camera.target = Vector2{ grey_posn.x + 20.0f, grey_posn.y + 20.0f };
+  camera.offset = Vector2{ 1280 / 2.0f, 720 / 2.0f };
   camera.rotation = 0.0f;
   camera.zoom = 1.0f;
 
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
   int ncols = 12, nrows = 8;
   int id = 3;
-  Vector2 grey_posn{ 40.0f, 100.0f };
+  
   Sprite grey_down { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
   id += ncols;
   Sprite grey_left { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
@@ -55,12 +56,18 @@ int main(int argc, char *argv[])
 
   raylib::Texture tex3{ "../resources/time_fantasy"
                         "/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
+
+  raylib::Texture tex4{ "../resources/time_fantasy"
+                       "/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" };
   ncols = 8; nrows = 16;
   std::vector<int> frame_ids(ncols*nrows);
   std::iota(frame_ids.begin(), frame_ids.end(), 0);
   Sprite all_ground_cells { tex3, ncols, nrows, { 0, 0 }, frame_ids, 5 };
   all_ground_cells.set_animation(true);
-  Sprite grnd1 { tex3, ncols, nrows, { 50, 300 }, { 1, 2, 3, 4 } };
+  Sprite grnd1 { tex3, ncols, nrows, { 50, 300 }, { 1, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
+  Sprite grnd2{ tex3, ncols, nrows, { 50, 300 }, { 20, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
+  Sprite grnd3{ tex3, ncols, nrows, { 50, 300 }, {22} };
+  Sprite grnd4{ tex4, ncols, nrows, { 50, 300 }, { 15, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
 
   Sprite* grey_knight = &grey_right;
   const float grey_speed = 2.5f;
@@ -93,6 +100,9 @@ int main(int argc, char *argv[])
   int tail_index_small = prompt.find(reaper_stop) - 1;
   int* tail_index = &tail_index_small;
   int nchars_entered = 0;
+
+ 
+
 
   while (!window.ShouldClose()) // Detect window close button or ESC key
   {
@@ -171,8 +181,6 @@ int main(int argc, char *argv[])
           break;
       }
 
-
-
       while (int key = GetCharPressed())
       {
         if ((key >= 32) && (key <= 125)) // e.g. don't grab the ESC key
@@ -242,16 +250,9 @@ int main(int argc, char *argv[])
       }
     }
 
+
     // Camera target follows player
-    //camera.target = (Vector2){ player.x + 20, player.y + 20 };
-
-    // Camera rotation controls
-    if (IsKeyDown(KEY_A)) camera.rotation--;
-    else if (IsKeyDown(KEY_S)) camera.rotation++;
-
-    // Limit camera rotation to 80 degrees (-40 to 40)
-    if (camera.rotation > 40) camera.rotation = 40;
-    else if (camera.rotation < -40) camera.rotation = -40;
+    camera.target = Vector2{ grey_posn.x + 40, grey_posn.y + 40 };
 
     // Camera zoom controls
     camera.zoom += ((float)GetMouseWheelMove() * 0.05f);
@@ -272,14 +273,97 @@ int main(int argc, char *argv[])
 
     BeginMode2D(camera);
 
-    all_ground_cells.draw_cell(0, 0);
-    for (int i = 0; i < 24; i++)
+    all_ground_cells.draw_cell(0, 0); // ROOM1/ LEFT, RIGHT & BOTTOM WALLS
+    for (int i = 0; i < 20; i++)
     {
-      for (int j = 0; j < 12; j++)
+      for (int j = 0; j < 1; j++)
       {
-        grnd1.draw_cell(2+i, 2+j, i % grnd1.get_frame_ids_size());
+        grnd1.draw_cell( j, 1+i % grnd1.get_frame_ids_size());
+        grnd1.draw_cell( 20+j, 1+i % grnd1.get_frame_ids_size());
+        grnd1.draw_cell( i, 20-j% grnd1.get_frame_ids_size());
       }
     }
+
+    //draws the ground using a selection of sprites from the ground texture file.
+    all_ground_cells.draw_cell(0, 0); //ROOM1/ GROUND
+    for (int i = 0; i < 19; i++)
+    {
+        for (int j = 0; j < 19; j++)
+        {
+            grnd2.draw_cell( 1 + i, 1 + j, i % grnd2.get_frame_ids_size());
+
+        }
+    }  
+
+    all_ground_cells.draw_cell(0, 0); //RO0M1/ TOP WALL
+    for (int i = 0; i < 10; i++)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            grnd1.draw_cell(i, j % grnd1.get_frame_ids_size());
+            grnd1.draw_cell(11+i, j% grnd1.get_frame_ids_size());
+        }
+    }
+
+    all_ground_cells.draw_cell(0, 0); //ROOM1, DOOR
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            grnd3.draw_cell(10+i, j % grnd1.get_frame_ids_size());
+        }
+    }
+
+    all_ground_cells.draw_cell(0, 0); //ROOM2/ GROUND
+    for (int i = 0; i < 19; i++)
+    {
+        for (int j = 0; j < 19; j++)
+        {
+            grnd2.draw_cell(1 + i, -20 + j, i % grnd2.get_frame_ids_size());
+
+        }
+    }
+
+    all_ground_cells.draw_cell(0, 0); // ROOM2/ LEFT, RIGHT & TOP WALLS
+    for (int i = 0; i < 20; i++)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            grnd1.draw_cell(j, -20 + i % grnd1.get_frame_ids_size());
+            grnd1.draw_cell(20 + j, -20 + i % grnd1.get_frame_ids_size());
+            grnd1.draw_cell(i, -20 - j % grnd1.get_frame_ids_size());
+        }
+    }
+
+    all_ground_cells.draw_cell(0, 0); //RO0M2/ TOP WALL
+    for (int i = 0; i < 10; i++)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            grnd1.draw_cell(i, -1 + j % grnd1.get_frame_ids_size());
+            grnd1.draw_cell(11 + i, -1 + j % grnd1.get_frame_ids_size());
+        }
+    }
+
+    all_ground_cells.draw_cell(0, 0); //ROOM2, DOOR
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            grnd3.draw_cell(10 + i, -1+j % grnd1.get_frame_ids_size());
+            grnd4.draw_cell(8 + i, -2+j % grnd4.get_frame_ids_size());
+
+        }
+    }
+
+
+    /*for (int j = 0; j < 12; j++)
+    {
+        grnd1.draw_cell(2 + j, 2, (2+ j) % grnd1.get_frame_ids_size());
+        grnd2.draw_cell(2 + j, 3, (5+ j) % grnd2.get_frame_ids_size());
+    }
+    */
+
 
     // Drawn from back (-ve y coord) to front (+ve y coord)
     if (grey_posn.y < reaper.get_posn().y)
@@ -325,12 +409,14 @@ int main(int argc, char *argv[])
       if (help_s.at(0) == '\n') {
           help_s.erase(0, 1);
       }
-
-      EndMode2D();
-
       //std::cout << help_s;
       DrawText(help_s.c_str(), (*text_box).x + 12, (*text_box).y + 12, font_size, WHITE);
     }
+
+    //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
+    //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
+
+    EndMode2D();
 
     EndDrawing();
   }
