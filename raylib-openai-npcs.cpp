@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
         (*grey_knight).set_animation(false);
 
         //This section activates when the player approaches the reaper to speak to them.
-        if (reaper_display_text_box)
+        /*if (reaper_display_text_box)
         {
             switch (GetKeyPressed())
             {
@@ -233,8 +233,8 @@ int main(int argc, char* argv[])
                 //Sets which characters can be entered, so only normal letters and numbers, and not functional keys such as ESC
                 if ((key >= 32) && (key <= 125))
                 {
-                    /*update_prompt(prompt, key, font_size, max_text_width, tail_index_large,
-                                  tail_index_small, nchars_entered);*/
+                    //update_prompt(prompt, key, font_size, max_text_width, tail_index_large,
+                                  //tail_index_small, nchars_entered);
                     const char* psz = &prompt[prompt.rfind('\n') + 1];
                     std::cout << psz;
                     if ((char)key == ' ' && MeasureText(psz, font_size) > max_text_width)
@@ -251,9 +251,9 @@ int main(int argc, char* argv[])
                     nchars_entered++;
                 }
             }
-        }
+        }*/
         //This section activates when the player summons the fairy to speak to.
-        else if (fairy_display_text_box)
+        if (fairy_display_text_box)
         {
             switch (GetKeyPressed())
             {
@@ -314,13 +314,13 @@ int main(int argc, char* argv[])
             case KEY_BACKSPACE:
                 if (nchars_entered > 0)
                 {
-                    bool reposition = prompt.back() == '\n'; // last char is newline
-                    prompt.pop_back();
+                    bool reposition = fairy_prompt.back() == '\n'; // last char is newline
+                    fairy_prompt.pop_back();
                     nchars_entered--;
                     if (reposition)
                     {
-                        tail_index_large = prompt.rfind('\n', tail_index_large - 2) + 1;
-                        tail_index_small = prompt.rfind('\n', tail_index_small - 2) + 1;
+                        tail_index_large = fairy_prompt.rfind('\n', tail_index_large - 2) + 1;
+                        tail_index_small = fairy_prompt.rfind('\n', tail_index_small - 2) + 1;
                     }
                 }
                 break;
@@ -331,25 +331,26 @@ int main(int argc, char* argv[])
                 //Sets which characters can be entered, so only normal letters and numbers, and not functional keys such as ESC
                 if ((key >= 32) && (key <= 125))
                 {
-                    /*update_prompt(prompt, key, font_size, max_text_width, tail_index_large,
-                                  tail_index_small, nchars_entered);*/
-                    const char* psz = &prompt[prompt.rfind('\n') + 1];
+                    //update_prompt(prompt, key, font_size, max_text_width, tail_index_large,
+                                 // tail_index_small, nchars_entered);
+                    const char* psz = &fairy_prompt[fairy_prompt.rfind('\n') + 1];
                     std::cout << psz;
                     if ((char)key == ' ' && MeasureText(psz, font_size) > max_text_width)
                     {
-                        prompt.push_back('\n');
-                        tail_index_large = prompt.find('\n', tail_index_large) + 1;
-                        tail_index_small = prompt.find('\n', tail_index_small) + 1;
+                        fairy_prompt.push_back('\n');
+                        tail_index_large = fairy_prompt.find('\n', tail_index_large) + 1;
+                        tail_index_small = fairy_prompt.find('\n', tail_index_small) + 1;
                     }
                     else
                     {
-                        prompt.push_back((char)key);
+                        fairy_prompt.push_back((char)key);
                     }
 
                     nchars_entered++;
                 }
             }
         }
+        else
         {
             //Changes the sprite and moves the character in the appropriate direction base on the characters input.
             if (IsKeyDown(KEY_DOWN))
@@ -401,6 +402,7 @@ int main(int argc, char* argv[])
             if (IsKeyDown(KEY_N))
             {
                 fairy_display_text_box = true;
+                SetExitKey(0);
             }
 
             //Detects the player collecting a gem and updates the gems collected variable.
