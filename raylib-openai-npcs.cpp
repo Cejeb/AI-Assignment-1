@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
     const std::string fairy_stop = "Navi: ";
     const std::string fairy_new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
     std::string fairy_prompt = fairy_new_lines + fairy_stop +
-        "I am Navi, your fairy! What can I help with?\n" + human_stop;
+        "I am Navi, your fairy! How can I help with your quest?\n" + human_stop;
     int fairy_tail_index_large = 0;
     int fairy_tail_index_small = fairy_prompt.find(fairy_stop) - 1;
     int* fairy_tail_index = &fairy_tail_index_small;
@@ -301,7 +301,6 @@ int main(int argc, char* argv[])
                     update_prompt(fairy_prompt, d, font_size, fairy_max_text_width,
                         fairy_tail_index_large, fairy_tail_index_small, fairy_nchars_entered);
                 }
-
             }
             break;
 
