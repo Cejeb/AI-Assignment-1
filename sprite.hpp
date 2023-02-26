@@ -46,17 +46,34 @@ struct Sprite
     Vector2 origin{ sprite_width_ * origin_.x, sprite_height_ * origin_.y };
     DrawTexturePro(tex_, frame_rec_, dest, origin, angle_ += delta_, WHITE);
   }
-  void draw(const Vector2 posn) { set_posn(posn); draw(); }
+  void draw_minified()
+  {
+      if (animation_on_)
+      {
+          update_animation();
+      }
+      const Rectangle dest_m{ posn_.x, posn_.y,
+                            (float)sprite_width_*0.5, (float)sprite_height_*0.5 };
+      Vector2 origin{ sprite_width_*0.5 * origin_.x, sprite_height_ *0.5 *origin_.y
+  };
+      DrawTexturePro(tex_, frame_rec_, dest_m, origin, angle_ += delta_, WHITE);
+  }
+  void draw_minified(const Vector2 posn) { set_posn(posn); draw_minified(); }
   void draw_cell(const int x, const int y)
   {
     set_posn({(float)x * sprite_width_, (float)y * sprite_height_});
     draw();
+    draw_minified();
   }
   void draw_cell(const int x, const int y, const int frame_id)
   {
     calc_frame_rect(frame_ids_[frame_id]);
     draw_cell(x, y);
   }
+
+
+
+ 
 
 private:
 

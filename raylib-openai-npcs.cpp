@@ -6,10 +6,16 @@
 #include <vector>
 #include <numeric> // std::iota
 #include <iostream>
+#include <algorithm>
 
 void update_prompt(std::string& prompt, char c, const int font_size,
                    const float max_text_width, int& tail_index_large,
                    int& tail_index_small, int& nchars_entered);
+
+float randomFloat(float min, float max)    
+{    
+    return (min + 1) + (((float) rand()) / (float) RAND_MAX) * (max - (min + 1));    
+}
 
 int main(int argc, char *argv[])
 {
@@ -21,7 +27,27 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  raylib::Window window(1280, 720, "Raylib OpenAI NPCs");
+  //Initial x and y values for the diamond.
+  float d_gem_x = randomFloat(100.0f, 900.0f);
+  float d_gem_y = randomFloat(100.0f, 500.0f);
+
+  //Initial x and y values for the emerald.
+  float e_gem_x = randomFloat(150.0f, 950.0f);
+  float e_gem_y = randomFloat(150.0f, 550.0f);
+  //Initial x and y values for the garnet.
+  float g_gem_x = randomFloat(200.0f, 1000.0f);
+  float g_gem_y = randomFloat(200.0f, 600.0f);
+
+  
+
+  //variable to track the number of gems collected
+  int gems_collected = 0;
+  int diamond_collected = 0;
+  int emerald_collected = 0;
+  int garnet_collected = 0;
+
+  //sets the window size of the game
+  raylib::Window window(1200, 570, "Raylib OpenAI NPCs");
 
   Camera2D camera = { 0 };
   Vector2 grey_posn{ 40.0f, 100.0f };
@@ -42,10 +68,48 @@ int main(int argc, char *argv[])
   raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
   Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
 
+  //Sprite for diamond.
+  raylib::Texture diamond_tex{ "../resources/time_fantasy/diamond.png" };
+  int d_cols = 6, d_rows = 1;
+  int d_id = 1;
+  Vector2 d_gem_posn{ d_gem_x, d_gem_y };
+  //Sprite dimond_gem{ diamond_tex, d_cols, d_rows, d_gem_posn, { d_id }, 1 };
+  std::vector<int> frame_id_diamond(d_cols * d_rows);
+  std::iota(frame_id_diamond.begin(), frame_id_diamond.end(), 0);
+  Sprite dimond_gem{ diamond_tex, d_cols, d_rows, d_gem_posn, frame_id_diamond, 7 };
+  dimond_gem.set_animation(true);
+
+  //Vector2 position = { 350.0f, 280.0f };
+  //Rectangle frameRec = { 0.0f, 0.0f, (float)diamond_tex.width / 6, (float)diamond_tex.height };
+
+  //Sprite for emerald.
+  raylib::Texture emerald_tex{ "../resources/time_fantasy/emerald.png" };
+  int e_cols = 6, e_rows = 1;
+  //int e_id = 5;
+  Vector2 e_gem_posn{ e_gem_x, e_gem_y };
+  //Sprite emerald_gem{ emerald_tex, e_cols, e_rows, e_gem_posn, { e_id }, 1 };
+  std::vector<int> frame_id_emerald(e_cols * e_rows);
+  std::iota(frame_id_emerald.begin(), frame_id_emerald.end(), 0);
+  Sprite emerald_gem{ emerald_tex, e_cols, e_rows, e_gem_posn, frame_id_emerald, 7 };
+  emerald_gem.set_animation(true);
+
+  //Sprite for garnet.
+  raylib::Texture garnet_tex{ "../resources/time_fantasy/garnet.png" };
+  int g_cols = 6, g_rows = 1;
+  //int g_id = 5;
+  Vector2 g_gem_posn{ g_gem_x, g_gem_y };
+  //Sprite emerald_gem{ garnet_tex, e_cols, e_rows, e_gem_posn, { e_id }, 1 };
+  std::vector<int> frame_id_garnet(g_cols * g_rows);
+  std::iota(frame_id_garnet.begin(), frame_id_garnet.end(), 0);
+  Sprite garnet_gem{ garnet_tex, g_cols, g_rows, g_gem_posn, frame_id_garnet, 7 };
+  garnet_gem.set_animation(true);
+
+ 
+  //loads the texture sheet and setup for the sprites the Knight uses
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
   int ncols = 12, nrows = 8;
   int id = 3;
-  
+
   Sprite grey_down { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
   id += ncols;
   Sprite grey_left { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
@@ -54,27 +118,32 @@ int main(int argc, char *argv[])
   id += ncols;
   Sprite grey_up   { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
 
-  raylib::Texture tex3{ "../resources/time_fantasy"
-                        "/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
-
-  raylib::Texture tex4{ "../resources/time_fantasy"
+  //Texture used for the ground material
+  raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
+  
+   raylib::Texture tex4{ "../resources/time_fantasy"
                        "/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" };
+
   ncols = 8; nrows = 16;
   std::vector<int> frame_ids(ncols*nrows);
   std::iota(frame_ids.begin(), frame_ids.end(), 0);
-  Sprite all_ground_cells { tex3, ncols, nrows, { 0, 0 }, frame_ids, 5 };
+  Sprite all_ground_cells { tex3, ncols, nrows, { 10, 0 }, frame_ids, 5 };
   all_ground_cells.set_animation(true);
   Sprite grnd1 { tex3, ncols, nrows, { 50, 300 }, { 1, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
   Sprite grnd2{ tex3, ncols, nrows, { 50, 300 }, { 20, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
   Sprite grnd3{ tex3, ncols, nrows, { 50, 300 }, {22} };
   Sprite grnd4{ tex4, ncols, nrows, { 50, 300 }, { 15, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
 
+  //sets the speed of the knight, and the default sprite to use.
   Sprite* grey_knight = &grey_right;
   const float grey_speed = 2.5f;
 
-  bool reaper_collision = false; // currently colliding with the reaper?
+  //Variable to Check if the player is colliding with the reaper
+  bool reaper_collision = false; 
 
-  const int font_size = 30; // n.b. "spacing" varies with the font & font size
+  // n.b. "spacing" varies with the font & font size
+  const int font_size = 30; 
+
   //bool display_text_box = true; SetExitKey(0); // debug
   bool display_text_box = false;
   const float border = 20;
@@ -91,6 +160,7 @@ int main(int argc, char *argv[])
   Rectangle text_box_large{ border, border,   box_width, box_height_large };
   Rectangle* text_box = &text_box_small;
 
+  //sets up the strings used to split up sections of text with the AI
   const std::string human_stop = "Human: ";
   const std::string reaper_stop = "Grim Reaper: ";
   const std::string new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
@@ -101,10 +171,8 @@ int main(int argc, char *argv[])
   int* tail_index = &tail_index_small;
   int nchars_entered = 0;
 
- 
-
-
-  while (!window.ShouldClose()) // Detect window close button or ESC key
+  //Detect window close button or ESC key
+  while (!window.ShouldClose()) 
   {
     music.Update();
 
@@ -160,12 +228,14 @@ int main(int argc, char *argv[])
           }
           break;
 
+        //Makes the text box larger so the player can more easily read their chat with the reaper
         case KEY_UP:
           text_box = &text_box_large;
           tail_index = &tail_index_large;
           lines_of_text = lines_of_text_large;
           break;
-
+       
+        //Allows the player to delete text from their current entry with the reaper.
         case KEY_BACKSPACE:
           if (nchars_entered > 0)
           {
@@ -183,7 +253,8 @@ int main(int argc, char *argv[])
 
       while (int key = GetCharPressed())
       {
-        if ((key >= 32) && (key <= 125)) // e.g. don't grab the ESC key
+        //Sets which characters can be entered, so only normal letters and numbers, and not functional keys such as ESC
+        if ((key >= 32) && (key <= 125)) 
         {
           /*update_prompt(prompt, key, font_size, max_text_width, tail_index_large,
                         tail_index_small, nchars_entered);*/
@@ -206,6 +277,7 @@ int main(int argc, char *argv[])
     }
     else
     {
+      //Changes the sprite and moves the character in the appropriate direction base on the characters input.
       if (IsKeyDown(KEY_DOWN))
       {
         grey_posn.y += grey_speed;
@@ -233,8 +305,10 @@ int main(int argc, char *argv[])
 
       (*grey_knight).set_posn(grey_posn);
 
-      if (Vector2Distance(grey_posn, reaper.get_posn()) < 30.0f)
+      //Detects the player being close enough to the reaper to "collide"
+      if (Vector2Distance(grey_posn, reaper.get_posn()) < 40.0f)
       {
+        //makes sure player is not already colliding with the reaper
         if (!reaper_collision)
         {
           reaper_collision = true;
@@ -248,10 +322,48 @@ int main(int argc, char *argv[])
       {
         reaper_collision = false;
       }
+
+      //Detects the player collecting a dimond and updates the dimonds collected variable.
+      if (Vector2Distance(grey_posn, dimond_gem.get_posn()) < 40.0f)
+      {
+          d_gem_x = randomFloat(100.0f, 900.0f);
+          d_gem_y = randomFloat(100.0f, 500.0f);
+          d_gem_posn = { d_gem_x , d_gem_y };
+          dimond_gem.set_posn(d_gem_posn);
+          coin_sound.Play();
+          diamond_collected++;
+      }
+
+        //Detects the player collecting a emerald and updates the emeralds collected variable.
+      if (Vector2Distance(grey_posn, emerald_gem.get_posn()) < 40.0f)
+      {
+          e_gem_x = randomFloat(150.0f, 950.0f);
+          e_gem_y = randomFloat(150.0f, 550.0f);
+          e_gem_posn = { e_gem_x , e_gem_y };
+          emerald_gem.set_posn(e_gem_posn);
+          coin_sound.Play();
+          emerald_collected++;
+      }
+
+      //Detects the player collecting a garnet and updates the garnets collected variable.
+      if (Vector2Distance(grey_posn, garnet_gem.get_posn()) < 40.0f)
+      {
+          g_gem_x = randomFloat(150.0f, 950.0f);
+          g_gem_y = randomFloat(150.0f, 550.0f);
+          g_gem_posn = { g_gem_x , g_gem_y };
+          garnet_gem.set_posn(g_gem_posn);
+          coin_sound.Play();
+          garnet_collected++;
+      }
     }
-
-
-    // Camera target follows player
+    
+    //Converts the gems collected integer into a string that can be displayed
+    std::string gem_string = "Total Score: " + std::to_string((diamond_collected*10)+ (emerald_collected*5)+ (garnet_collected*5));
+    std::string diamond_string = "Diamonds Collected: " + std::to_string(diamond_collected);
+    std::string emerald_string = "Emeralds Collected: " + std::to_string(emerald_collected);
+    std::string garnet_string = "Garnets Collected: " + std::to_string(garnet_collected);
+    
+       // Camera target follows player
     camera.target = Vector2{ grey_posn.x + 40, grey_posn.y + 40 };
 
     // Camera zoom controls
@@ -267,10 +379,15 @@ int main(int argc, char *argv[])
         camera.rotation = 0.0f;
     }
 
+    //begins drawing the sprites and text onto the screen
+
     BeginDrawing();
 
+    //makes a white background behind everything
     ClearBackground(RAYWHITE);
 
+
+    //draws the ground using a selection of sprites from the ground texture file.
     BeginMode2D(camera);
 
     all_ground_cells.draw_cell(0, 0); // ROOM1/ LEFT, RIGHT & BOTTOM WALLS
@@ -284,7 +401,7 @@ int main(int argc, char *argv[])
       }
     }
 
-    //draws the ground using a selection of sprites from the ground texture file.
+   //draws the ground using a selection of sprites from the ground texture file.
     all_ground_cells.draw_cell(0, 0); //ROOM1/ GROUND
     for (int i = 0; i < 19; i++)
     {
@@ -363,19 +480,18 @@ int main(int argc, char *argv[])
         grnd2.draw_cell(2 + j, 3, (5+ j) % grnd2.get_frame_ids_size());
     }
     */
+    //Draws the characters and gems in the appropriate order for which is infront
+    std::vector<Sprite*> vsp{ grey_knight, &reaper, &dimond_gem, &emerald_gem, &garnet_gem };
+    std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
+        return s1->get_posn().y < s2->get_posn().y;
+        }
+    );
 
+    for (const auto& s : vsp)
+    {
+        s->draw();     
+    }
 
-    // Drawn from back (-ve y coord) to front (+ve y coord)
-    if (grey_posn.y < reaper.get_posn().y)
-    {
-      (*grey_knight).draw();
-      reaper.draw();
-    }
-    else
-    {
-      reaper.draw();
-      (*grey_knight).draw();
-    }
 
     if (display_text_box)
     {
@@ -395,6 +511,7 @@ int main(int argc, char *argv[])
               number_newlines++;
           }
       }
+
       if (number_newlines <= lines_of_text) {
           help_s = s;
       }
@@ -413,6 +530,12 @@ int main(int argc, char *argv[])
       DrawText(help_s.c_str(), (*text_box).x + 12, (*text_box).y + 12, font_size, WHITE);
     }
 
+    //Draws text onto the screen displaying how many gems have been collected.
+    DrawText(gem_string.c_str(), 50, 10, 20, BLACK);
+    DrawText(diamond_string.c_str(), 50, 30, 20, BLACK);
+    DrawText(emerald_string.c_str(), 50, 50, 20, BLACK);
+    DrawText(garnet_string.c_str(), 50, 70, 20, BLACK);
+    
     //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
     //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
 
