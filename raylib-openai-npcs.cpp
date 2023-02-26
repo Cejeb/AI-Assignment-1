@@ -49,6 +49,14 @@ int main(int argc, char *argv[])
   //sets the window size of the game
   raylib::Window window(1200, 570, "Raylib OpenAI NPCs");
 
+  Camera2D camera = { 0 };
+  Vector2 grey_posn{ 40.0f, 100.0f };
+
+  camera.target = Vector2{ grey_posn.x + 20.0f, grey_posn.y + 20.0f };
+  camera.offset = Vector2{ 1280 / 2.0f, 720 / 2.0f };
+  camera.rotation = 0.0f;
+  camera.zoom = 1.0f;
+
   SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
 
   raylib::AudioDevice audio{}; // necessary: initialises the audio
@@ -101,9 +109,7 @@ int main(int argc, char *argv[])
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
   int ncols = 12, nrows = 8;
   int id = 3;
-  Vector2 grey_posn{ 40.0f, 100.0f };
 
-  //Sets which sprite to use for each direction
   Sprite grey_down { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
   id += ncols;
   Sprite grey_left { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
@@ -114,12 +120,19 @@ int main(int argc, char *argv[])
 
   //Texture used for the ground material
   raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
+  
+   raylib::Texture tex4{ "../resources/time_fantasy"
+                       "/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" };
+
   ncols = 8; nrows = 16;
   std::vector<int> frame_ids(ncols*nrows);
   std::iota(frame_ids.begin(), frame_ids.end(), 0);
   Sprite all_ground_cells { tex3, ncols, nrows, { 10, 0 }, frame_ids, 5 };
   all_ground_cells.set_animation(true);
-  Sprite grnd1 { tex3, ncols, nrows, { 50, 300 }, { 1, 2, 3, 4 } };
+  Sprite grnd1 { tex3, ncols, nrows, { 50, 300 }, { 1, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
+  Sprite grnd2{ tex3, ncols, nrows, { 50, 300 }, { 20, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
+  Sprite grnd3{ tex3, ncols, nrows, { 50, 300 }, {22} };
+  Sprite grnd4{ tex4, ncols, nrows, { 50, 300 }, { 15, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
 
   //sets the speed of the knight, and the default sprite to use.
   Sprite* grey_knight = &grey_right;
@@ -344,29 +357,129 @@ int main(int argc, char *argv[])
       }
     }
     
-
     //Converts the gems collected integer into a string that can be displayed
     std::string gem_string = "Total Score: " + std::to_string((diamond_collected*10)+ (emerald_collected*5)+ (garnet_collected*5));
     std::string diamond_string = "Diamonds Collected: " + std::to_string(diamond_collected);
     std::string emerald_string = "Emeralds Collected: " + std::to_string(emerald_collected);
     std::string garnet_string = "Garnets Collected: " + std::to_string(garnet_collected);
+    
+       // Camera target follows player
+    camera.target = Vector2{ grey_posn.x + 40, grey_posn.y + 40 };
+
+    // Camera zoom controls
+    camera.zoom += ((float)GetMouseWheelMove() * 0.05f);
+
+    if (camera.zoom > 3.0f) camera.zoom = 3.0f;
+    else if (camera.zoom < 0.1f) camera.zoom = 0.1f;
+
+    // Camera reset (zoom and rotation)
+    if (IsKeyPressed(KEY_R))
+    {
+        camera.zoom = 1.0f;
+        camera.rotation = 0.0f;
+    }
 
     //begins drawing the sprites and text onto the screen
+
     BeginDrawing();
 
     //makes a white background behind everything
     ClearBackground(RAYWHITE);
 
+
     //draws the ground using a selection of sprites from the ground texture file.
-    all_ground_cells.draw_cell(0, 0);
-    for (int i = 0; i < 32; i++)
+    BeginMode2D(camera);
+
+    all_ground_cells.draw_cell(0, 0); // ROOM1/ LEFT, RIGHT & BOTTOM WALLS
+    for (int i = 0; i < 20; i++)
     {
-      for (int j = 0; j < 16; j++)
+      for (int j = 0; j < 1; j++)
       {
-        grnd1.draw_cell(2+i, 2+j, i % grnd1.get_frame_ids_size());
+        grnd1.draw_cell( j, 1+i % grnd1.get_frame_ids_size());
+        grnd1.draw_cell( 20+j, 1+i % grnd1.get_frame_ids_size());
+        grnd1.draw_cell( i, 20-j% grnd1.get_frame_ids_size());
       }
     }
 
+   //draws the ground using a selection of sprites from the ground texture file.
+    all_ground_cells.draw_cell(0, 0); //ROOM1/ GROUND
+    for (int i = 0; i < 19; i++)
+    {
+        for (int j = 0; j < 19; j++)
+        {
+            grnd2.draw_cell( 1 + i, 1 + j, i % grnd2.get_frame_ids_size());
+
+        }
+    }  
+
+    all_ground_cells.draw_cell(0, 0); //RO0M1/ TOP WALL
+    for (int i = 0; i < 10; i++)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            grnd1.draw_cell(i, j % grnd1.get_frame_ids_size());
+            grnd1.draw_cell(11+i, j% grnd1.get_frame_ids_size());
+        }
+    }
+
+    all_ground_cells.draw_cell(0, 0); //ROOM1, DOOR
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            grnd3.draw_cell(10+i, j % grnd1.get_frame_ids_size());
+        }
+    }
+
+    all_ground_cells.draw_cell(0, 0); //ROOM2/ GROUND
+    for (int i = 0; i < 19; i++)
+    {
+        for (int j = 0; j < 19; j++)
+        {
+            grnd2.draw_cell(1 + i, -20 + j, i % grnd2.get_frame_ids_size());
+
+        }
+    }
+
+    all_ground_cells.draw_cell(0, 0); // ROOM2/ LEFT, RIGHT & TOP WALLS
+    for (int i = 0; i < 20; i++)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            grnd1.draw_cell(j, -20 + i % grnd1.get_frame_ids_size());
+            grnd1.draw_cell(20 + j, -20 + i % grnd1.get_frame_ids_size());
+            grnd1.draw_cell(i, -20 - j % grnd1.get_frame_ids_size());
+        }
+    }
+
+    all_ground_cells.draw_cell(0, 0); //RO0M2/ TOP WALL
+    for (int i = 0; i < 10; i++)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            grnd1.draw_cell(i, -1 + j % grnd1.get_frame_ids_size());
+            grnd1.draw_cell(11 + i, -1 + j % grnd1.get_frame_ids_size());
+        }
+    }
+
+    all_ground_cells.draw_cell(0, 0); //ROOM2, DOOR
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            grnd3.draw_cell(10 + i, -1+j % grnd1.get_frame_ids_size());
+            grnd4.draw_cell(8 + i, -2+j % grnd4.get_frame_ids_size());
+
+        }
+    }
+
+
+    /*for (int j = 0; j < 12; j++)
+    {
+        grnd1.draw_cell(2 + j, 2, (2+ j) % grnd1.get_frame_ids_size());
+        grnd2.draw_cell(2 + j, 3, (5+ j) % grnd2.get_frame_ids_size());
+    }
+    */
     //Draws the characters and gems in the appropriate order for which is infront
     std::vector<Sprite*> vsp{ grey_knight, &reaper, &dimond_gem, &emerald_gem, &garnet_gem };
     std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
@@ -422,6 +535,11 @@ int main(int argc, char *argv[])
     DrawText(diamond_string.c_str(), 50, 30, 20, BLACK);
     DrawText(emerald_string.c_str(), 50, 50, 20, BLACK);
     DrawText(garnet_string.c_str(), 50, 70, 20, BLACK);
+    
+    //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
+    //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
+
+    EndMode2D();
 
     EndDrawing();
   }
