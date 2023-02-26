@@ -65,13 +65,13 @@ void damage(aipfg::entity &knight, std::vector <aipfg::entity*> &enemies, Rectan
     }
 }
 
-void generate_enemies(std::vector <aipfg::entity*> &enemies, int amount, aipfg::Sprite* sprite, int x, int y) {
+void generate_enemies(std::vector <aipfg::entity*> &enemies, int amount, aipfg::Sprite* sprite, int x, int y, int hp, float speed, int damage) {
     for (int i = 0; i < amount; i++) {
         float XE = randomFloat(100.0f, x - 100);
         float YE = randomFloat(100.0f, y - 100);
         aipfg::Sprite* localsprite = new aipfg::Sprite((*sprite));
         (*localsprite).set_posn({ XE, YE });
-        aipfg::entity* entity = new aipfg::entity(localsprite, 100, 1.5, true, 15);
+        aipfg::entity* entity = new aipfg::entity(localsprite, hp, speed, true, damage);
         (*entity).set_pos({ XE, YE});
         enemies.push_back(entity);
     }
@@ -107,6 +107,7 @@ int main(int argc, char *argv[])
   raylib::Sound sword_sound{ "../resources/audio/sword.wav" };
   raylib::Music music{ "../resources/audio/Magic-Clock-Shop.mp3" };
   raylib::Sound zombie_sound{ "../resources/audio/zombie.wav" };
+  raylib::Sound bat_sound{ "../resources/audio/bat.wav" };
   float music_volume_normal = 1.0f, music_volume_quiet = 0.4f;
   music.Play();
 
@@ -150,7 +151,13 @@ int main(int argc, char *argv[])
       Sprite zombie_up{ tex6, 3, 4,
     zombie_pos,{9,10,11},6 };
       std::vector<Sprite*> zombie_vector = { &zombie_down, &zombie_left, &zombie_right, &zombie_up };
- 
+ //bat
+      raylib::Texture tex7{ "../resources/time_fantasy/vampire_fly.png" };
+      Sprite bat_down{ tex7, 3, 4, zombie_pos, {0,1,2},6 };
+      Sprite bat_left{ tex7, 3, 4, zombie_pos, {3,4,5},6 };
+      Sprite bat_right{ tex7, 3, 4, zombie_pos, {6,7,8},6 };
+      Sprite bat_up{ tex7, 3, 4, zombie_pos, {9,10,11},6 };
+      std::vector<Sprite*> bat_vector = { &bat_down, &bat_left, &bat_right, &bat_up };
   //Texture used for the ground material
   raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
   ncols = 8; nrows = 16;
@@ -163,9 +170,12 @@ int main(int argc, char *argv[])
   //sets the speed of the knight, and the default sprite to use.
   Sprite* grey_knight = &grey_right;
   Sprite* zombie_sprite = &zombie_down;
+  Sprite* bat_sprite = &bat_down;
   //(*zombie_sprite).set_animation(false);
   std::vector <entity*> enemies;
-  generate_enemies(enemies, 5, zombie_sprite, window.GetWidth(), window.GetHeight());
+  std::vector <entity*> enemies_bat;
+  generate_enemies(enemies, 2, zombie_sprite, window.GetWidth(), window.GetHeight(), 100, 1.5, 15);
+  generate_enemies(enemies_bat, 2, bat_sprite, window.GetWidth(), window.GetHeight(), 100, 3, 10);
   entity knight(grey_knight, 100, 2.6, false, 25);
   const float grey_speed = 2.5f;
   Rectangle sword_rect{};
@@ -409,8 +419,14 @@ int main(int argc, char *argv[])
             grnd1.draw_cell(2 + i, 2 + j, i % grnd1.get_frame_ids_size());
         }
     }
-
+ 
     damage(knight, enemies, sword_rect, zombie_sound);
+    damage(knight, enemies_bat, sword_rect, bat_sound);
+    for (int i = 0; i < enemies_bat.size(); i++) {
+        (*enemies_bat.at(i)).follow(knight, 500, bat_vector);
+        (*enemies_bat.at(i)).draw();
+        //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
+    }
     for (int i = 0; i < enemies.size(); i++) {
         (*enemies.at(i)).follow(knight, 300, zombie_vector);
         (*enemies.at(i)).draw();
