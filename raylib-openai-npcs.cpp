@@ -238,6 +238,13 @@ int main(int argc, char* argv[])
     Sprite bat_up{ tex7, 3, 4, zombie_pos, {9,10,11},6 };
     std::vector<Sprite*> bat_vector = { &bat_down, &bat_left, &bat_right, &bat_up };
     //Texture used for the ground material
+    raylib::Texture tex8{ "../resources/time_fantasy/fairies_1x.png" };
+    Vector2 fairy_pos = { grey_posn.x - 50, grey_posn.y };
+    Sprite fairy_down{ tex8, 12, 8, fairy_pos, {0,1,2},6 };
+    Sprite fairy_left{ tex8, 12, 8, fairy_pos, {12,13,14},6 };
+    Sprite fairy_right{ tex8, 12, 8, fairy_pos, {24,25,26},6 };
+    Sprite fairy_up{ tex8, 12, 8, fairy_pos, {36,37,38},6 };
+    std::vector<Sprite*> fairy_vector = { &fairy_down, &fairy_left, &fairy_right, &fairy_up };
     raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
 
     raylib::Texture tex4{ "../resources/time_fantasy"
@@ -254,6 +261,7 @@ int main(int argc, char* argv[])
     Sprite grnd4{ tex4, ncols, nrows, { 50, 300 }, { 15, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
 
     //sets the speed of the knight, and the default sprite to use.
+    Sprite* fairy_sprite = &fairy_right;
     Sprite* grey_knight = &grey_right;
     Sprite* zombie_sprite = &zombie_down;
     Sprite* bat_sprite = &bat_down;
@@ -263,6 +271,7 @@ int main(int argc, char* argv[])
     generate_enemies(enemies, 2, zombie_sprite, window.GetWidth(), window.GetHeight(), 100, 1.5, 15);
     generate_enemies(enemies_bat, 2, bat_sprite, window.GetWidth(), window.GetHeight(), 100, 3, 10);
     entity knight(grey_knight, 100, 2.6, false, 25);
+    entity fairy(fairy_sprite, 0, 3, false, 0);
     const float grey_speed = 2.5f;
     Rectangle sword_rect{};
     //Variable to Check if the player is colliding with the reaper
@@ -280,13 +289,12 @@ int main(int argc, char* argv[])
     const float box_ypos = (float)window.GetHeight() - 200;
     const float box_height_small = (float)window.GetHeight() - box_ypos - border;
     const float box_height_large = (float)window.GetHeight() - (2 * border);
-    const int lines_of_text_small = 4;
-    const int lines_of_text_large = 15;
-    int lines_of_text = lines_of_text_small;
     Rectangle text_box_small{ border, box_ypos, box_width, box_height_small };
     Rectangle text_box_large{ border, border,   box_width, box_height_large };
     Rectangle* text_box = &text_box_small;
-
+    const int lines_of_text_small = box_height_small / (30 + 15);
+    const int lines_of_text_large = box_height_large / (30 + 15);
+    int lines_of_text = lines_of_text_small;
 
     //sets up the strings used to split up sections of text with the AI
     const std::string human_stop = "Human: ";
@@ -309,8 +317,8 @@ int main(int argc, char* argv[])
     const float fairy_box_ypos = (float)window.GetHeight() - 200;
     const float fairy_box_height_small = (float)window.GetHeight() - fairy_box_ypos - fairy_border;
     const float fairy_box_height_large = (float)window.GetHeight() - (2 * fairy_border);
-    const int fairy_lines_of_text_small = 4;
-    const int fairy_lines_of_text_large = 15;
+    const int fairy_lines_of_text_small = box_height_small / (30 + 15);
+    const int fairy_lines_of_text_large = box_height_large / (30 + 15);
     int fairy_lines_of_text = fairy_lines_of_text_small;
     Rectangle fairy_text_box_small{ fairy_border, fairy_box_ypos, fairy_box_width, fairy_box_height_small };
     Rectangle fairy_text_box_large{ fairy_border, fairy_border,   fairy_box_width, fairy_box_height_large };
@@ -326,12 +334,28 @@ int main(int argc, char* argv[])
     int fairy_tail_index_small = fairy_prompt.find(fairy_stop) - 1;
     int* fairy_tail_index = &fairy_tail_index_small;
     int fairy_nchars_entered = 0;
+
+    std::vector <Rectangle> walls{};
+    walls.push_back({ 0, -20 * 48, 48, 41 * 48 });
+    walls.push_back({ 20 * 48, -20 * 48, 48, 41 * 48 });
+    walls.push_back({ 0, -48, 10 * 48,48 * 2 });
+    walls.push_back({ 12 * 48, -48, 9 * 48, 48 * 2 });
+    walls.push_back({ 0, -20 * 48, 20 * 48, 48 });
+    walls.push_back({ 0, 20 * 48, 20 * 48, 48 });
     //Detect window close button or ESC key
     while (!window.ShouldClose())
     {
         music.Update();
 
         (*knight.get_sprite()).set_animation(false);
+        text_box_small.y = knight.get_pos().y + window.GetHeight() * 0.1;
+        text_box_small.x = knight.get_pos().x - window.GetWidth() * 0.48;
+        text_box_large.x = text_box_small.x;
+        text_box_large.y = text_box_small.y - window.GetHeight() * 0.61;
+        fairy_text_box_small.y = text_box_small.y;
+        fairy_text_box_small.x = text_box_small.x;
+        fairy_text_box_large.x = text_box_small.x;
+        fairy_text_box_large.y = text_box_large.y;
 
         if (reaper_display_text_box)
         {
@@ -531,7 +555,7 @@ int main(int argc, char* argv[])
         else
         {
             //Changes the sprite and moves the character in the appropriate direction base on the characters input.
-            knight.move(grey_vector, enemies);
+            knight.move(grey_vector, enemies, walls);
             //sword functionality
             isSwordActive = false;
             sword_rect = {};
@@ -580,7 +604,7 @@ int main(int argc, char* argv[])
                 }
 
 
-               
+
 
             }
             //Using the N key (Navi!) to detect when the player is speaking to the fairy
@@ -802,23 +826,25 @@ int main(int argc, char* argv[])
         }
         */
         //Draws the characters and gems in the appropriate order for which is infront
-
-        damage(knight, enemies, sword_rect, zombie_sound);
-        damage(knight, enemies_bat, sword_rect, bat_sound);
+        if (!(reaper_display_text_box || fairy_display_text_box)) {
+            damage(knight, enemies, sword_rect, zombie_sound);
+            damage(knight, enemies_bat, sword_rect, bat_sound);
+        }
         for (int i = 0; i < enemies_bat.size(); i++) {
-            (*enemies_bat.at(i)).follow(knight, 500, bat_vector);
+            (*enemies_bat.at(i)).follow(knight, 500, bat_vector, walls);
             (*enemies_bat.at(i)).draw();
             //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
         }
         for (int i = 0; i < enemies.size(); i++) {
-            (*enemies.at(i)).follow(knight, 300, zombie_vector);
+            (*enemies.at(i)).follow(knight, 300, zombie_vector, walls);
             (*enemies.at(i)).draw();
             //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
         }
-
+        fairy.follow(knight, 10000, fairy_vector, {});
         if (isSwordActive) sword.draw();
         knight.draw_health();
-        std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet2_gem };
+
+        std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet2_gem, fairy.get_sprite() };
         std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
             return s1->get_posn().y < s2->get_posn().y;
             }
@@ -911,10 +937,12 @@ int main(int argc, char* argv[])
         }
 
         //Draws text onto the screen displaying how many gems have been collected.
-        DrawText(gem_string.c_str(), 50, -40, 20, WHITE);
-        DrawText(diamond_string.c_str(), 50, -20, 20, WHITE);
-        DrawText(emerald_string.c_str(), 50, 0, 20, WHITE);
-        DrawText(garnet_string.c_str(), 50, 20, 20, WHITE);
+
+        DrawText(gem_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 30, 20, BLACK);
+        DrawText(diamond_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 10, 20, BLACK);
+        DrawText(emerald_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 10, 20, BLACK);
+        DrawText(garnet_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 30, 20, BLACK);
+
 
         //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
         //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
