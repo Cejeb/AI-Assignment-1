@@ -500,7 +500,7 @@ int main(int argc, char *argv[])
     std::string garnet_string = "Garnets Collected: " + std::to_string(garnet_collected);
     
        // Camera target follows player
-    camera.target = Vector2{ grey_posn.x + 40, grey_posn.y + 40 };
+    camera.target = Vector2{ knight.get_pos().x + 40, knight.get_pos().y + 40};
 
     // Camera zoom controls
     camera.zoom += ((float)GetMouseWheelMove() * 0.05f);
