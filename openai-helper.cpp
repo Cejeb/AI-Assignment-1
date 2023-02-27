@@ -27,7 +27,7 @@ bool openai_helper::init()
   return true;
 }
 
-void openai_helper::submit(const std::string& prompt, std::string& response_str,
+void openai_helper::submit(const std::string& fairy_prompt, std::string& fairy_response_str,
                            const std::optional<std::vector<std::string>>& stop)
 {
   const std::string model_id  = "text-davinci-003";
@@ -47,11 +47,11 @@ void openai_helper::submit(const std::string& prompt, std::string& response_str,
   const std::optional<std::unordered_map<std::string, int8_t>> logit_bias = std::nullopt;
   const std::optional<std::string> user = std::nullopt;
 
-  liboai::Response response = (*oai_).Completion->create(model_id, prompt, suffix,
+  liboai::Response response = (*oai_).Completion->create(model_id, fairy_prompt, suffix,
     max_tokens, temperature, top_p, n, stream, logprobs, echo, stop,
     presence_penalty, frequency_penalty, best_of, logit_bias, user);
 
-  response_str = response["choices"][0]["text"].get<std::string>();
+  fairy_response_str = response["choices"][0]["text"].get<std::string>();
 }
 
 openai_helper::~openai_helper()
