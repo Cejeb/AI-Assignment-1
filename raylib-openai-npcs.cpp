@@ -87,7 +87,6 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-
     //Initial x and y values for the diamond.
     float d_gem_x = randomFloat(100.0f, 900.0f);
     float d_gem_y = randomFloat(100.0f, 500.0f);
@@ -98,9 +97,6 @@ int main(int argc, char* argv[])
     //Initial x and y values for the garnet.
     float g_gem_x = randomFloat(200.0f, 1000.0f);
     float g_gem_y = randomFloat(200.0f, 600.0f);
-
-
-
 
     //variable to track the number of gems collected
     int gems_collected = 0;
@@ -120,10 +116,6 @@ int main(int argc, char* argv[])
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-
-
-
-
     SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
 
     raylib::AudioDevice audio{}; // necessary: initialises the audio
@@ -137,8 +129,6 @@ int main(int argc, char* argv[])
 
     raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
     Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
-
-
 
     //Sprite for diamond.
     raylib::Texture diamond_tex{ "../resources/time_fantasy/diamond.png" };
@@ -605,6 +595,7 @@ int main(int argc, char* argv[])
                 dimond_gem.set_posn(d_gem_posn);
                 coin_sound.Play();
                 diamond_collected++;
+                gems_collected++;
             }
 
             //Detects the player collecting a emerald and updates the emeralds collected variable.
@@ -616,6 +607,7 @@ int main(int argc, char* argv[])
                 emerald_gem.set_posn(e_gem_posn);
                 coin_sound.Play();
                 emerald_collected++;
+                gems_collected++;
             }
 
             //Detects the player collecting a garnet and updates the garnets collected variable.
@@ -627,6 +619,7 @@ int main(int argc, char* argv[])
                 garnet_gem.set_posn(g_gem_posn);
                 coin_sound.Play();
                 garnet_collected++;
+                gems_collected++;
             }
 
         }
