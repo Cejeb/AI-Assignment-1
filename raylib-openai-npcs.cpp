@@ -62,10 +62,10 @@ void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectan
     }
 }
 
-void generate_enemies(std::vector <aipfg::entity*>& enemies, int amount, aipfg::Sprite* sprite, int x, int y, int hp, float speed, int damage) {
+void generate_enemies(std::vector <aipfg::entity*>& enemies, int amount, aipfg::Sprite* sprite, int width, int height, int hp, float speed, int damage, int x_start, int y_start) {
     for (int i = 0; i < amount; i++) {
-        float XE = randomFloat(100.0f, x - 100);
-        float YE = randomFloat(100.0f, y - 100);
+        float XE = randomFloat(x_start, width);
+        float YE = randomFloat(y_start, height);
         aipfg::Sprite* localsprite = new aipfg::Sprite((*sprite));
         (*localsprite).set_posn({ XE, YE });
         aipfg::entity* entity = new aipfg::entity(localsprite, hp, speed, true, damage);
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
     raylib::Texture tex6{ "../resources/time_fantasy/ayy_gray_3x.png" };
 
     //entity zombie;
-    Vector2 zombie_pos{ randomFloat(100.0f, window.GetWidth() - 100), randomFloat(100.0f, window.GetHeight() - 100) };
+    Vector2 zombie_pos{ randomFloat(0, 20*48), randomFloat(-20*48, 20*48)};
     Sprite zombie_down{ tex6, 3, 4,
         zombie_pos,{0,1,2},6 };
     Sprite zombie_left{ tex6, 3, 4,
@@ -243,8 +243,8 @@ int main(int argc, char* argv[])
     //(*zombie_sprite).set_animation(false);
     std::vector <entity*> enemies;
     std::vector <entity*> enemies_bat;
-    generate_enemies(enemies, 2, zombie_sprite, window.GetWidth(), window.GetHeight(), 100, 1.5, 15);
-    generate_enemies(enemies_bat, 2, bat_sprite, window.GetWidth(), window.GetHeight(), 100, 3, 10);
+    generate_enemies(enemies, 2, zombie_sprite, 20*48, 20*48, 100, 1.5, 15, 48, -(20*48));
+    generate_enemies(enemies_bat, 2, bat_sprite, 20*48, 20*48, 100, 3, 10, 48 ,-(20*48));
     entity knight(grey_knight, 100, 2.6, false, 25);
     entity fairy(fairy_sprite, 0, 3, false, 0);
     const float grey_speed = 2.5f;
