@@ -683,10 +683,10 @@ int main(int argc, char *argv[])
     }
 
     //Draws text onto the screen displaying how many gems have been collected.
-    DrawText(gem_string.c_str(), 50, 10, 20, BLACK);
-    DrawText(diamond_string.c_str(), 50, 30, 20, BLACK);
-    DrawText(emerald_string.c_str(), 50, 50, 20, BLACK);
-    DrawText(garnet_string.c_str(), 50, 70, 20, BLACK);
+    DrawText(gem_string.c_str(), knight.get_pos().x- window.GetWidth()/2 + 20, knight.get_pos().y - window.GetHeight() / 2 -30, 20, BLACK);
+    DrawText(diamond_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 10, 20, BLACK);
+    DrawText(emerald_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 +10, 20, BLACK);
+    DrawText(garnet_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 30, 20, BLACK);
     
     //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
     //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
