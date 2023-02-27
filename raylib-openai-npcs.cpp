@@ -26,12 +26,7 @@ bool detectCollision(Rectangle rect1, Rectangle rect2) {
         return true;
     else return false;
 }
-//TO-DO: Draw a game over screen
-void drawGameOver(int x, int y) {
-    DrawRectangle(0, 0, x, y, GRAY);
-    DrawText("Game Over!", x / 3, y / 6, 120, BLACK);
-}
-void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectangle sword_rect, raylib::Sound& attacksound) {
+void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectangle sword_rect, raylib::Sound& attacksound, bool &isGameOver) {
     int i = 0;
     while (i < enemies.size())
     {
@@ -48,6 +43,7 @@ void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectan
                 knight.set_lastdamage((unsigned int)(GetTime() * 1000.0));
                 if (knight.get_hp() <= 0) {
                     std::cout << "Dead";
+                    isGameOver = true;
                 }
             }
         }
@@ -66,10 +62,10 @@ void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectan
     }
 }
 
-void generate_enemies(std::vector <aipfg::entity*>& enemies, int amount, aipfg::Sprite* sprite, int x, int y, int hp, float speed, int damage) {
+void generate_enemies(std::vector <aipfg::entity*>& enemies, int amount, aipfg::Sprite* sprite, int width, int height, int hp, float speed, int damage, int x_start, int y_start) {
     for (int i = 0; i < amount; i++) {
-        float XE = randomFloat(100.0f, x - 100);
-        float YE = randomFloat(100.0f, y - 100);
+        float XE = randomFloat(x_start, width);
+        float YE = randomFloat(y_start, height);
         aipfg::Sprite* localsprite = new aipfg::Sprite((*sprite));
         (*localsprite).set_posn({ XE, YE });
         aipfg::entity* entity = new aipfg::entity(localsprite, hp, speed, true, damage);
@@ -220,7 +216,7 @@ int main(int argc, char* argv[])
     raylib::Texture tex6{ "../resources/time_fantasy/ayy_gray_3x.png" };
 
     //entity zombie;
-    Vector2 zombie_pos{ randomFloat(100.0f, window.GetWidth() - 100), randomFloat(100.0f, window.GetHeight() - 100) };
+    Vector2 zombie_pos{ randomFloat(0, 20*48), randomFloat(-20*48, 20*48)};
     Sprite zombie_down{ tex6, 3, 4,
         zombie_pos,{0,1,2},6 };
     Sprite zombie_left{ tex6, 3, 4,
@@ -268,8 +264,8 @@ int main(int argc, char* argv[])
     //(*zombie_sprite).set_animation(false);
     std::vector <entity*> enemies;
     std::vector <entity*> enemies_bat;
-    generate_enemies(enemies, 2, zombie_sprite, window.GetWidth(), window.GetHeight(), 100, 1.5, 15);
-    generate_enemies(enemies_bat, 2, bat_sprite, window.GetWidth(), window.GetHeight(), 100, 3, 10);
+    generate_enemies(enemies, 2, zombie_sprite, 20*48, 20*48, 100, 1.5, 15, 48, -(20*48));
+    generate_enemies(enemies_bat, 2, bat_sprite, 20*48, 20*48, 100, 3, 10, 48 ,-(20*48));
     entity knight(grey_knight, 100, 2.6, false, 25);
     entity fairy(fairy_sprite, 0, 3, false, 0);
     const float grey_speed = 2.5f;
@@ -334,7 +330,7 @@ int main(int argc, char* argv[])
     int fairy_tail_index_small = fairy_prompt.find(fairy_stop) - 1;
     int* fairy_tail_index = &fairy_tail_index_small;
     int fairy_nchars_entered = 0;
-
+    bool isGameOver = false;
     std::vector <Rectangle> walls{};
     walls.push_back({ 0, -20 * 48, 48, 41 * 48 });
     walls.push_back({ 20 * 48, -20 * 48, 48, 41 * 48 });
@@ -827,8 +823,8 @@ int main(int argc, char* argv[])
         */
         //Draws the characters and gems in the appropriate order for which is infront
         if (!(reaper_display_text_box || fairy_display_text_box)) {
-            damage(knight, enemies, sword_rect, zombie_sound);
-            damage(knight, enemies_bat, sword_rect, bat_sound);
+            damage(knight, enemies, sword_rect, zombie_sound, isGameOver);
+            damage(knight, enemies_bat, sword_rect, bat_sound, isGameOver);
         }
         for (int i = 0; i < enemies_bat.size(); i++) {
             (*enemies_bat.at(i)).follow(knight, 500, bat_vector, walls);
@@ -942,10 +938,18 @@ int main(int argc, char* argv[])
         DrawText(diamond_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 10, 20, BLACK);
         DrawText(emerald_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 10, 20, BLACK);
         DrawText(garnet_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 30, 20, BLACK);
-
+        DrawText("N to talk to Navi", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 50, 20, BLACK);
+        DrawText("Spacebar to attack", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 70, 20, BLACK);
+        DrawText("arrow keys to move", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 90, 20, BLACK);
 
         //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
         //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
+
+        if (isGameOver) {
+            DrawRectangle(knight.get_pos().x - window.GetWidth() / 2, knight.get_pos().y - window.GetHeight(),
+                window.GetWidth(),  window.GetHeight() * 2, GRAY);
+            DrawText("Game Over!", knight.get_pos().x - window.GetWidth() / 3, knight.get_pos().y - window.GetHeight() / 6, 120, BLACK);
+        }
 
         EndMode2D();
 
