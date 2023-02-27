@@ -113,7 +113,7 @@ namespace aipfg {
 		Rectangle calculate_rectangle() {
 			return { get_pos().x + 12, get_pos().y + 23,(float)(*get_sprite()).get_sprite_width()-26, (float)(*get_sprite()).get_sprite_height() - 23 };
 		}
-		void move(std::vector<Sprite> &sprite_vector, std::vector<entity*> enemies) {
+		void move(std::vector<Sprite> &sprite_vector, std::vector<entity*> enemies, std::vector<Rectangle> walls) {
 			Rectangle selfrect = calculate_rectangle();
 
 			if (IsKeyDown(KEY_DOWN))
@@ -123,6 +123,12 @@ namespace aipfg {
 				for (int i = 0; i < enemies.size(); i++) {
 					Rectangle entityrect = (*enemies.at(i)).calculate_rectangle();
 					if (CheckCollisionRecs(entityrect, selfrect)) {
+						collision = true;
+						break;
+					}
+				}
+				for (int i = 0; i < walls.size(); i++) {
+					if (CheckCollisionRecs(walls.at(i), selfrect)) {
 						collision = true;
 						break;
 					}
@@ -147,6 +153,12 @@ namespace aipfg {
 						break;
 					}
 				}
+				for (int i = 0; i < walls.size(); i++) {
+					if (CheckCollisionRecs(walls.at(i), selfrect)) {
+						collision = true;
+						break;
+					}
+				}
 				set_sprite(sprite_vector.at(3));
 				(*get_sprite()).set_animation(true);
 				if (!collision) {
@@ -166,6 +178,12 @@ namespace aipfg {
 						break;
 					}
 				}
+				for (int i = 0; i < walls.size(); i++) {
+					if (CheckCollisionRecs(walls.at(i), selfrect)) {
+						collision = true;
+						break;
+					}
+				}
 				set_sprite(sprite_vector.at(1));
 				(*get_sprite()).set_animation(true);
 				if (!collision) {
@@ -181,6 +199,12 @@ namespace aipfg {
 				for (int i = 0; i < enemies.size(); i++) {
 					Rectangle entityrect = (*enemies.at(i)).calculate_rectangle();
 					if (CheckCollisionRecs(entityrect, selfrect)) {
+						collision = true;
+						break;
+					}
+				}
+				for (int i = 0; i < walls.size(); i++) {
+					if (CheckCollisionRecs(walls.at(i), selfrect)) {
 						collision = true;
 						break;
 					}

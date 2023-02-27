@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
     else
     {
         //Changes the sprite and moves the character in the appropriate direction base on the characters input.
-        knight.move(grey_vector, enemies);
+        knight.move(grey_vector, enemies, walls);
         //sword functionality
         isSwordActive = false;
         sword_rect={};
