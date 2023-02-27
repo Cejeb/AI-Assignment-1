@@ -1,6 +1,7 @@
 #include "sprite.hpp"
 #include "openai-helper.hpp"
 #include "raylib-cpp.hpp"
+#include "entity.cpp"
 #include <string>
 #include <optional>
 #include <vector>
@@ -16,7 +17,66 @@ float randomFloat(float min, float max)
 {    
     return (min + 1) + (((float) rand()) / (float) RAND_MAX) * (max - (min + 1));    
 }
+//uses AABB for collision detection
+bool detectCollision(Rectangle rect1, Rectangle rect2) {
+    if (rect1.x < rect2.x + rect2.width &&
+        rect1.x + rect1.width > rect2.x &&
+        rect1.y < rect2.y + rect2.height &&
+        rect1.height + rect1.y > rect2.y)
+        return true;
+    else return false;
+}
+//TO-DO: Draw a game over screen
+void drawGameOver(int x, int y) {
+    DrawRectangle(0, 0, x, y, GRAY);
+    DrawText("Game Over!", x / 3, y / 6, 120, BLACK);
+}
+void damage(aipfg::entity &knight, std::vector <aipfg::entity*> &enemies, Rectangle sword_rect, raylib::Sound &attacksound) {
+    int i = 0;
+    while (i < enemies.size())
+    {
+        Rectangle enemyrect = (*enemies.at(i)).calculate_rectangle();
+        //slightly shifted as enemy and player cannot move into each other
+        enemyrect.x -= 1;
+        enemyrect.y -= 1;
+        enemyrect.width += 2;
+        enemyrect.height += 2;
+        if (detectCollision(enemyrect, knight.calculate_rectangle())) {
+            if ((unsigned int)(GetTime() * 1000.0) - knight.get_lastdamage() > 1000) {
+                knight.set_hp(knight.get_hp() - (*enemies.at(i)).get_damage());
+                attacksound.Play();
+                knight.set_lastdamage((unsigned int)(GetTime() * 1000.0));
+                if (knight.get_hp() <= 0) {
+                    std::cout << "Dead";
+                }
+        }
+        }
+        if (detectCollision((*enemies.at(i)).calculate_rectangle(), sword_rect) &&
+            (unsigned int)(GetTime() * 1000.0) - (*enemies.at(i)).get_lastdamage() > 1000) {
 
+            (*enemies.at(i)).set_hp((*enemies.at(i)).get_hp() - knight.get_damage());
+            (*enemies.at(i)).set_lastdamage((unsigned int)(GetTime() * 1000.0));
+            if ((*enemies.at(i)).get_hp() <= 0) {
+                delete enemies.at(i);
+                enemies.erase(enemies.begin() + i);
+                i--;
+            }
+        }
+        i++;
+    }
+}
+
+void generate_enemies(std::vector <aipfg::entity*> &enemies, int amount, aipfg::Sprite* sprite, int x, int y, int hp, float speed, int damage) {
+    for (int i = 0; i < amount; i++) {
+        float XE = randomFloat(100.0f, x - 100);
+        float YE = randomFloat(100.0f, y - 100);
+        aipfg::Sprite* localsprite = new aipfg::Sprite((*sprite));
+        (*localsprite).set_posn({ XE, YE });
+        aipfg::entity* entity = new aipfg::entity(localsprite, hp, speed, true, damage);
+        (*entity).set_pos({ XE, YE});
+        enemies.push_back(entity);
+    }
+}
 int main(int argc, char *argv[])
 {
   using namespace aipfg;
@@ -26,6 +86,7 @@ int main(int argc, char *argv[])
   {
     return -1;
   }
+
 
   //Initial x and y values for the diamond.
   float d_gem_x = randomFloat(100.0f, 900.0f);
@@ -38,6 +99,7 @@ int main(int argc, char *argv[])
   float g_gem_x = randomFloat(200.0f, 1000.0f);
   float g_gem_y = randomFloat(200.0f, 600.0f);
 
+
   
 
   //variable to track the number of gems collected
@@ -47,6 +109,7 @@ int main(int argc, char *argv[])
   int garnet_collected = 0;
 
   //sets the window size of the game
+
   raylib::Window window(1200, 570, "Raylib OpenAI NPCs");
 
   Camera2D camera = { 0 };
@@ -57,16 +120,25 @@ int main(int argc, char *argv[])
   camera.rotation = 0.0f;
   camera.zoom = 1.0f;
 
+
+
+
+
   SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
 
   raylib::AudioDevice audio{}; // necessary: initialises the audio
   raylib::Sound coin_sound{ "../resources/audio/coin.wav" };
+  raylib::Sound sword_sound{ "../resources/audio/sword.wav" };
   raylib::Music music{ "../resources/audio/Magic-Clock-Shop.mp3" };
+  raylib::Sound zombie_sound{ "../resources/audio/zombie.wav" };
+  raylib::Sound bat_sound{ "../resources/audio/bat.wav" };
   float music_volume_normal = 1.0f, music_volume_quiet = 0.4f;
   music.Play();
 
   raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
   Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
+
+
 
   //Sprite for diamond.
   raylib::Texture diamond_tex{ "../resources/time_fantasy/diamond.png" };
@@ -105,10 +177,16 @@ int main(int argc, char *argv[])
   garnet_gem.set_animation(true);
 
  
+
   //loads the texture sheet and setup for the sprites the Knight uses
   raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
   int ncols = 12, nrows = 8;
   int id = 3;
+
+  raylib::Texture tex5{ "../resources/time_fantasy/sword.png" };
+  Sprite sword{ tex5, 1, 1 , grey_posn, {1} , 1};
+  bool isSwordActive{ false };
+  //Sets which sprite to use for each direction
 
   Sprite grey_down { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
   id += ncols;
@@ -117,7 +195,27 @@ int main(int argc, char *argv[])
   Sprite grey_right{ tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
   id += ncols;
   Sprite grey_up   { tex2, ncols, nrows, grey_posn, { id, id+1, id+2 }, 6 };
-
+  std::vector<Sprite> grey_vector = { grey_down, grey_left, grey_right, grey_up };
+  raylib::Texture tex6{ "../resources/time_fantasy/ayy_gray_3x.png" };
+  
+  //entity zombie;
+  Vector2 zombie_pos{ randomFloat(100.0f, window.GetWidth() - 100), randomFloat(100.0f, window.GetHeight() - 100) };
+      Sprite zombie_down{ tex6, 3, 4, 
+          zombie_pos,{0,1,2},6 };
+      Sprite zombie_left{ tex6, 3, 4,
+          zombie_pos,{3,4,5},6 };
+      Sprite zombie_right{ tex6, 3, 4,
+    zombie_pos,{6,7,8},6 };
+      Sprite zombie_up{ tex6, 3, 4,
+    zombie_pos,{9,10,11},6 };
+      std::vector<Sprite*> zombie_vector = { &zombie_down, &zombie_left, &zombie_right, &zombie_up };
+ //bat
+      raylib::Texture tex7{ "../resources/time_fantasy/vampire_fly.png" };
+      Sprite bat_down{ tex7, 3, 4, zombie_pos, {0,1,2},6 };
+      Sprite bat_left{ tex7, 3, 4, zombie_pos, {3,4,5},6 };
+      Sprite bat_right{ tex7, 3, 4, zombie_pos, {6,7,8},6 };
+      Sprite bat_up{ tex7, 3, 4, zombie_pos, {9,10,11},6 };
+      std::vector<Sprite*> bat_vector = { &bat_down, &bat_left, &bat_right, &bat_up };
   //Texture used for the ground material
   raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
   
@@ -136,8 +234,16 @@ int main(int argc, char *argv[])
 
   //sets the speed of the knight, and the default sprite to use.
   Sprite* grey_knight = &grey_right;
+  Sprite* zombie_sprite = &zombie_down;
+  Sprite* bat_sprite = &bat_down;
+  //(*zombie_sprite).set_animation(false);
+  std::vector <entity*> enemies;
+  std::vector <entity*> enemies_bat;
+  generate_enemies(enemies, 2, zombie_sprite, window.GetWidth(), window.GetHeight(), 100, 1.5, 15);
+  generate_enemies(enemies_bat, 2, bat_sprite, window.GetWidth(), window.GetHeight(), 100, 3, 10);
+  entity knight(grey_knight, 100, 2.6, false, 25);
   const float grey_speed = 2.5f;
-
+  Rectangle sword_rect{};
   //Variable to Check if the player is colliding with the reaper
   bool reaper_collision = false; 
 
@@ -159,7 +265,8 @@ int main(int argc, char *argv[])
   Rectangle text_box_small{ border, box_ypos, box_width, box_height_small };
   Rectangle text_box_large{ border, border,   box_width, box_height_large };
   Rectangle* text_box = &text_box_small;
-
+  
+ 
   //sets up the strings used to split up sections of text with the AI
   const std::string human_stop = "Human: ";
   const std::string reaper_stop = "Grim Reaper: ";
@@ -170,13 +277,13 @@ int main(int argc, char *argv[])
   int tail_index_small = prompt.find(reaper_stop) - 1;
   int* tail_index = &tail_index_small;
   int nchars_entered = 0;
-
+  unsigned int last_sword = (unsigned int)(GetTime() * 1000.0);
   //Detect window close button or ESC key
   while (!window.ShouldClose()) 
   {
     music.Update();
 
-    (*grey_knight).set_animation(false);
+    (*knight.get_sprite()).set_animation(false);
 
     if (display_text_box)
     {
@@ -268,7 +375,7 @@ int main(int argc, char *argv[])
           }
           else
           {
-            prompt.push_back((char)key);
+              prompt.push_back((char)key);
           }
 
           nchars_entered++;
@@ -277,51 +384,78 @@ int main(int argc, char *argv[])
     }
     else
     {
-      //Changes the sprite and moves the character in the appropriate direction base on the characters input.
-      if (IsKeyDown(KEY_DOWN))
-      {
-        grey_posn.y += grey_speed;
-        grey_knight = &grey_down;
-        (*grey_knight).set_animation(true);
-      }
-      if (IsKeyDown(KEY_UP))
-      {
-        grey_posn.y -= grey_speed;
-        grey_knight = &grey_up;
-        (*grey_knight).set_animation(true);
-      }
-      if (IsKeyDown(KEY_LEFT))
-      {
-        grey_posn.x -= grey_speed;
-        grey_knight = &grey_left;
-        (*grey_knight).set_animation(true);
-      }
-      if (IsKeyDown(KEY_RIGHT))
-      {
-        grey_posn.x += grey_speed;
-        grey_knight = &grey_right;
-        (*grey_knight).set_animation(true);
-      }
+        //Changes the sprite and moves the character in the appropriate direction base on the characters input.
+        knight.move(grey_vector, enemies);
+        //sword functionality
+        isSwordActive = false;
+        sword_rect={};
+        if (IsKeyPressed(KEY_SPACE) || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
+            unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
+            Vector2 sword_pos = knight.get_pos();
 
-      (*grey_knight).set_posn(grey_posn);
+            if (last_sword == 0 || milliseconds - last_sword >= 500 || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
+                int sword_height = 40;
+                int sword_width = 114;
+                if (knight.get_sprite() == &grey_vector.at(0)) {
+                   //down
+                    sword.set_angle(90);
+                    sword_pos.x = sword_pos.x + 70;
+                    sword_pos.y = sword_pos.y + 80;
+                    sword_rect = { sword_pos.x - sword_height - 12, sword_pos.y + 5, (float)sword_height, (float)sword_width };
+                }
+                else if (knight.get_sprite() == &grey_vector.at(1)) {
+                   //left
+                    sword_pos.x = sword_pos.x + 30;
+                    sword_pos.y = sword_pos.y + 100;
+                    sword.set_angle(180);
+                    sword_rect = { sword_pos.x- sword_width-5, sword_pos.y- sword_height-12, (float)sword_width, (float)sword_height };
+                }
+                else if (knight.get_sprite() == &grey_vector.at(3)) {
+                    //up
+                    sword_pos.x = sword_pos.x + 5;
+                    sword_pos.y = sword_pos.y + 40;
+                    sword.set_angle(270);
+                    sword_rect = { sword_pos.x+ 13, sword_pos.y - sword_width - 5, (float)sword_height, (float)sword_width };
 
-      //Detects the player being close enough to the reaper to "collide"
-      if (Vector2Distance(grey_posn, reaper.get_posn()) < 40.0f)
-      {
-        //makes sure player is not already colliding with the reaper
-        if (!reaper_collision)
-        {
-          reaper_collision = true;
-          display_text_box = true;
-          SetExitKey(0);
-          coin_sound.Play();
-          music.SetVolume(music_volume_quiet);
+                }
+                else if (knight.get_sprite() == &grey_vector.at(2)) {
+                   //right
+                    sword.set_angle(0);
+                    sword_pos.x = sword_pos.x + 30;
+                    sword_pos.y = sword_pos.y + 40;
+                    sword_rect = { sword_pos.x + 5, sword_pos.y+ 12, (float)sword_width, (float)sword_height };
+                }
+                sword_sound.Play();
+                sword.set_posn(sword_pos);
+                isSwordActive = true;
+                if (!((unsigned int)(GetTime() * 1000.0) - last_sword <= 200)) {
+                    last_sword = (unsigned int)(GetTime() * 1000.0);
+                }
+            }
+
+
+
+
         }
-      }
-      else
-      {
-        reaper_collision = false;
-      }
+        //Detects the player being close enough to the reaper to "collide"
+        if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 30.0f)
+        {
+            //makes sure player is not already colliding with the reaper
+            if (!reaper_collision)
+            {
+                reaper_collision = true;
+                display_text_box = true;
+                SetExitKey(0);
+                coin_sound.Play();
+                music.SetVolume(music_volume_quiet);
+            }
+        }
+        else
+        {
+            reaper_collision = false;
+        }
+
+
 
       //Detects the player collecting a dimond and updates the dimonds collected variable.
       if (Vector2Distance(grey_posn, dimond_gem.get_posn()) < 40.0f)
@@ -355,8 +489,10 @@ int main(int argc, char *argv[])
           coin_sound.Play();
           garnet_collected++;
       }
+
     }
     
+   
     //Converts the gems collected integer into a string that can be displayed
     std::string gem_string = "Total Score: " + std::to_string((diamond_collected*10)+ (emerald_collected*5)+ (garnet_collected*5));
     std::string diamond_string = "Diamonds Collected: " + std::to_string(diamond_collected);
@@ -382,7 +518,6 @@ int main(int argc, char *argv[])
     //begins drawing the sprites and text onto the screen
 
     BeginDrawing();
-
     //makes a white background behind everything
     ClearBackground(RAYWHITE);
 
@@ -393,6 +528,7 @@ int main(int argc, char *argv[])
     all_ground_cells.draw_cell(0, 0); // ROOM1/ LEFT, RIGHT & BOTTOM WALLS
     for (int i = 0; i < 20; i++)
     {
+
       for (int j = 0; j < 1; j++)
       {
         grnd1.draw_cell( j, 1+i % grnd1.get_frame_ids_size());
@@ -481,7 +617,23 @@ int main(int argc, char *argv[])
     }
     */
     //Draws the characters and gems in the appropriate order for which is infront
-    std::vector<Sprite*> vsp{ grey_knight, &reaper, &dimond_gem, &emerald_gem, &garnet_gem };
+
+    damage(knight, enemies, sword_rect, zombie_sound);
+    damage(knight, enemies_bat, sword_rect, bat_sound);
+    for (int i = 0; i < enemies_bat.size(); i++) {
+        (*enemies_bat.at(i)).follow(knight, 500, bat_vector);
+        (*enemies_bat.at(i)).draw();
+        //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
+    }
+    for (int i = 0; i < enemies.size(); i++) {
+        (*enemies.at(i)).follow(knight, 300, zombie_vector);
+        (*enemies.at(i)).draw();
+        //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
+    }
+
+    if (isSwordActive) sword.draw();
+    knight.draw_health();
+    std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem};
     std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
         return s1->get_posn().y < s2->get_posn().y;
         }

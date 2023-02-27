@@ -34,6 +34,8 @@ struct Sprite
   void set_origin(const Vector2 origin) { origin_ = origin; }
   Vector2 get_origin() { return origin_; }
   auto get_frame_ids_size() { return frame_ids_.size(); }
+  int get_sprite_height() { return sprite_height_; }
+  int get_sprite_width() { return sprite_width_; }
 
   void draw()
   {
