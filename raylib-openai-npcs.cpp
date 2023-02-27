@@ -299,14 +299,6 @@ int main(int argc, char* argv[])
     {
         questText = "I am here to reap your soul...unless you can collect a \ncollection of gems...perhaps 10 and you can live!\n";
     }
-    else if (gems_collected < 10)
-    {
-        questText = "Have you completed your quest? \nOr shall I take your soul now??\n";
-    }
-    else
-    {
-        questText = "Well...you completed your quest, so you may live this time. \nYou are free to leave!\n";
-    }
     std::string prompt = new_lines + reaper_stop +
         questText + human_stop;
     int tail_index_large = 0;
@@ -350,6 +342,16 @@ int main(int argc, char* argv[])
     //Detect window close button or ESC key
     while (!window.ShouldClose())
     {
+        if (QuestGiven && gems_collected < 10)
+        {
+            questText = "Have you completed your quest? \nOr shall I take your soul now??\n";
+    }
+        else if(QuestGiven && gems_collected >=10)
+        {
+            questText = "Well...you completed your quest, so you may live this time. \nYou are free to leave!\n";
+    }
+    prompt = new_lines + reaper_stop +
+        questText + human_stop;
         music.Update();
 
         (*knight.get_sprite()).set_animation(false);
@@ -364,6 +366,7 @@ int main(int argc, char* argv[])
 
         if (reaper_display_text_box)
         {
+            
             switch (GetKeyPressed())
             {
             case KEY_ESCAPE:
@@ -378,6 +381,7 @@ int main(int argc, char* argv[])
                     SetExitKey(KEY_ESCAPE);
                     reaper_display_text_box = false;
                     music.SetVolume(music_volume_normal);
+                    QuestGiven = true;
                 }
                 break;
 
