@@ -26,12 +26,7 @@ bool detectCollision(Rectangle rect1, Rectangle rect2) {
         return true;
     else return false;
 }
-//TO-DO: Draw a game over screen
-void drawGameOver(int x, int y) {
-    DrawRectangle(0, 0, x, y, GRAY);
-    DrawText("Game Over!", x / 3, y / 6, 120, BLACK);
-}
-void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectangle sword_rect, raylib::Sound& attacksound) {
+void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectangle sword_rect, raylib::Sound& attacksound, bool &isGameOver) {
     int i = 0;
     while (i < enemies.size())
     {
@@ -48,6 +43,7 @@ void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectan
                 knight.set_lastdamage((unsigned int)(GetTime() * 1000.0));
                 if (knight.get_hp() <= 0) {
                     std::cout << "Dead";
+                    isGameOver = true;
                 }
             }
         }
@@ -66,10 +62,10 @@ void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectan
     }
 }
 
-void generate_enemies(std::vector <aipfg::entity*>& enemies, int amount, aipfg::Sprite* sprite, int x, int y, int hp, float speed, int damage) {
+void generate_enemies(std::vector <aipfg::entity*>& enemies, int amount, aipfg::Sprite* sprite, int width, int height, int hp, float speed, int damage, int x_start, int y_start) {
     for (int i = 0; i < amount; i++) {
-        float XE = randomFloat(100.0f, x - 100);
-        float YE = randomFloat(100.0f, y - 100);
+        float XE = randomFloat(x_start, width);
+        float YE = randomFloat(y_start, height);
         aipfg::Sprite* localsprite = new aipfg::Sprite((*sprite));
         (*localsprite).set_posn({ XE, YE });
         aipfg::entity* entity = new aipfg::entity(localsprite, hp, speed, true, damage);
@@ -89,14 +85,27 @@ int main(int argc, char* argv[])
 
     //Initial x and y values for the diamond.
     float d_gem_x = randomFloat(100.0f, 900.0f);
-    float d_gem_y = randomFloat(100.0f, 500.0f);
+    float d_gem_y = randomFloat(100.0f, 900.0f);
 
     //Initial x and y values for the emerald.
-    float e_gem_x = randomFloat(150.0f, 950.0f);
-    float e_gem_y = randomFloat(150.0f, 550.0f);
+    float e_gem_x = randomFloat(100.0f, 900.0f);
+    float e_gem_y = randomFloat(100.0f, 900.0f);
     //Initial x and y values for the garnet.
-    float g_gem_x = randomFloat(200.0f, 1000.0f);
-    float g_gem_y = randomFloat(200.0f, 600.0f);
+    float g_gem_x = randomFloat(100.0f, 900.0f);
+    float g_gem_y = randomFloat(100.0f, 900.0f);
+
+
+    //Initial x and y values for the 2nd diamond.
+    float d2_gem_x = randomFloat(100.0f, 900.0f);
+    float d2_gem_y = randomFloat(-100.0f, -900.0f);
+
+    //Initial x and y values for the 2nd emerald.
+    float e2_gem_x = randomFloat(100.0f, 900.0f);
+    float e2_gem_y = randomFloat(-100.0f, -900.0f);
+    //Initial x and y values for the 2nd garnet.
+    float g2_gem_x = randomFloat(100.0f, 900.0f);
+    float g2_gem_y = randomFloat(-100.0f, -900.0f);
+
 
     //variable to track the number of gems collected
     int gems_collected = 0;
@@ -141,6 +150,11 @@ int main(int argc, char* argv[])
     Sprite dimond_gem{ diamond_tex, d_cols, d_rows, d_gem_posn, frame_id_diamond, 7 };
     dimond_gem.set_animation(true);
 
+
+    Vector2 d2_gem_posn{ d2_gem_x, d2_gem_y };
+    Sprite dimond2_gem{ diamond_tex, d_cols, d_rows, d2_gem_posn, frame_id_diamond, 7 };
+    dimond2_gem.set_animation(true);
+
     //Vector2 position = { 350.0f, 280.0f };
     //Rectangle frameRec = { 0.0f, 0.0f, (float)diamond_tex.width / 6, (float)diamond_tex.height };
 
@@ -155,6 +169,12 @@ int main(int argc, char* argv[])
     Sprite emerald_gem{ emerald_tex, e_cols, e_rows, e_gem_posn, frame_id_emerald, 7 };
     emerald_gem.set_animation(true);
 
+
+    Vector2 e2_gem_posn{ e2_gem_x, e2_gem_y };
+    Sprite emerald2_gem{ emerald_tex, e_cols, e_rows, e2_gem_posn, frame_id_emerald, 7 };
+    emerald2_gem.set_animation(true);
+
+
     //Sprite for garnet.
     raylib::Texture garnet_tex{ "../resources/time_fantasy/garnet.png" };
     int g_cols = 6, g_rows = 1;
@@ -166,6 +186,10 @@ int main(int argc, char* argv[])
     Sprite garnet_gem{ garnet_tex, g_cols, g_rows, g_gem_posn, frame_id_garnet, 7 };
     garnet_gem.set_animation(true);
 
+
+    Vector2 g2_gem_posn{ g2_gem_x, g2_gem_y };
+    Sprite garnet2_gem{ garnet_tex, g_cols, g_rows, g2_gem_posn, frame_id_garnet, 7 };
+    garnet2_gem.set_animation(true);
 
 
     //loads the texture sheet and setup for the sprites the Knight uses
@@ -189,7 +213,7 @@ int main(int argc, char* argv[])
     raylib::Texture tex6{ "../resources/time_fantasy/ayy_gray_3x.png" };
 
     //entity zombie;
-    Vector2 zombie_pos{ randomFloat(100.0f, window.GetWidth() - 100), randomFloat(100.0f, window.GetHeight() - 100) };
+    Vector2 zombie_pos{ randomFloat(0, 20*48), randomFloat(-20*48, 20*48)};
     Sprite zombie_down{ tex6, 3, 4,
         zombie_pos,{0,1,2},6 };
     Sprite zombie_left{ tex6, 3, 4,
@@ -207,6 +231,13 @@ int main(int argc, char* argv[])
     Sprite bat_up{ tex7, 3, 4, zombie_pos, {9,10,11},6 };
     std::vector<Sprite*> bat_vector = { &bat_down, &bat_left, &bat_right, &bat_up };
     //Texture used for the ground material
+    raylib::Texture tex8{ "../resources/time_fantasy/fairies_1x.png" };
+    Vector2 fairy_pos = { grey_posn.x - 50, grey_posn.y };
+    Sprite fairy_down{ tex8, 12, 8, fairy_pos, {0,1,2},6 };
+    Sprite fairy_left{ tex8, 12, 8, fairy_pos, {12,13,14},6 };
+    Sprite fairy_right{ tex8, 12, 8, fairy_pos, {24,25,26},6 };
+    Sprite fairy_up{ tex8, 12, 8, fairy_pos, {36,37,38},6 };
+    std::vector<Sprite*> fairy_vector = { &fairy_down, &fairy_left, &fairy_right, &fairy_up };
     raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
 
     raylib::Texture tex4{ "../resources/time_fantasy"
@@ -223,15 +254,17 @@ int main(int argc, char* argv[])
     Sprite grnd4{ tex4, ncols, nrows, { 50, 300 }, { 15, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
 
     //sets the speed of the knight, and the default sprite to use.
+    Sprite* fairy_sprite = &fairy_right;
     Sprite* grey_knight = &grey_right;
     Sprite* zombie_sprite = &zombie_down;
     Sprite* bat_sprite = &bat_down;
     //(*zombie_sprite).set_animation(false);
     std::vector <entity*> enemies;
     std::vector <entity*> enemies_bat;
-    generate_enemies(enemies, 2, zombie_sprite, window.GetWidth(), window.GetHeight(), 100, 1.5, 15);
-    generate_enemies(enemies_bat, 2, bat_sprite, window.GetWidth(), window.GetHeight(), 100, 3, 10);
+    generate_enemies(enemies, 2, zombie_sprite, 20*48, 20*48, 100, 1.5, 15, 48, -(20*48));
+    generate_enemies(enemies_bat, 2, bat_sprite, 20*48, 20*48, 100, 3, 10, 48 ,-(20*48));
     entity knight(grey_knight, 100, 2.6, false, 25);
+    entity fairy(fairy_sprite, 0, 3, false, 0);
     const float grey_speed = 2.5f;
     Rectangle sword_rect{};
     //Variable to Check if the player is colliding with the reaper
@@ -249,13 +282,12 @@ int main(int argc, char* argv[])
     const float box_ypos = (float)window.GetHeight() - 200;
     const float box_height_small = (float)window.GetHeight() - box_ypos - border;
     const float box_height_large = (float)window.GetHeight() - (2 * border);
-    const int lines_of_text_small = 4;
-    const int lines_of_text_large = 15;
-    int lines_of_text = lines_of_text_small;
     Rectangle text_box_small{ border, box_ypos, box_width, box_height_small };
     Rectangle text_box_large{ border, border,   box_width, box_height_large };
     Rectangle* text_box = &text_box_small;
-
+    const int lines_of_text_small = box_height_small / (30 + 15);
+    const int lines_of_text_large = box_height_large / (30 + 15);
+    int lines_of_text = lines_of_text_small;
 
     //sets up the strings used to split up sections of text with the AI
     bool QuestGiven = false;
@@ -265,15 +297,15 @@ int main(int argc, char* argv[])
     std::string questText = "Sup ";
     if (!QuestGiven)
     {
-        questText = "I am here to reap your soul...unless you can collect a collection of gems...perhaps 10 and you can live!";
+        questText = "I am here to reap your soul...unless you can collect a \ncollection of gems...perhaps 10 and you can live!\n";
     }
     else if (gems_collected < 10)
     {
-        questText = "Have you completed your quest? Or shall I take your soul now??";
+        questText = "Have you completed your quest? \nOr shall I take your soul now??\n";
     }
     else
     {
-        questText = "Well...you completed your quest, so you may live this time. You are free to leave!";
+        questText = "Well...you completed your quest, so you may live this time. \nYou are free to leave!\n";
     }
     std::string prompt = new_lines + reaper_stop +
         questText + human_stop;
@@ -292,8 +324,8 @@ int main(int argc, char* argv[])
     const float fairy_box_ypos = (float)window.GetHeight() - 200;
     const float fairy_box_height_small = (float)window.GetHeight() - fairy_box_ypos - fairy_border;
     const float fairy_box_height_large = (float)window.GetHeight() - (2 * fairy_border);
-    const int fairy_lines_of_text_small = 4;
-    const int fairy_lines_of_text_large = 15;
+    const int fairy_lines_of_text_small = box_height_small / (30 + 15);
+    const int fairy_lines_of_text_large = box_height_large / (30 + 15);
     int fairy_lines_of_text = fairy_lines_of_text_small;
     Rectangle fairy_text_box_small{ fairy_border, fairy_box_ypos, fairy_box_width, fairy_box_height_small };
     Rectangle fairy_text_box_large{ fairy_border, fairy_border,   fairy_box_width, fairy_box_height_large };
@@ -307,12 +339,28 @@ int main(int argc, char* argv[])
     int fairy_tail_index_small = fairy_prompt.find(fairy_stop) - 1;
     int* fairy_tail_index = &fairy_tail_index_small;
     int fairy_nchars_entered = 0;
+    bool isGameOver = false;
+    std::vector <Rectangle> walls{};
+    walls.push_back({ 0, -20 * 48, 48, 41 * 48 });
+    walls.push_back({ 20 * 48, -20 * 48, 48, 41 * 48 });
+    walls.push_back({ 0, -48, 10 * 48,48 * 2 });
+    walls.push_back({ 12 * 48, -48, 9 * 48, 48 * 2 });
+    walls.push_back({ 0, -20 * 48, 20 * 48, 48 });
+    walls.push_back({ 0, 20 * 48, 20 * 48, 48 });
     //Detect window close button or ESC key
     while (!window.ShouldClose())
     {
         music.Update();
 
         (*knight.get_sprite()).set_animation(false);
+        text_box_small.y = knight.get_pos().y + window.GetHeight() * 0.1;
+        text_box_small.x = knight.get_pos().x - window.GetWidth() * 0.48;
+        text_box_large.x = text_box_small.x;
+        text_box_large.y = text_box_small.y - window.GetHeight() * 0.61;
+        fairy_text_box_small.y = text_box_small.y;
+        fairy_text_box_small.x = text_box_small.x;
+        fairy_text_box_large.x = text_box_small.x;
+        fairy_text_box_large.y = text_box_large.y;
 
         if (reaper_display_text_box)
         {
@@ -512,7 +560,7 @@ int main(int argc, char* argv[])
         else
         {
             //Changes the sprite and moves the character in the appropriate direction base on the characters input.
-            knight.move(grey_vector, enemies);
+            knight.move(grey_vector, enemies, walls);
             //sword functionality
             isSwordActive = false;
             sword_rect = {};
@@ -561,7 +609,7 @@ int main(int argc, char* argv[])
                 }
 
 
-               
+
 
             }
             //Using the N key (Navi!) to detect when the player is speaking to the fairy
@@ -594,7 +642,7 @@ int main(int argc, char* argv[])
             if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f)
             {
                 d_gem_x = randomFloat(100.0f, 900.0f);
-                d_gem_y = randomFloat(100.0f, 500.0f);
+                d_gem_y = randomFloat(100.0f, 900.0f);
                 d_gem_posn = { d_gem_x , d_gem_y };
                 dimond_gem.set_posn(d_gem_posn);
                 coin_sound.Play();
@@ -602,11 +650,22 @@ int main(int argc, char* argv[])
                 gems_collected++;
             }
 
+            //Detects the player collecting a dimond and updates the dimonds collected variable.
+            if (Vector2Distance(knight.get_pos(), dimond2_gem.get_posn()) < 40.0f)
+            {
+                d2_gem_x = randomFloat(100.0f, 900.0f);
+                d2_gem_y = randomFloat(-100.0f, -900.0f);
+                d2_gem_posn = { d2_gem_x , d2_gem_y };
+                dimond2_gem.set_posn(d2_gem_posn);
+                coin_sound.Play();
+                diamond_collected++;
+            }
+
             //Detects the player collecting a emerald and updates the emeralds collected variable.
             if (Vector2Distance(knight.get_pos(), emerald_gem.get_posn()) < 40.0f)
             {
-                e_gem_x = randomFloat(150.0f, 950.0f);
-                e_gem_y = randomFloat(150.0f, 550.0f);
+                e_gem_x = randomFloat(150.0f, 900.0f);
+                e_gem_y = randomFloat(150.0f, 900.0f);
                 e_gem_posn = { e_gem_x , e_gem_y };
                 emerald_gem.set_posn(e_gem_posn);
                 coin_sound.Play();
@@ -614,16 +673,38 @@ int main(int argc, char* argv[])
                 gems_collected++;
             }
 
+            //Detects the player collecting a emerald and updates the emeralds collected variable.
+            if (Vector2Distance(knight.get_pos(), emerald2_gem.get_posn()) < 40.0f)
+            {
+                e2_gem_x = randomFloat(100.0f, 900.0f);
+                e2_gem_y = randomFloat(-100.0f, -900.0f);
+                e2_gem_posn = { e2_gem_x , e2_gem_y };
+                emerald2_gem.set_posn(e2_gem_posn);
+                coin_sound.Play();
+                emerald_collected++;
+            }
+
             //Detects the player collecting a garnet and updates the garnets collected variable.
             if (Vector2Distance(knight.get_pos(), garnet_gem.get_posn()) < 40.0f)
             {
-                g_gem_x = randomFloat(150.0f, 950.0f);
-                g_gem_y = randomFloat(150.0f, 550.0f);
+                g_gem_x = randomFloat(150.0f, 900.0f);
+                g_gem_y = randomFloat(150.0f, 900.0f);
                 g_gem_posn = { g_gem_x , g_gem_y };
                 garnet_gem.set_posn(g_gem_posn);
                 coin_sound.Play();
                 garnet_collected++;
                 gems_collected++;
+            }
+
+            //Detects the player collecting a garnet and updates the garnets collected variable.
+            if (Vector2Distance(knight.get_pos(), garnet2_gem.get_posn()) < 40.0f)
+            {
+                g2_gem_x = randomFloat(100.0f, 900.0f);
+                g2_gem_y = randomFloat(-100.0f, -900.0f);
+                g2_gem_posn = { g2_gem_x , g2_gem_y };
+                garnet2_gem.set_posn(g2_gem_posn);
+                coin_sound.Play();
+                garnet_collected++;
             }
 
         }
@@ -753,23 +834,25 @@ int main(int argc, char* argv[])
         }
         */
         //Draws the characters and gems in the appropriate order for which is infront
-
-        damage(knight, enemies, sword_rect, zombie_sound);
-        damage(knight, enemies_bat, sword_rect, bat_sound);
+        if (!(reaper_display_text_box || fairy_display_text_box)) {
+            damage(knight, enemies, sword_rect, zombie_sound, isGameOver);
+            damage(knight, enemies_bat, sword_rect, bat_sound, isGameOver);
+        }
         for (int i = 0; i < enemies_bat.size(); i++) {
-            (*enemies_bat.at(i)).follow(knight, 500, bat_vector);
+            (*enemies_bat.at(i)).follow(knight, 500, bat_vector, walls);
             (*enemies_bat.at(i)).draw();
             //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
         }
         for (int i = 0; i < enemies.size(); i++) {
-            (*enemies.at(i)).follow(knight, 300, zombie_vector);
+            (*enemies.at(i)).follow(knight, 300, zombie_vector, walls);
             (*enemies.at(i)).draw();
             //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
         }
-
+        fairy.follow(knight, 10000, fairy_vector, {});
         if (isSwordActive) sword.draw();
         knight.draw_health();
-        std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem };
+
+        std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet2_gem, fairy.get_sprite() };
         std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
             return s1->get_posn().y < s2->get_posn().y;
             }
@@ -862,13 +945,23 @@ int main(int argc, char* argv[])
         }
 
         //Draws text onto the screen displaying how many gems have been collected.
-        DrawText(gem_string.c_str(), 50, 10, 20, BLACK);
-        DrawText(diamond_string.c_str(), 50, 30, 20, BLACK);
-        DrawText(emerald_string.c_str(), 50, 50, 20, BLACK);
-        DrawText(garnet_string.c_str(), 50, 70, 20, BLACK);
+
+        DrawText(gem_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 30, 20, BLACK);
+        DrawText(diamond_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 10, 20, BLACK);
+        DrawText(emerald_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 10, 20, BLACK);
+        DrawText(garnet_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 30, 20, BLACK);
+        DrawText("N to talk to Navi", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 50, 20, BLACK);
+        DrawText("Spacebar to attack", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 70, 20, BLACK);
+        DrawText("arrow keys to move", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 90, 20, BLACK);
 
         //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
         //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
+
+        if (isGameOver) {
+            DrawRectangle(knight.get_pos().x - window.GetWidth() / 2, knight.get_pos().y - window.GetHeight(),
+                window.GetWidth(),  window.GetHeight() * 2, GRAY);
+            DrawText("Game Over!", knight.get_pos().x - window.GetWidth() / 3, knight.get_pos().y - window.GetHeight() / 6, 120, BLACK);
+        }
 
         EndMode2D();
 
