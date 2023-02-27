@@ -83,7 +83,6 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-
     //Initial x and y values for the diamond.
     float d_gem_x = randomFloat(100.0f, 900.0f);
     float d_gem_y = randomFloat(100.0f, 900.0f);
@@ -126,7 +125,6 @@ int main(int argc, char* argv[])
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-
     SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
 
     raylib::AudioDevice audio{}; // necessary: initialises the audio
@@ -140,7 +138,6 @@ int main(int argc, char* argv[])
 
     raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
     Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
-
 
     //Sprite for diamond.
     raylib::Texture diamond_tex{ "../resources/time_fantasy/diamond.png" };
@@ -293,11 +290,25 @@ int main(int argc, char* argv[])
     int lines_of_text = lines_of_text_small;
 
     //sets up the strings used to split up sections of text with the AI
+    bool QuestGiven = false;
     const std::string human_stop = "Human: ";
     const std::string reaper_stop = "Grim Reaper: ";
     const std::string new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
+    std::string questText = "Sup ";
+    if (!QuestGiven)
+    {
+        questText = "I am here to reap your soul...unless you can collect a \ncollection of gems...perhaps 10 and you can live!\n";
+    }
+    else if (gems_collected < 10)
+    {
+        questText = "Have you completed your quest? \nOr shall I take your soul now??\n";
+    }
+    else
+    {
+        questText = "Well...you completed your quest, so you may live this time. \nYou are free to leave!\n";
+    }
     std::string prompt = new_lines + reaper_stop +
-        "Why are you here?\n" + human_stop;
+        questText + human_stop;
     int tail_index_large = 0;
     int tail_index_small = prompt.find(reaper_stop) - 1;
     int* tail_index = &tail_index_small;
@@ -319,9 +330,7 @@ int main(int argc, char* argv[])
     Rectangle fairy_text_box_small{ fairy_border, fairy_box_ypos, fairy_box_width, fairy_box_height_small };
     Rectangle fairy_text_box_large{ fairy_border, fairy_border,   fairy_box_width, fairy_box_height_large };
     Rectangle* fairy_text_box = &fairy_text_box_small;
-    //sets up the strings used to split up sections of text with the fairy AI. Human_stop is commented out as this is defined already in the reaper section above
-    //but has been temporarily kept here incase required as a separate one to be renamed for fairy AI.
-    //const std::string human_stop = "Human: ";
+    //sets up the strings used to split up sections of text with the fairy AI.
     const std::string fairy_stop = "Navi: ";
     const std::string fairy_new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
     std::string fairy_prompt = fairy_new_lines + fairy_stop +
@@ -638,6 +647,7 @@ int main(int argc, char* argv[])
                 dimond_gem.set_posn(d_gem_posn);
                 coin_sound.Play();
                 diamond_collected++;
+                gems_collected++;
             }
 
             //Detects the player collecting a dimond and updates the dimonds collected variable.
@@ -660,6 +670,7 @@ int main(int argc, char* argv[])
                 emerald_gem.set_posn(e_gem_posn);
                 coin_sound.Play();
                 emerald_collected++;
+                gems_collected++;
             }
 
             //Detects the player collecting a emerald and updates the emeralds collected variable.
@@ -682,6 +693,7 @@ int main(int argc, char* argv[])
                 garnet_gem.set_posn(g_gem_posn);
                 coin_sound.Play();
                 garnet_collected++;
+                gems_collected++;
             }
 
             //Detects the player collecting a garnet and updates the garnets collected variable.
