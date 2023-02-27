@@ -267,9 +267,13 @@ int main(int argc, char* argv[])
     {
         questText = "I am here to reap your soul...unless you can collect a collection of gems...perhaps 10 and you can live!";
     }
-    else
+    else if (gems_collected < 10)
     {
         questText = "Have you completed your quest? Or shall I take your soul now??";
+    }
+    else
+    {
+        questText = "Well...you completed your quest, so you may live this time. You are free to leave!";
     }
     std::string prompt = new_lines + reaper_stop +
         questText + human_stop;
