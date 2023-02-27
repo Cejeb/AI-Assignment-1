@@ -284,7 +284,10 @@ int main(int argc, char *argv[])
     music.Update();
 
     (*knight.get_sprite()).set_animation(false);
-
+    text_box_small.y = knight.get_pos().y + window.GetHeight() * 0.1;
+    text_box_small.x = knight.get_pos().x - window.GetWidth() * 0.48;
+    text_box_large.x = text_box_small.x;
+    text_box_large.y = text_box_small.y - window.GetHeight() * 0.61;
     if (display_text_box)
     {
       switch (GetKeyPressed())
