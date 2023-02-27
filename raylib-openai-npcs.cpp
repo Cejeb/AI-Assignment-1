@@ -26,12 +26,7 @@ bool detectCollision(Rectangle rect1, Rectangle rect2) {
         return true;
     else return false;
 }
-//TO-DO: Draw a game over screen
-void drawGameOver(int x, int y) {
-    DrawRectangle(0, 0, x, y, GRAY);
-    DrawText("Game Over!", x / 3, y / 6, 120, BLACK);
-}
-void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectangle sword_rect, raylib::Sound& attacksound) {
+void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectangle sword_rect, raylib::Sound& attacksound, bool &isGameOver) {
     int i = 0;
     while (i < enemies.size())
     {
@@ -48,6 +43,7 @@ void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectan
                 knight.set_lastdamage((unsigned int)(GetTime() * 1000.0));
                 if (knight.get_hp() <= 0) {
                     std::cout << "Dead";
+                    isGameOver = true;
                 }
             }
         }
@@ -313,7 +309,7 @@ int main(int argc, char* argv[])
     int fairy_tail_index_small = fairy_prompt.find(fairy_stop) - 1;
     int* fairy_tail_index = &fairy_tail_index_small;
     int fairy_nchars_entered = 0;
-
+    bool isGameOver = false;
     std::vector <Rectangle> walls{};
     walls.push_back({ 0, -20 * 48, 48, 41 * 48 });
     walls.push_back({ 20 * 48, -20 * 48, 48, 41 * 48 });
@@ -773,8 +769,8 @@ int main(int argc, char* argv[])
         */
         //Draws the characters and gems in the appropriate order for which is infront
         if (!(reaper_display_text_box || fairy_display_text_box)) {
-            damage(knight, enemies, sword_rect, zombie_sound);
-            damage(knight, enemies_bat, sword_rect, bat_sound);
+            damage(knight, enemies, sword_rect, zombie_sound, isGameOver);
+            damage(knight, enemies_bat, sword_rect, bat_sound, isGameOver);
         }
         for (int i = 0; i < enemies_bat.size(); i++) {
             (*enemies_bat.at(i)).follow(knight, 500, bat_vector, walls);
@@ -889,6 +885,12 @@ int main(int argc, char* argv[])
 
         //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
         //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
+
+        if (isGameOver) {
+            DrawRectangle(knight.get_pos().x - window.GetWidth() / 2, knight.get_pos().y - window.GetHeight(),
+                window.GetWidth(),  window.GetHeight() * 2, GRAY);
+            DrawText("Game Over!", knight.get_pos().x - window.GetWidth() / 3, knight.get_pos().y - window.GetHeight() / 6, 120, BLACK);
+        }
 
         EndMode2D();
 
