@@ -217,6 +217,13 @@ int main(int argc, char* argv[])
     Sprite bat_up{ tex7, 3, 4, zombie_pos, {9,10,11},6 };
     std::vector<Sprite*> bat_vector = { &bat_down, &bat_left, &bat_right, &bat_up };
     //Texture used for the ground material
+    raylib::Texture tex8{ "../resources/time_fantasy/fairies_1x.png" };
+    Vector2 fairy_pos = { grey_posn.x - 50, grey_posn.y };
+    Sprite fairy_down{ tex8, 12, 8, fairy_pos, {0,1,2},6 };
+    Sprite fairy_left{ tex8, 12, 8, fairy_pos, {12,13,14},6 };
+    Sprite fairy_right{ tex8, 12, 8, fairy_pos, {24,25,26},6 };
+    Sprite fairy_up{ tex8, 12, 8, fairy_pos, {36,37,38},6 };
+    std::vector<Sprite*> fairy_vector = { &fairy_down, &fairy_left, &fairy_right, &fairy_up };
     raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
 
     raylib::Texture tex4{ "../resources/time_fantasy"
@@ -233,6 +240,7 @@ int main(int argc, char* argv[])
     Sprite grnd4{ tex4, ncols, nrows, { 50, 300 }, { 15, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, } };
 
     //sets the speed of the knight, and the default sprite to use.
+    Sprite* fairy_sprite = &fairy_right;
     Sprite* grey_knight = &grey_right;
     Sprite* zombie_sprite = &zombie_down;
     Sprite* bat_sprite = &bat_down;
@@ -242,6 +250,7 @@ int main(int argc, char* argv[])
     generate_enemies(enemies, 2, zombie_sprite, window.GetWidth(), window.GetHeight(), 100, 1.5, 15);
     generate_enemies(enemies_bat, 2, bat_sprite, window.GetWidth(), window.GetHeight(), 100, 3, 10);
     entity knight(grey_knight, 100, 2.6, false, 25);
+    entity fairy(fairy_sprite, 0, 3, false, 0);
     const float grey_speed = 2.5f;
     Rectangle sword_rect{};
     //Variable to Check if the player is colliding with the reaper
@@ -777,10 +786,10 @@ int main(int argc, char* argv[])
             (*enemies.at(i)).draw();
             //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
         }
-
+        fairy.follow(knight, 10000, fairy_vector, {});
         if (isSwordActive) sword.draw();
         knight.draw_health();
-        std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem };
+        std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, fairy.get_sprite()};
         std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
             return s1->get_posn().y < s2->get_posn().y;
             }
