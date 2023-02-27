@@ -259,13 +259,12 @@ int main(int argc, char* argv[])
     const float box_ypos = (float)window.GetHeight() - 200;
     const float box_height_small = (float)window.GetHeight() - box_ypos - border;
     const float box_height_large = (float)window.GetHeight() - (2 * border);
-    const int lines_of_text_small = 4;
-    const int lines_of_text_large = 15;
-    int lines_of_text = lines_of_text_small;
     Rectangle text_box_small{ border, box_ypos, box_width, box_height_small };
     Rectangle text_box_large{ border, border,   box_width, box_height_large };
     Rectangle* text_box = &text_box_small;
-
+    const int lines_of_text_small = box_height_small / (30 + 15);
+    const int lines_of_text_large = box_height_large / (30 + 15);
+    int lines_of_text = lines_of_text_small;
 
     //sets up the strings used to split up sections of text with the AI
     const std::string human_stop = "Human: ";
@@ -288,8 +287,8 @@ int main(int argc, char* argv[])
     const float fairy_box_ypos = (float)window.GetHeight() - 200;
     const float fairy_box_height_small = (float)window.GetHeight() - fairy_box_ypos - fairy_border;
     const float fairy_box_height_large = (float)window.GetHeight() - (2 * fairy_border);
-    const int fairy_lines_of_text_small = 4;
-    const int fairy_lines_of_text_large = 15;
+    const int fairy_lines_of_text_small = box_height_small / (30 + 15);
+    const int fairy_lines_of_text_large = box_height_large / (30 + 15);
     int fairy_lines_of_text = fairy_lines_of_text_small;
     Rectangle fairy_text_box_small{ fairy_border, fairy_box_ypos, fairy_box_width, fairy_box_height_small };
     Rectangle fairy_text_box_large{ fairy_border, fairy_border,   fairy_box_width, fairy_box_height_large };
@@ -305,12 +304,28 @@ int main(int argc, char* argv[])
     int fairy_tail_index_small = fairy_prompt.find(fairy_stop) - 1;
     int* fairy_tail_index = &fairy_tail_index_small;
     int fairy_nchars_entered = 0;
+
+    std::vector <Rectangle> walls{};
+    walls.push_back({ 0, -20 * 48, 48, 41 * 48 });
+    walls.push_back({ 20 * 48, -20 * 48, 48, 41 * 48 });
+    walls.push_back({ 0, -48, 10 * 48,48 * 2 });
+    walls.push_back({ 12 * 48, -48, 9 * 48, 48 * 2 });
+    walls.push_back({ 0, -20 * 48, 20 * 48, 48 });
+    walls.push_back({ 0, 20 * 48, 20 * 48, 48 });
     //Detect window close button or ESC key
     while (!window.ShouldClose())
     {
         music.Update();
 
         (*knight.get_sprite()).set_animation(false);
+        text_box_small.y = knight.get_pos().y + window.GetHeight() * 0.1;
+        text_box_small.x = knight.get_pos().x - window.GetWidth() * 0.48;
+        text_box_large.x = text_box_small.x;
+        text_box_large.y = text_box_small.y - window.GetHeight() * 0.61;
+        fairy_text_box_small.y = text_box_small.y;
+        fairy_text_box_small.x = text_box_small.x;
+        fairy_text_box_large.x = text_box_small.x;
+        fairy_text_box_large.y = text_box_large.y;
 
         if (reaper_display_text_box)
         {
@@ -510,7 +525,7 @@ int main(int argc, char* argv[])
         else
         {
             //Changes the sprite and moves the character in the appropriate direction base on the characters input.
-            knight.move(grey_vector, enemies);
+            knight.move(grey_vector, enemies, walls);
             //sword functionality
             isSwordActive = false;
             sword_rect = {};
@@ -559,7 +574,7 @@ int main(int argc, char* argv[])
                 }
 
 
-               
+
 
             }
             //Using the N key (Navi!) to detect when the player is speaking to the fairy
@@ -748,16 +763,17 @@ int main(int argc, char* argv[])
         }
         */
         //Draws the characters and gems in the appropriate order for which is infront
-
-        damage(knight, enemies, sword_rect, zombie_sound);
-        damage(knight, enemies_bat, sword_rect, bat_sound);
+        if (!(reaper_display_text_box || fairy_display_text_box)) {
+            damage(knight, enemies, sword_rect, zombie_sound);
+            damage(knight, enemies_bat, sword_rect, bat_sound);
+        }
         for (int i = 0; i < enemies_bat.size(); i++) {
-            (*enemies_bat.at(i)).follow(knight, 500, bat_vector);
+            (*enemies_bat.at(i)).follow(knight, 500, bat_vector, walls);
             (*enemies_bat.at(i)).draw();
             //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
         }
         for (int i = 0; i < enemies.size(); i++) {
-            (*enemies.at(i)).follow(knight, 300, zombie_vector);
+            (*enemies.at(i)).follow(knight, 300, zombie_vector, walls);
             (*enemies.at(i)).draw();
             //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
         }
@@ -857,10 +873,10 @@ int main(int argc, char* argv[])
         }
 
         //Draws text onto the screen displaying how many gems have been collected.
-        DrawText(gem_string.c_str(), 50, 10, 20, BLACK);
-        DrawText(diamond_string.c_str(), 50, 30, 20, BLACK);
-        DrawText(emerald_string.c_str(), 50, 50, 20, BLACK);
-        DrawText(garnet_string.c_str(), 50, 70, 20, BLACK);
+        DrawText(gem_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 30, 20, BLACK);
+        DrawText(diamond_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 10, 20, BLACK);
+        DrawText(emerald_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 10, 20, BLACK);
+        DrawText(garnet_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 30, 20, BLACK);
 
         //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
         //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
