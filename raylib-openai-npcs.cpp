@@ -259,14 +259,12 @@ int main(int argc, char *argv[])
   const float box_ypos = (float)window.GetHeight() - 200;
   const float box_height_small = (float)window.GetHeight() - box_ypos - border;
   const float box_height_large = (float)window.GetHeight() - (2 * border);
-  const int lines_of_text_small = 4;
-  const int lines_of_text_large = 15;
-  int lines_of_text = lines_of_text_small;
   Rectangle text_box_small{ border, box_ypos, box_width, box_height_small };
   Rectangle text_box_large{ border, border,   box_width, box_height_large };
-  Rectangle* text_box = &text_box_small;
-  
- 
+  Rectangle* text_box = &text_box_small; //11
+  const int lines_of_text_small = box_height_small /(30+15);
+  const int lines_of_text_large = box_height_large /(30 + 15);
+  int lines_of_text = lines_of_text_small;
   //sets up the strings used to split up sections of text with the AI
   const std::string human_stop = "Human: ";
   const std::string reaper_stop = "Grim Reaper: ";
@@ -620,9 +618,10 @@ int main(int argc, char *argv[])
     }
     */
     //Draws the characters and gems in the appropriate order for which is infront
-
-    damage(knight, enemies, sword_rect, zombie_sound);
-    damage(knight, enemies_bat, sword_rect, bat_sound);
+    if (!display_text_box) {
+        damage(knight, enemies, sword_rect, zombie_sound);
+        damage(knight, enemies_bat, sword_rect, bat_sound);
+    }
     for (int i = 0; i < enemies_bat.size(); i++) {
         (*enemies_bat.at(i)).follow(knight, 500, bat_vector);
         (*enemies_bat.at(i)).draw();
