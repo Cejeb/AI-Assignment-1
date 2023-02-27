@@ -458,7 +458,7 @@ int main(int argc, char *argv[])
 
 
       //Detects the player collecting a dimond and updates the dimonds collected variable.
-      if (Vector2Distance(grey_posn, dimond_gem.get_posn()) < 40.0f)
+      if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f)
       {
           d_gem_x = randomFloat(100.0f, 900.0f);
           d_gem_y = randomFloat(100.0f, 500.0f);
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
       }
 
         //Detects the player collecting a emerald and updates the emeralds collected variable.
-      if (Vector2Distance(grey_posn, emerald_gem.get_posn()) < 40.0f)
+      if (Vector2Distance(knight.get_pos(), emerald_gem.get_posn()) < 40.0f)
       {
           e_gem_x = randomFloat(150.0f, 950.0f);
           e_gem_y = randomFloat(150.0f, 550.0f);
@@ -480,7 +480,7 @@ int main(int argc, char *argv[])
       }
 
       //Detects the player collecting a garnet and updates the garnets collected variable.
-      if (Vector2Distance(grey_posn, garnet_gem.get_posn()) < 40.0f)
+      if (Vector2Distance(knight.get_pos(), garnet_gem.get_posn()) < 40.0f)
       {
           g_gem_x = randomFloat(150.0f, 950.0f);
           g_gem_y = randomFloat(150.0f, 550.0f);
