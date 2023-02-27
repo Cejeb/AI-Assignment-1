@@ -268,11 +268,21 @@ int main(int argc, char* argv[])
 
 
     //sets up the strings used to split up sections of text with the AI
+    bool QuestGiven = false;
     const std::string human_stop = "Human: ";
     const std::string reaper_stop = "Grim Reaper: ";
     const std::string new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
+    std::string questText = "Sup ";
+    if (!QuestGiven)
+    {
+        questText = "I am here to reap your soul...unless you can collect a collection of gems...perhaps 10 and you can live!";
+    }
+    else
+    {
+        questText = "Have you completed your quest? Or shall I take your soul now??";
+    }
     std::string prompt = new_lines + reaper_stop +
-        "Why are you here?\n" + human_stop;
+        questText + human_stop;
     int tail_index_large = 0;
     int tail_index_small = prompt.find(reaper_stop) - 1;
     int* tail_index = &tail_index_small;
@@ -294,9 +304,7 @@ int main(int argc, char* argv[])
     Rectangle fairy_text_box_small{ fairy_border, fairy_box_ypos, fairy_box_width, fairy_box_height_small };
     Rectangle fairy_text_box_large{ fairy_border, fairy_border,   fairy_box_width, fairy_box_height_large };
     Rectangle* fairy_text_box = &fairy_text_box_small;
-    //sets up the strings used to split up sections of text with the fairy AI. Human_stop is commented out as this is defined already in the reaper section above
-    //but has been temporarily kept here incase required as a separate one to be renamed for fairy AI.
-    //const std::string human_stop = "Human: ";
+    //sets up the strings used to split up sections of text with the fairy AI.
     const std::string fairy_stop = "Navi: ";
     const std::string fairy_new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
     std::string fairy_prompt = fairy_new_lines + fairy_stop +
