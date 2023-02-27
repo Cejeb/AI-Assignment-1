@@ -689,7 +689,14 @@ int main(int argc, char *argv[])
     DrawText(diamond_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 10, 20, BLACK);
     DrawText(emerald_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 +10, 20, BLACK);
     DrawText(garnet_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 30, 20, BLACK);
-    
+    //left
+    DrawRectangle(0, -20 * 48, 48, 41 * 48, BLACK);
+    DrawRectangle(20 * 48, -20 * 48, 48, 41 * 48, BLACK);
+    DrawRectangle(0, -48, 10 * 48,48 *2 , BLACK);
+    //top 2
+    DrawRectangle(12 * 48, -48, 9 * 48, 48 *2, BLACK);
+    DrawRectangle(0, -20 * 48, 20 * 48, 48, BLACK);
+    DrawRectangle(0, 20 * 48, 20 * 48, 48, BLACK);
     //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
     //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
 
