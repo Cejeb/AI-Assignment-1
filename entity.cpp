@@ -34,46 +34,70 @@ namespace aipfg {
 			isHostile_{isHostile},
 			damage_{damage}
 		{ }
-		void follow(entity entity, int distance, std::vector<Sprite*> &vector) {
+		void follow(entity entity, int distance, std::vector<Sprite*> &vector, std::vector<Rectangle> walls) {
 			Rectangle entityrect = entity.calculate_rectangle();
 			Rectangle selfrect = calculate_rectangle();
 			Vector2 entitycenter = { entityrect.x+ entityrect.width /2, entityrect.y + entityrect.height /2 };
+			bool collision = false;
 				if (CheckCollisionCircleRec(entitycenter, (float)distance, calculate_rectangle())){
-				if (abs(get_pos().x - entity.get_pos().x)
-					>= abs(get_pos().y - entity.get_pos().y)) {
+					if (abs(get_pos().x - entity.get_pos().x)
+						>= abs(get_pos().y - entity.get_pos().y)) {
 
-					if (get_pos().x - entity.get_pos().x >= 0) {
-						selfrect.x -= get_speed();
-						if (!CheckCollisionRecs(entityrect, selfrect)) {
-						set_pos({ get_pos().x - get_speed()
-							, get_pos().y });
-							set_sprite((*vector.at(1)));
-					}
-					}
-					else {
-						selfrect.x += get_speed();
-						if (!CheckCollisionRecs(entityrect, selfrect)) {
-							set_pos({ get_pos().x + get_speed()
-							   , get_pos().y });
-							set_sprite((*vector.at(2)));
+						if (get_pos().x - entity.get_pos().x >= 0) {
+							selfrect.x -= get_speed();
+							for (int i = 0; i < walls.size(); i++) {
+								if (CheckCollisionRecs(walls.at(i), selfrect)) {
+									collision = true;
+								}
+							}
+							if (!CheckCollisionRecs(entityrect, selfrect) && !collision) {
+								set_pos({ get_pos().x - get_speed()
+									, get_pos().y });
+								set_sprite((*vector.at(1)));
+							}
 						}
+						else {
+							selfrect.x += get_speed();
+							for (int i = 0; i < walls.size(); i++) {
+								if (CheckCollisionRecs(walls.at(i), selfrect)) {
+									collision = true;
+								}
+							}
+							if (!CheckCollisionRecs(entityrect, selfrect) && !collision) {
+								set_pos({ get_pos().x + get_speed()
+								   , get_pos().y });
+								set_sprite((*vector.at(2)));
+							}
+						}
+
 					}
-				}
 				else if (get_pos().y - entity.get_pos().y >= 0) {
 					selfrect.y -= get_speed();
-					if (!CheckCollisionRecs(entityrect, selfrect)) {
-						set_pos({ get_pos().x
-											, get_pos().y - get_speed() });
-						set_sprite((*vector.at(3)));
+					for (int i = 0; i < walls.size(); i++) {
+						if (CheckCollisionRecs(walls.at(i), selfrect)) {
+							collision = true;
+						}
 					}
+					if (!CheckCollisionRecs(entityrect, selfrect) && !collision) {
+							set_pos({ get_pos().x
+												, get_pos().y - get_speed() });
+							set_sprite((*vector.at(3)));
+						}
+					
 				}
 				else {
 					selfrect.y += get_speed();
-					if (!CheckCollisionRecs(entityrect, selfrect)) {
-						set_pos({ get_pos().x
-											, get_pos().y + get_speed() });
-						set_sprite((*vector.at(0)));
+					for (int i = 0; i < walls.size(); i++) {
+						if (CheckCollisionRecs(walls.at(i), selfrect)) {
+							collision = true;
+						}
 					}
+					if (!CheckCollisionRecs(entityrect, selfrect) && !collision) {
+							set_pos({ get_pos().x
+												, get_pos().y + get_speed() });
+							set_sprite((*vector.at(0)));
+						}
+					
 				}
 				
 				(*get_sprite()).set_posn(get_pos());
@@ -85,6 +109,7 @@ namespace aipfg {
 			}
 			
 		}
+
 		Rectangle calculate_rectangle() {
 			return { get_pos().x + 12, get_pos().y + 23,(float)(*get_sprite()).get_sprite_width()-26, (float)(*get_sprite()).get_sprite_height() - 23 };
 		}

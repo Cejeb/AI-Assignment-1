@@ -276,6 +276,14 @@ int main(int argc, char *argv[])
   int* tail_index = &tail_index_small;
   int nchars_entered = 0;
   unsigned int last_sword = (unsigned int)(GetTime() * 1000.0);
+  std::vector <Rectangle> walls{};
+  walls.push_back({ 0, -20 * 48, 48, 41 * 48 });
+  walls.push_back({ 20 * 48, -20 * 48, 48, 41 * 48 });
+  walls.push_back({ 0, -48, 10 * 48,48 * 2 });
+  walls.push_back({ 12 * 48, -48, 9 * 48, 48 * 2 });
+  walls.push_back({ 0, -20 * 48, 20 * 48, 48 });
+  walls.push_back({ 0, 20 * 48, 20 * 48, 48 });
+
   //Detect window close button or ESC key
   while (!window.ShouldClose()) 
   {
@@ -623,12 +631,12 @@ int main(int argc, char *argv[])
         damage(knight, enemies_bat, sword_rect, bat_sound);
     }
     for (int i = 0; i < enemies_bat.size(); i++) {
-        (*enemies_bat.at(i)).follow(knight, 500, bat_vector);
+        (*enemies_bat.at(i)).follow(knight, 500, bat_vector, walls);
         (*enemies_bat.at(i)).draw();
         //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
     }
     for (int i = 0; i < enemies.size(); i++) {
-        (*enemies.at(i)).follow(knight, 300, zombie_vector);
+        (*enemies.at(i)).follow(knight, 300, zombie_vector, walls);
         (*enemies.at(i)).draw();
         //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
     }
@@ -689,14 +697,7 @@ int main(int argc, char *argv[])
     DrawText(diamond_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 10, 20, BLACK);
     DrawText(emerald_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 +10, 20, BLACK);
     DrawText(garnet_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 30, 20, BLACK);
-    //left
-    DrawRectangle(0, -20 * 48, 48, 41 * 48, BLACK);
-    DrawRectangle(20 * 48, -20 * 48, 48, 41 * 48, BLACK);
-    DrawRectangle(0, -48, 10 * 48,48 *2 , BLACK);
-    //top 2
-    DrawRectangle(12 * 48, -48, 9 * 48, 48 *2, BLACK);
-    DrawRectangle(0, -20 * 48, 20 * 48, 48, BLACK);
-    DrawRectangle(0, 20 * 48, 20 * 48, 48, BLACK);
+
     //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
     //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
 
