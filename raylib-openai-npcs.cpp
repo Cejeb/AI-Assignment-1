@@ -100,6 +100,18 @@ int main(int argc, char* argv[])
     float g_gem_y = randomFloat(200.0f, 600.0f);
 
 
+    //Initial x and y values for the 2nd diamond.
+    float d2_gem_x = randomFloat(100.0f, 900.0f);
+    float d2_gem_y = randomFloat(-100.0f, -500.0f);
+
+    //Initial x and y values for the 2nd emerald.
+    float e2_gem_x = randomFloat(150.0f, 950.0f);
+    float e2_gem_y = randomFloat(-150.0f, -550.0f);
+    //Initial x and y values for the 2nd garnet.
+    float g2_gem_x = randomFloat(200.0f, 1000.0f);
+    float g2_gem_y = randomFloat(-200.0f, -600.0f);
+
+
 
 
     //variable to track the number of gems collected
