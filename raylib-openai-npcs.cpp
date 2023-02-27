@@ -637,7 +637,7 @@ int main(int argc, char* argv[])
             if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f)
             {
                 d_gem_x = randomFloat(100.0f, 900.0f);
-                d_gem_y = randomFloat(100.0f, 950.0f);
+                d_gem_y = randomFloat(100.0f, 900.0f);
                 d_gem_posn = { d_gem_x , d_gem_y };
                 dimond_gem.set_posn(d_gem_posn);
                 coin_sound.Play();
@@ -647,8 +647,8 @@ int main(int argc, char* argv[])
             //Detects the player collecting a dimond and updates the dimonds collected variable.
             if (Vector2Distance(knight.get_pos(), dimond2_gem.get_posn()) < 40.0f)
             {
-                d2_gem_x = randomFloat(100.0f, 1000.0f);
-                d2_gem_y = randomFloat(-100.0f, -950.0f);
+                d2_gem_x = randomFloat(100.0f, 900.0f);
+                d2_gem_y = randomFloat(-100.0f, -900.0f);
                 d2_gem_posn = { d2_gem_x , d2_gem_y };
                 dimond2_gem.set_posn(d2_gem_posn);
                 coin_sound.Play();
@@ -658,8 +658,8 @@ int main(int argc, char* argv[])
             //Detects the player collecting a emerald and updates the emeralds collected variable.
             if (Vector2Distance(knight.get_pos(), emerald_gem.get_posn()) < 40.0f)
             {
-                e_gem_x = randomFloat(150.0f, 950.0f);
-                e_gem_y = randomFloat(150.0f, 950.0f);
+                e_gem_x = randomFloat(150.0f, 900.0f);
+                e_gem_y = randomFloat(150.0f, 900.0f);
                 e_gem_posn = { e_gem_x , e_gem_y };
                 emerald_gem.set_posn(e_gem_posn);
                 coin_sound.Play();
@@ -669,8 +669,8 @@ int main(int argc, char* argv[])
             //Detects the player collecting a emerald and updates the emeralds collected variable.
             if (Vector2Distance(knight.get_pos(), emerald2_gem.get_posn()) < 40.0f)
             {
-                e2_gem_x = randomFloat(100.0f, 1000.0f);
-                e2_gem_y = randomFloat(-100.0f, -950.0f);
+                e2_gem_x = randomFloat(100.0f, 900.0f);
+                e2_gem_y = randomFloat(-100.0f, -900.0f);
                 e2_gem_posn = { e2_gem_x , e2_gem_y };
                 emerald2_gem.set_posn(e2_gem_posn);
                 coin_sound.Play();
@@ -680,8 +680,8 @@ int main(int argc, char* argv[])
             //Detects the player collecting a garnet and updates the garnets collected variable.
             if (Vector2Distance(knight.get_pos(), garnet_gem.get_posn()) < 40.0f)
             {
-                g_gem_x = randomFloat(150.0f, 950.0f);
-                g_gem_y = randomFloat(150.0f, 950.0f);
+                g_gem_x = randomFloat(150.0f, 900.0f);
+                g_gem_y = randomFloat(150.0f, 900.0f);
                 g_gem_posn = { g_gem_x , g_gem_y };
                 garnet_gem.set_posn(g_gem_posn);
                 coin_sound.Play();
@@ -691,8 +691,8 @@ int main(int argc, char* argv[])
             //Detects the player collecting a garnet and updates the garnets collected variable.
             if (Vector2Distance(knight.get_pos(), garnet2_gem.get_posn()) < 40.0f)
             {
-                g2_gem_x = randomFloat(100.0f, 1000.0f);
-                g2_gem_y = randomFloat(-100.0f, -950.0f);
+                g2_gem_x = randomFloat(100.0f, 900.0f);
+                g2_gem_y = randomFloat(-100.0f, -900.0f);
                 g2_gem_posn = { g2_gem_x , g2_gem_y };
                 garnet2_gem.set_posn(g2_gem_posn);
                 coin_sound.Play();
