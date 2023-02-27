@@ -92,7 +92,6 @@ int main(int argc, char* argv[])
 
     //bool reaper_text_box = true; SetExitKey(0); // debug
     //The code for the text box when speaking to the reaper
-    /*
     bool reaper_display_text_box = false;
     const float border = 20;
     const float box_width = (float)window.GetWidth() - (2 * border);
@@ -117,7 +116,7 @@ int main(int argc, char* argv[])
     int tail_index_large = 0;
     int tail_index_small = prompt.find(reaper_stop) - 1;
     int* tail_index = &tail_index_small;
-    int nchars_entered = 0;*/
+    int nchars_entered = 0;
 
     //bool reaper_text_box = true; SetExitKey(0); // debug
     //The code for the text box when speaking to the fairy
@@ -138,7 +137,7 @@ int main(int argc, char* argv[])
 
     //sets up the strings used to split up sections of text with the fairy AI. Human_stop is commented out as this is defined already in the reaper section above
     //but has been temporarily kept here incase required as a separate one to be renamed for fairy AI.
-    const std::string human_stop = "Human: ";
+    //const std::string human_stop = "Human: ";
     const std::string fairy_stop = "Navi: ";
     const std::string fairy_new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
     std::string fairy_prompt = fairy_new_lines + fairy_stop +
@@ -156,7 +155,7 @@ int main(int argc, char* argv[])
         (*grey_knight).set_animation(false);
 
         //This section activates when the player approaches the reaper to speak to them.
-        /*if (reaper_display_text_box)
+        if (reaper_display_text_box)
         {
             switch (GetKeyPressed())
             {
@@ -252,7 +251,8 @@ int main(int argc, char* argv[])
                     nchars_entered++;
                 }
             }
-        }*/
+        }
+
         //This section activates when the player summons the fairy to speak to.
         if (fairy_display_text_box)
         {
@@ -382,7 +382,6 @@ int main(int argc, char* argv[])
             (*grey_knight).set_posn(grey_posn);
 
             //Detects the player being close enough to the reaper to "collide"
-            /*
             if (Vector2Distance(grey_posn, reaper.get_posn()) < 30.0f)
             {
                 //makes sure player is not already colliding with the reaper
@@ -398,10 +397,10 @@ int main(int argc, char* argv[])
             else
             {
                 reaper_collision = false;
-            }*/
+            }
 
             //Using the N key (Navi!) to detect when the player is speaking to the fairy
-            if (IsKeyDown(KEY_N))
+            if (IsKeyDown(KEY_N) && !reaper_display_text_box)
             {
                 fairy_display_text_box = true;
                 SetExitKey(0);
@@ -463,9 +462,9 @@ int main(int argc, char* argv[])
             (*grey_knight).draw();
         }
 
-        //Displays the text box for speaking to the reaper
+        //Displays the text box for speaking to the fairy
 
-        if (fairy_display_text_box)
+        if (fairy_display_text_box && !reaper_display_text_box)
         {
             Color light_gray_transparent{ 80, 80, 80, 192 }; // 192/256 nontransparent
             DrawRectangleRec(*fairy_text_box, light_gray_transparent);
@@ -509,8 +508,7 @@ int main(int argc, char* argv[])
             }
 
         //Displays the text box for speaking to the reaper
-        /*
-        if (reaper_display_text_box)
+        if (reaper_display_text_box && !fairy_display_text_box)
         {
             Color light_gray_transparent{ 80, 80, 80, 192 }; // 192/256 nontransparent
             DrawRectangleRec(*text_box, light_gray_transparent);
@@ -544,7 +542,7 @@ int main(int argc, char* argv[])
             }
             //std::cout << help_s;
             DrawText(help_s.c_str(), (*text_box).x + 12, (*text_box).y + 12, font_size, WHITE);
-        }*/
+        }
 
         //Draws text onto the screen displaying how many gems have been collected.
         DrawText(gem_string.c_str(), 50, 50, 30, BLACK);
