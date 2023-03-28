@@ -73,6 +73,58 @@ void generate_enemies(std::vector <aipfg::entity*>& enemies, int amount, aipfg::
         enemies.push_back(entity);
     }
 }
+
+bool attack(aipfg::entity &knight, unsigned int &last_sword, bool &isSwordActive, Rectangle &sword_rect, std::vector<aipfg::Sprite> &grey_vector, aipfg::Sprite &sword) {
+    if (IsKeyPressed(KEY_SPACE) || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
+        unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
+        Vector2 sword_pos = knight.get_pos();
+
+        if (last_sword == 0 || milliseconds - last_sword >= 500 || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
+            int sword_height = 40;
+            int sword_width = 114;
+            if (knight.get_sprite() == &grey_vector.at(0)) {
+                //down
+                sword.set_angle(90);
+                sword_pos.x = sword_pos.x + 70;
+                sword_pos.y = sword_pos.y + 80;
+                sword_rect = { sword_pos.x - sword_height - 12, sword_pos.y + 5, (float)sword_height, (float)sword_width };
+            }
+            else if (knight.get_sprite() == &grey_vector.at(1)) {
+                //left
+                sword_pos.x = sword_pos.x + 30;
+                sword_pos.y = sword_pos.y + 100;
+                sword.set_angle(180);
+                sword_rect = { sword_pos.x - sword_width - 5, sword_pos.y - sword_height - 12, (float)sword_width, (float)sword_height };
+            }
+            else if (knight.get_sprite() == &grey_vector.at(3)) {
+                //up
+                sword_pos.x = sword_pos.x + 5;
+                sword_pos.y = sword_pos.y + 40;
+                sword.set_angle(270);
+                sword_rect = { sword_pos.x + 13, sword_pos.y - sword_width - 5, (float)sword_height, (float)sword_width };
+
+            }
+            else if (knight.get_sprite() == &grey_vector.at(2)) {
+                //right
+                sword.set_angle(0);
+                sword_pos.x = sword_pos.x + 30;
+                sword_pos.y = sword_pos.y + 40;
+                sword_rect = { sword_pos.x + 5, sword_pos.y + 12, (float)sword_width, (float)sword_height };
+            }
+            sword.set_posn(sword_pos);
+            isSwordActive = true;
+            if (!((unsigned int)(GetTime() * 1000.0) - last_sword <= 200)) {
+                last_sword = (unsigned int)(GetTime() * 1000.0);
+            }
+            return true;
+        }
+
+
+
+
+    }
+    return false;
+}
 int main(int argc, char* argv[])
 {
     using namespace aipfg;
@@ -568,7 +620,10 @@ int main(int argc, char* argv[])
             //sword functionality
             isSwordActive = false;
             sword_rect = {};
-            if (IsKeyPressed(KEY_SPACE) || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
+            if (attack(knight, last_sword, isSwordActive, sword_rect, grey_vector, sword)) {
+                sword_sound.Play();
+            }
+           /* if (IsKeyPressed(KEY_SPACE) || (unsigned int)(GetTime() * 1000.0) - last_sword <= 200) {
                 unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
                 Vector2 sword_pos = knight.get_pos();
 
@@ -615,7 +670,7 @@ int main(int argc, char* argv[])
 
 
 
-            }
+            }*/
             //Using the N key (Navi!) to detect when the player is speaking to the fairy
             if (IsKeyDown(KEY_N) && !reaper_display_text_box)
             {
