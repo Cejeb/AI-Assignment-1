@@ -1,0 +1,4 @@
+[submodule "vendor/tileson"]
+	path = vendor/tileson
+	url = https://github.com/SSBMTonberry/tileson.git
+    ignore = dirty

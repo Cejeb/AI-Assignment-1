@@ -2,13 +2,14 @@
 #include "openai-helper.hpp"
 #include "raylib-cpp.hpp"
 #include "entity.cpp"
+#include "raylib-tileson.h"
 #include <string>
 #include <optional>
 #include <vector>
 #include <numeric> // std::iota
 #include <iostream>
 #include <algorithm>
-
+#include <map> 
 void update_prompt(std::string& prompt, char c, const int font_size,
     const float max_text_width, int& tail_index_large,
     int& tail_index_small, int& nchars_entered);
@@ -127,13 +128,13 @@ bool attack(aipfg::entity &knight, unsigned int &last_sword, Rectangle &sword_re
 int main(int argc, char* argv[])
 {
     using namespace aipfg;
-
+    
     openai_helper oai_help;
     if (!oai_help.init())
     {
         return -1;
     }
-
+    
     //Initial x and y values for the diamond.
     float d_gem_x = randomFloat(100.0f, 900.0f);
     float d_gem_y = randomFloat(100.0f, 900.0f);
@@ -293,7 +294,9 @@ int main(int argc, char* argv[])
 
     raylib::Texture tex4{ "../resources/time_fantasy"
                         "/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" };
-
+    //Map
+    Map map = LoadTiled("../resources/ashlands.json");
+    //
     ncols = 8; nrows = 16;
     std::vector<int> frame_ids(ncols * nrows);
     std::iota(frame_ids.begin(), frame_ids.end(), 0);
@@ -976,12 +979,13 @@ int main(int argc, char* argv[])
                 window.GetWidth(),  window.GetHeight() * 2, GRAY);
             DrawText("Game Over!", knight.get_pos().x - window.GetWidth() / 3, knight.get_pos().y - window.GetHeight() / 6, 120, BLACK);
         }
-
+        //Draws map, for testing purposes
+        //DrawTiled(map, 0, 0, WHITE);
         EndMode2D();
 
         EndDrawing();
     }
-
+    //UnloadMap(map);
     return 0;
 }
 
