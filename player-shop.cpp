@@ -1,0 +1,2 @@
+int currency = 0;
+

@@ -3,6 +3,7 @@
 #include "raylib-cpp.hpp"
 #include "entity.cpp"
 #include "raylib-tileson.h"
+#include "player-shop.cpp"
 #include <string>
 #include <optional>
 #include <vector>
@@ -628,6 +629,13 @@ int main(int argc, char* argv[])
             else {
                 isSwordActive = false;
             }
+
+            //Using the P key (PlayerShop) to detect when the player is opening the shop
+            if (IsKeyDown(KEY_P) && !reaper_display_text_box && !fairy_display_text_box)
+            {
+
+                SetExitKey(0);
+            }
            
             //Using the N key (Navi!) to detect when the player is speaking to the fairy
             if (IsKeyDown(KEY_N) && !reaper_display_text_box)
@@ -635,6 +643,7 @@ int main(int argc, char* argv[])
                 fairy_display_text_box = true;
                 SetExitKey(0);
             }
+
             //Detects the player being close enough to the reaper to "collide"
             if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 30.0f)
             {
@@ -665,6 +674,7 @@ int main(int argc, char* argv[])
                 coin_sound.Play();
                 diamond_collected++;
                 gems_collected++;
+                currency = currency + 10;
             }
 
             //Detects the player collecting a dimond and updates the dimonds collected variable.
@@ -688,6 +698,7 @@ int main(int argc, char* argv[])
                 coin_sound.Play();
                 emerald_collected++;
                 gems_collected++;
+                currency = currency + 5;
             }
 
             //Detects the player collecting a emerald and updates the emeralds collected variable.
@@ -711,6 +722,7 @@ int main(int argc, char* argv[])
                 coin_sound.Play();
                 garnet_collected++;
                 gems_collected++;
+                currency = currency + 3;
             }
 
             //Detects the player collecting a garnet and updates the garnets collected variable.
@@ -728,7 +740,7 @@ int main(int argc, char* argv[])
 
 
         //Converts the gems collected integer into a string that can be displayed
-        std::string gem_string = "Total Score: " + std::to_string((diamond_collected * 10) + (emerald_collected * 5) + (garnet_collected * 5));
+        std::string gem_string = "Total Currency: " + std::to_string(currency);
         std::string diamond_string = "Diamonds Collected: " + std::to_string(diamond_collected);
         std::string emerald_string = "Emeralds Collected: " + std::to_string(emerald_collected);
         std::string garnet_string = "Garnets Collected: " + std::to_string(garnet_collected);
