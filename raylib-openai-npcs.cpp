@@ -633,7 +633,7 @@ int main(int argc, char* argv[])
             //Using the P key (PlayerShop) to detect when the player is opening the shop
             if (IsKeyDown(KEY_P) && !reaper_display_text_box && !fairy_display_text_box)
             {
-
+                shop();
                 SetExitKey(0);
             }
            
