@@ -214,8 +214,11 @@ namespace aipfg {
 				if (!collision) {
 						set_pos({ get_pos().x + get_speed()
 						, get_pos().y });
-					}
 				}
+			}
+			else {
+				(*get_sprite()).set_animation(false);
+			}
 			
 
 			(*get_sprite()).set_posn(get_pos());

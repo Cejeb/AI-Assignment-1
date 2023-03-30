@@ -3,6 +3,7 @@
 #include "raylib-cpp.hpp"
 #include "entity.cpp"
 #include "raylib-tileson.h"
+#include "textbox.cpp"
 #include <string>
 #include <optional>
 #include <vector>
@@ -124,6 +125,25 @@ bool attack(aipfg::entity &knight, unsigned int &last_sword, Rectangle &sword_re
 
     }
     return false;
+}
+aipfg::textbox make_reaper(raylib::Window& window, aipfg::openai_helper& oai_help) {
+    std::string const nature = "The following is a conversation with the grim reaper. The grim "
+        "reaper is a personified force. In some mythologies, the grim "
+        "reaper causes the victim's death by coming to collect that "
+        " person's soul.\n\n";
+    std::string const gambit = "Why are you here?";
+    std::string const name = "Reaper:";
+    return { window, nature, gambit, name, oai_help };
+}
+aipfg::textbox make_navi(raylib::Window& window, aipfg::openai_helper& oai_help) {
+    std::string const nature = "The following is a conversation with Navi. Navi "
+                    "is a personified force in a fairy body. Navi is a companion "
+                    "who will be sarcastic and unhelpful to the player, often stating the obvious. "
+                    "Navi knows the player is meant to be collecting gems, and is able to tell them this, but does not know how or why."
+        "Navi will also sometimes tell them random facts about the grim reaper, diamonds or emeralds.\n\n";
+    std::string const gambit = "Do you require help with anything?";
+    std::string const name = "Navi:";
+    return { window, nature, gambit, name, oai_help };
 }
 int main(int argc, char* argv[])
 {
@@ -323,68 +343,11 @@ int main(int argc, char* argv[])
     Rectangle sword_rect{};
     //Variable to Check if the player is colliding with the reaper
     bool reaper_collision = false;
-
-    // n.b. "spacing" varies with the font & font size
-    const int font_size = 30;
-
-    //bool display_text_box = true; SetExitKey(0); // debug
-    bool reaper_display_text_box = false;
-    const float border = 20;
-    const float box_width = (float)window.GetWidth() - (2 * border);
-    const float average_word_size = MeasureText("Abcdef", font_size);
-    const float max_text_width = box_width - average_word_size;
-    const float box_ypos = (float)window.GetHeight() - 200;
-    const float box_height_small = (float)window.GetHeight() - box_ypos - border;
-    const float box_height_large = (float)window.GetHeight() - (2 * border);
-    Rectangle text_box_small{ border, box_ypos, box_width, box_height_small };
-    Rectangle text_box_large{ border, border,   box_width, box_height_large };
-    Rectangle* text_box = &text_box_small;
-    const int lines_of_text_small = box_height_small / (30 + 15);
-    const int lines_of_text_large = box_height_large / (30 + 15);
-    int lines_of_text = lines_of_text_small;
-
-    //sets up the strings used to split up sections of text with the AI
-    bool QuestGiven = false;
-    const std::string human_stop = "Human: ";
-    const std::string reaper_stop = "Grim Reaper: ";
-    const std::string new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
-    std::string questText = "Sup ";
-    if (!QuestGiven)
-    {
-        questText = "I am here to reap your soul...unless you can collect a \ncollection of gems...perhaps 10 and you can live!\n";
-    }
-    std::string prompt = new_lines + reaper_stop +
-        questText + human_stop;
-    int tail_index_large = 0;
-    int tail_index_small = prompt.find(reaper_stop) - 1;
-    int* tail_index = &tail_index_small;
-    int nchars_entered = 0;
+    std::vector <textbox> textboxes;
+    textboxes.push_back(make_reaper(window, oai_help));
+    textboxes.push_back(make_navi(window, oai_help)); 
     unsigned int last_sword = (unsigned int)(GetTime() * 1000.0);
-
-    //The code for the text box when speaking to the fairy
-    bool fairy_display_text_box = false;
-    const float fairy_border = 20;
-    const float fairy_box_width = (float)window.GetWidth() - (2 * fairy_border);
-    const float fairy_average_word_size = MeasureText("Abcdef", font_size);
-    const float fairy_max_text_width = fairy_box_width - fairy_average_word_size;
-    const float fairy_box_ypos = (float)window.GetHeight() - 200;
-    const float fairy_box_height_small = (float)window.GetHeight() - fairy_box_ypos - fairy_border;
-    const float fairy_box_height_large = (float)window.GetHeight() - (2 * fairy_border);
-    const int fairy_lines_of_text_small = box_height_small / (30 + 15);
-    const int fairy_lines_of_text_large = box_height_large / (30 + 15);
-    int fairy_lines_of_text = fairy_lines_of_text_small;
-    Rectangle fairy_text_box_small{ fairy_border, fairy_box_ypos, fairy_box_width, fairy_box_height_small };
-    Rectangle fairy_text_box_large{ fairy_border, fairy_border,   fairy_box_width, fairy_box_height_large };
-    Rectangle* fairy_text_box = &fairy_text_box_small;
-    //sets up the strings used to split up sections of text with the fairy AI.
-    const std::string fairy_stop = "Navi: ";
-    const std::string fairy_new_lines = "\n\n\n\n\n\n\n\n\n"; // 9
-    std::string fairy_prompt = fairy_new_lines + fairy_stop +
-        "I am Navi, your fairy! How can I help with your quest?\n" + human_stop;
-    int fairy_tail_index_large = 0;
-    int fairy_tail_index_small = fairy_prompt.find(fairy_stop) - 1;
-    int* fairy_tail_index = &fairy_tail_index_small;
-    int fairy_nchars_entered = 0;
+    // n.b. "spacing" varies with the font & font size
     bool isGameOver = false;
     std::vector <Rectangle> walls{};
     walls.push_back({ 0, -20 * 48, 48, 41 * 48 });
@@ -396,228 +359,13 @@ int main(int argc, char* argv[])
     //Detect window close button or ESC key
     while (!window.ShouldClose())
     {
-        if (QuestGiven && gems_collected < 10)
-        {
-            questText = "Have you completed your quest? \nOr shall I take your soul now??\n";
-    }
-        else if(QuestGiven && gems_collected >=10)
-        {
-            questText = "Well...you completed your quest, so you may live this time. \nYou are free to leave!\n";
-    }
-    prompt = new_lines + reaper_stop +
-        questText + human_stop;
-        music.Update();
-
-        (*knight.get_sprite()).set_animation(false);
-        text_box_small.y = knight.get_pos().y + window.GetHeight() * 0.1;
-        text_box_small.x = knight.get_pos().x - window.GetWidth() * 0.48;
-        text_box_large.x = text_box_small.x;
-        text_box_large.y = text_box_small.y - window.GetHeight() * 0.61;
-        fairy_text_box_small.y = text_box_small.y;
-        fairy_text_box_small.x = text_box_small.x;
-        fairy_text_box_large.x = text_box_small.x;
-        fairy_text_box_large.y = text_box_large.y;
-
-        if (reaper_display_text_box)
-        {
-            
-            switch (GetKeyPressed())
-            {
-            case KEY_ESCAPE:
-                if (text_box == &text_box_large)
-                {
-                    text_box = &text_box_small;
-                    tail_index = &tail_index_small;
-                    lines_of_text = lines_of_text_small;
-                }
-                else
-                {
-                    SetExitKey(KEY_ESCAPE);
-                    reaper_display_text_box = false;
-                    music.SetVolume(music_volume_normal);
-                    QuestGiven = true;
-                }
-                break;
-
-            case KEY_ENTER:
-            {
-                std::cout << "KEY_ENTER PRESSED!\n";
-                const std::string reaper_nature =
-                    "The following is a conversation with the grim reaper. The grim "
-                    "reaper is a personified force. In some mythologies, the grim "
-                    "reaper causes the victim's death by coming to collect that "
-                    " person's soul.\n\n";
-
-                std::string response_str{};
-                const auto stop = std::optional{ std::vector{human_stop, reaper_stop} };
-                prompt.push_back('\n');
-                std::cout << (reaper_nature + prompt + reaper_stop) << std::endl;
-
-                oai_help.submit(reaper_nature + prompt + reaper_stop, response_str, stop);
-                response_str.push_back('\n');
-                std::cout << response_str;
-                response_str = reaper_stop + response_str;
-                for (auto c : response_str)
-                {
-                    update_prompt(prompt, c, font_size, max_text_width,
-                        tail_index_large, tail_index_small, nchars_entered);
-                }
-                for (auto d : human_stop) {
-                    update_prompt(prompt, d, font_size, max_text_width,
-                        tail_index_large, tail_index_small, nchars_entered);
-                }
-
+        for (int i = 0; i < textboxes.size(); i++) {
+            if (textboxes.at(i).getActive()) {
+                textboxes.at(i).update(knight.get_pos());
             }
-            break;
-
-            //Makes the text box larger so the player can more easily read their chat with the reaper
-            case KEY_UP:
-                text_box = &text_box_large;
-                tail_index = &tail_index_large;
-                lines_of_text = lines_of_text_large;
-                break;
-
-                //Allows the player to delete text from their current entry with the reaper.
-            case KEY_BACKSPACE:
-                if (nchars_entered > 0)
-                {
-                    bool reposition = prompt.back() == '\n'; // last char is newline
-                    prompt.pop_back();
-                    nchars_entered--;
-                    if (reposition)
-                    {
-                        tail_index_large = prompt.rfind('\n', tail_index_large - 2) + 1;
-                        tail_index_small = prompt.rfind('\n', tail_index_small - 2) + 1;
-                    }
-                }
-                break;
-            }
-
-            while (int key = GetCharPressed())
-            {
-                //Sets which characters can be entered, so only normal letters and numbers, and not functional keys such as ESC
-                if ((key >= 32) && (key <= 125))
-                {
-                    /*update_prompt(prompt, key, font_size, max_text_width, tail_index_large,
-                                  tail_index_small, nchars_entered);*/
-                    const char* psz = &prompt[prompt.rfind('\n') + 1];
-                    std::cout << psz;
-                    if ((char)key == ' ' && MeasureText(psz, font_size) > max_text_width)
-                    {
-                        prompt.push_back('\n');
-                        tail_index_large = prompt.find('\n', tail_index_large) + 1;
-                        tail_index_small = prompt.find('\n', tail_index_small) + 1;
-                    }
-                    else
-                    {
-                        prompt.push_back((char)key);
-                    }
-
-                    nchars_entered++;
-                }
-            }
-        }
-        //This section activates when the player summons the fairy to speak to.
-        else if (fairy_display_text_box)
-        {
-            switch (GetKeyPressed())
-            {
-            case KEY_ESCAPE:
-                if (fairy_text_box == &fairy_text_box_large)
-                {
-                    fairy_text_box = &fairy_text_box_small;
-                    fairy_tail_index = &fairy_tail_index_small;
-                    fairy_lines_of_text = fairy_lines_of_text_small;
-                }
-                else
-                {
-                    SetExitKey(KEY_ESCAPE);
-                    fairy_display_text_box = false;
-                    music.SetVolume(music_volume_normal);
-                }
-                break;
-
-            case KEY_ENTER:
-            {
-                std::cout << "KEY_ENTER PRESSED!\n";
-                const std::string fairy_nature =
-                    "The following is a conversation with Navi. Navi "
-                    "is a personified force in a fairy body. Navi is a companion "
-                    "who will be sarcastic and unhelpful to the player, often stating the obvious. "
-                    "Navi knows the player is meant to be collecting gems, and is able to tell them this, but does not know how or why."
-                    "Navi will also sometimes tell them random facts about the grim reaper, diamonds or emeralds.\n\n";
-
-                std::string fairy_response_str{};
-                const auto stop = std::optional{ std::vector{human_stop, fairy_stop} };
-                fairy_prompt.push_back('\n');
-                std::cout << (fairy_nature + fairy_prompt + fairy_stop) << std::endl;
-
-                oai_help.submit(fairy_nature + fairy_prompt + fairy_stop, fairy_response_str, stop);
-                fairy_response_str.push_back('\n');
-                std::cout << fairy_response_str;
-                fairy_response_str = fairy_stop + fairy_response_str;
-                for (auto c : fairy_response_str)
-                {
-                    update_prompt(fairy_prompt, c, font_size, fairy_max_text_width,
-                        fairy_tail_index_large, fairy_tail_index_small, fairy_nchars_entered);
-                }
-                for (auto d : human_stop) {
-                    update_prompt(fairy_prompt, d, font_size, fairy_max_text_width,
-                        fairy_tail_index_large, fairy_tail_index_small, fairy_nchars_entered);
-                }
-            }
-            break;
-
-            //Makes the text box larger so the player can more easily read their chat with the reaper
-            case KEY_UP:
-                fairy_text_box = &fairy_text_box_large;
-                fairy_tail_index = &fairy_tail_index_large;
-                fairy_lines_of_text = fairy_lines_of_text_large;
-                break;
-
-                //Allows the player to delete text from their current entry with the reaper.
-            case KEY_BACKSPACE:
-                if (fairy_nchars_entered > 0)
-                {
-                    bool reposition = fairy_prompt.back() == '\n'; // last char is newline
-                    fairy_prompt.pop_back();
-                    fairy_nchars_entered--;
-                    if (reposition)
-                    {
-                        fairy_tail_index_large = fairy_prompt.rfind('\n', fairy_tail_index_large - 2) + 1;
-                        fairy_tail_index_small = fairy_prompt.rfind('\n', fairy_tail_index_small - 2) + 1;
-                    }
-                }
-                break;
-            }
-
-            while (int key = GetCharPressed())
-            {
-                //Sets which characters can be entered, so only normal letters and numbers, and not functional keys such as ESC
-                if ((key >= 32) && (key <= 125))
-                {
-                    //update_prompt(prompt, key, font_size, max_text_width, tail_index_large,
-                                 // tail_index_small, nchars_entered);
-                    const char* psz = &fairy_prompt[fairy_prompt.rfind('\n') + 1];
-                    std::cout << psz;
-                    if ((char)key == ' ' && MeasureText(psz, font_size) > fairy_max_text_width)
-                    {
-                        fairy_prompt.push_back('\n');
-                        fairy_tail_index_large = fairy_prompt.find('\n', fairy_tail_index_large) + 1;
-                        fairy_tail_index_small = fairy_prompt.find('\n', fairy_tail_index_small) + 1;
-                    }
-                    else
-                    {
-                        fairy_prompt.push_back((char)key);
-                    }
-
-                    fairy_nchars_entered++;
-                }
-            }
-        }
-        else
-        {
-            //Changes the sprite and moves the character in the appropriate direction base on the characters input.
+         } 
+        //Changes the sprite and moves the character in the appropriate direction base on the characters input.
+        if (!(textboxes.at(0).getActive() || textboxes.at(1).getActive())) {
             knight.move(grey_vector, enemies, walls);
             //sword functionality
             sword_rect = {};
@@ -628,103 +376,110 @@ int main(int argc, char* argv[])
             else {
                 isSwordActive = false;
             }
-           
-            //Using the N key (Navi!) to detect when the player is speaking to the fairy
-            if (IsKeyDown(KEY_N) && !reaper_display_text_box)
-            {
-                fairy_display_text_box = true;
-                SetExitKey(0);
-            }
-            //Detects the player being close enough to the reaper to "collide"
-            if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 30.0f)
-            {
-                //makes sure player is not already colliding with the reaper
-                if (!reaper_collision)
+        }
+        //Using the N key (Navi!) to detect when the player is speaking to the fairy
+        if (IsKeyDown(KEY_N) && !textboxes.at(0).getActive())
+        {
+            textboxes.at(1).setActive(true);
+            SetExitKey(0);
+            music.SetVolume(music_volume_quiet);
+        } 
+        //Detects the player being close enough to the reaper to "collide"
+        if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 30.0f)
+        {
+            //makes sure player is not already colliding with the reaper
+            
+                if (!(textboxes.at(0).getActive() || reaper_collision))
                 {
                     reaper_collision = true;
-                    reaper_display_text_box = true;
+                    if (!textboxes.at(1).getActive()) {
+                        textboxes.at(0).setActive(true);
+                    }
+                    //reaper_display_text_box = true;
                     SetExitKey(0);
                     coin_sound.Play();
                     music.SetVolume(music_volume_quiet);
                 }
-            }
-            else
-            {
-                reaper_collision = false;
-            }
-
-
-
-            //Detects the player collecting a dimond and updates the dimonds collected variable.
-            if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f)
-            {
-                d_gem_x = randomFloat(100.0f, 900.0f);
-                d_gem_y = randomFloat(100.0f, 900.0f);
-                d_gem_posn = { d_gem_x , d_gem_y };
-                dimond_gem.set_posn(d_gem_posn);
-                coin_sound.Play();
-                diamond_collected++;
-                gems_collected++;
-            }
-
-            //Detects the player collecting a dimond and updates the dimonds collected variable.
-            if (Vector2Distance(knight.get_pos(), dimond2_gem.get_posn()) < 40.0f)
-            {
-                d2_gem_x = randomFloat(100.0f, 900.0f);
-                d2_gem_y = randomFloat(-100.0f, -900.0f);
-                d2_gem_posn = { d2_gem_x , d2_gem_y };
-                dimond2_gem.set_posn(d2_gem_posn);
-                coin_sound.Play();
-                diamond_collected++;
-            }
-
-            //Detects the player collecting a emerald and updates the emeralds collected variable.
-            if (Vector2Distance(knight.get_pos(), emerald_gem.get_posn()) < 40.0f)
-            {
-                e_gem_x = randomFloat(150.0f, 900.0f);
-                e_gem_y = randomFloat(150.0f, 900.0f);
-                e_gem_posn = { e_gem_x , e_gem_y };
-                emerald_gem.set_posn(e_gem_posn);
-                coin_sound.Play();
-                emerald_collected++;
-                gems_collected++;
-            }
-
-            //Detects the player collecting a emerald and updates the emeralds collected variable.
-            if (Vector2Distance(knight.get_pos(), emerald2_gem.get_posn()) < 40.0f)
-            {
-                e2_gem_x = randomFloat(100.0f, 900.0f);
-                e2_gem_y = randomFloat(-100.0f, -900.0f);
-                e2_gem_posn = { e2_gem_x , e2_gem_y };
-                emerald2_gem.set_posn(e2_gem_posn);
-                coin_sound.Play();
-                emerald_collected++;
-            }
-
-            //Detects the player collecting a garnet and updates the garnets collected variable.
-            if (Vector2Distance(knight.get_pos(), garnet_gem.get_posn()) < 40.0f)
-            {
-                g_gem_x = randomFloat(150.0f, 900.0f);
-                g_gem_y = randomFloat(150.0f, 900.0f);
-                g_gem_posn = { g_gem_x , g_gem_y };
-                garnet_gem.set_posn(g_gem_posn);
-                coin_sound.Play();
-                garnet_collected++;
-                gems_collected++;
-            }
-
-            //Detects the player collecting a garnet and updates the garnets collected variable.
-            if (Vector2Distance(knight.get_pos(), garnet2_gem.get_posn()) < 40.0f)
-            {
-                g2_gem_x = randomFloat(100.0f, 900.0f);
-                g2_gem_y = randomFloat(-100.0f, -900.0f);
-                g2_gem_posn = { g2_gem_x , g2_gem_y };
-                garnet2_gem.set_posn(g2_gem_posn);
-                coin_sound.Play();
-                garnet_collected++;
-            }
-
         }
+        
+        else
+        {
+            reaper_collision = false;
+            textboxes.at(0).setActive(false);
+        }
+
+
+
+        //Detects the player collecting a dimond and updates the dimonds collected variable.
+        if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f)
+        {
+            d_gem_x = randomFloat(100.0f, 900.0f);
+            d_gem_y = randomFloat(100.0f, 900.0f);
+            d_gem_posn = { d_gem_x , d_gem_y };
+            dimond_gem.set_posn(d_gem_posn);
+            coin_sound.Play();
+            diamond_collected++;
+            gems_collected++;
+        }
+
+        //Detects the player collecting a dimond and updates the dimonds collected variable.
+        if (Vector2Distance(knight.get_pos(), dimond2_gem.get_posn()) < 40.0f)
+        {
+            d2_gem_x = randomFloat(100.0f, 900.0f);
+            d2_gem_y = randomFloat(-100.0f, -900.0f);
+            d2_gem_posn = { d2_gem_x , d2_gem_y };
+            dimond2_gem.set_posn(d2_gem_posn);
+            coin_sound.Play();
+            diamond_collected++;
+        }
+
+        //Detects the player collecting a emerald and updates the emeralds collected variable.
+        if (Vector2Distance(knight.get_pos(), emerald_gem.get_posn()) < 40.0f)
+        {
+            e_gem_x = randomFloat(150.0f, 900.0f);
+            e_gem_y = randomFloat(150.0f, 900.0f);
+            e_gem_posn = { e_gem_x , e_gem_y };
+            emerald_gem.set_posn(e_gem_posn);
+            coin_sound.Play();
+            emerald_collected++;
+            gems_collected++;
+        }
+
+        //Detects the player collecting a emerald and updates the emeralds collected variable.
+        if (Vector2Distance(knight.get_pos(), emerald2_gem.get_posn()) < 40.0f)
+        {
+            e2_gem_x = randomFloat(100.0f, 900.0f);
+            e2_gem_y = randomFloat(-100.0f, -900.0f);
+            e2_gem_posn = { e2_gem_x , e2_gem_y };
+            emerald2_gem.set_posn(e2_gem_posn);
+            coin_sound.Play();
+            emerald_collected++;
+        }
+
+        //Detects the player collecting a garnet and updates the garnets collected variable.
+        if (Vector2Distance(knight.get_pos(), garnet_gem.get_posn()) < 40.0f)
+        {
+            g_gem_x = randomFloat(150.0f, 900.0f);
+            g_gem_y = randomFloat(150.0f, 900.0f);
+            g_gem_posn = { g_gem_x , g_gem_y };
+            garnet_gem.set_posn(g_gem_posn);
+            coin_sound.Play();
+            garnet_collected++;
+            gems_collected++;
+        }
+
+        //Detects the player collecting a garnet and updates the garnets collected variable.
+        if (Vector2Distance(knight.get_pos(), garnet2_gem.get_posn()) < 40.0f)
+        {
+            g2_gem_x = randomFloat(100.0f, 900.0f);
+            g2_gem_y = randomFloat(-100.0f, -900.0f);
+            g2_gem_posn = { g2_gem_x , g2_gem_y };
+            garnet2_gem.set_posn(g2_gem_posn);
+            coin_sound.Play();
+            garnet_collected++;
+        }
+
+
 
 
         //Converts the gems collected integer into a string that can be displayed
@@ -851,9 +606,9 @@ int main(int argc, char* argv[])
         }
         */
         //Draws the characters and gems in the appropriate order for which is infront
-        if (!(reaper_display_text_box || fairy_display_text_box)) {
-            damage(knight, enemies, sword_rect, zombie_sound, isGameOver);
-            damage(knight, enemies_bat, sword_rect, bat_sound, isGameOver);
+        if (!(textboxes.at(0).getActive() || textboxes.at(1).getActive())) {
+        damage(knight, enemies, sword_rect, zombie_sound, isGameOver);
+        damage(knight, enemies_bat, sword_rect, bat_sound, isGameOver);
         }
         for (int i = 0; i < enemies_bat.size(); i++) {
             (*enemies_bat.at(i)).follow(knight, 500, bat_vector, walls);
@@ -882,87 +637,11 @@ int main(int argc, char* argv[])
 
         //Displays the text box for speaking to the fairy
 
-        if (fairy_display_text_box && !reaper_display_text_box)
-        {
-            Color light_gray_transparent{ 80, 80, 80, 192 }; // 192/256 nontransparent
-            DrawRectangleRec(*fairy_text_box, light_gray_transparent);
-            unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
-            std::string s = &fairy_prompt[*fairy_tail_index];
-            if ((milliseconds % 1000) > 500)
-            {
-                s.push_back('_');
-            }
-            std::string help_s{};
-            int number_newlines = 0;
-            //counts amount of new lines in string
-            for (int i = 0; i < s.size(); i++)
-            {
-                if (s[i] == '\n')
-                {
-                    number_newlines++;
-                }
-            }
-            if (number_newlines <= fairy_lines_of_text)
-            {
-                help_s = s;
-            }
-            else
-            {
-                for (int i = 0; i < fairy_lines_of_text; i++)
-                {
-                    if (s.find_last_of('\n'))
-                    {
-                        help_s = s.substr(s.find_last_of('\n'), s.size()) + help_s;
-                        s.resize(s.find_last_of('\n'));
-                    }
-                }
-            }
-            if (help_s.at(0) == '\n')
-            {
-                help_s.erase(0, 1);
-            }
-            //std::cout << help_s;
-            DrawText(help_s.c_str(), (*fairy_text_box).x + 12, (*fairy_text_box).y + 12, font_size, WHITE);
-        }
-        if (reaper_display_text_box && !fairy_display_text_box)
-        {
-            Color light_gray_transparent{ 80, 80, 80, 192 }; // 192/256 nontransparent
-            DrawRectangleRec(*text_box, light_gray_transparent);
-            unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
-            std::string s = &prompt[*tail_index];
-            if ((milliseconds % 1000) > 500)
-            {
-                s.push_back('_');
-            }
-            std::string help_s{};
-            int number_newlines = 0;
-            //counts amount of new lines in string
-            for (int i = 0; i < s.size(); i++) {
-                if (s[i] == '\n') {
-                    number_newlines++;
-                }
-            }
 
-            if (number_newlines <= lines_of_text) {
-                help_s = s;
-            }
-            else {
-                for (int i = 0; i < lines_of_text; i++) {
-                    if (s.find_last_of('\n')) {
-                        help_s = s.substr(s.find_last_of('\n'), s.size()) + help_s;
-                        s.resize(s.find_last_of('\n'));
-                    }
-                }
-            }
-            if (help_s.at(0) == '\n') {
-                help_s.erase(0, 1);
-            }
-            //std::cout << help_s;
-            DrawText(help_s.c_str(), (*text_box).x + 12, (*text_box).y + 12, font_size, WHITE);
-        }
+
 
         //Draws text onto the screen displaying how many gems have been collected.
-        
+
         DrawText(gem_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 30, 20, BLACK);
         DrawText(diamond_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 10, 20, BLACK);
         DrawText(emerald_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 10, 20, BLACK);
@@ -971,12 +650,15 @@ int main(int argc, char* argv[])
         DrawText("Spacebar to attack", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 70, 20, BLACK);
         DrawText("arrow keys to move", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 90, 20, BLACK);
 
+        for (int i = 0; i < textboxes.size(); i++) {
+            textboxes.at(i).draw();
+        }
         //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
         //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
 
         if (isGameOver) {
             DrawRectangle(knight.get_pos().x - window.GetWidth() / 2, knight.get_pos().y - window.GetHeight(),
-                window.GetWidth(),  window.GetHeight() * 2, GRAY);
+                window.GetWidth(), window.GetHeight() * 2, GRAY);
             DrawText("Game Over!", knight.get_pos().x - window.GetWidth() / 3, knight.get_pos().y - window.GetHeight() / 6, 120, BLACK);
         }
         //Draws map, for testing purposes
@@ -989,21 +671,3 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void update_prompt(std::string& prompt, char c, const int font_size,
-    const float max_text_width, int& tail_index_large,
-    int& tail_index_small, int& nchars_entered)
-{
-    const char* psz = &prompt[prompt.rfind('\n') + 1];
-    if (c == ' ' && MeasureText(psz, font_size) > max_text_width)
-    {
-        prompt.push_back('\n');
-        tail_index_large = prompt.find_last_of('\n', tail_index_large) + 1;
-        tail_index_small = prompt.find_last_of('\n', tail_index_small) + 1;
-    }
-    else
-    {
-        prompt.push_back(c);
-    }
-
-    nchars_entered++;
-}
