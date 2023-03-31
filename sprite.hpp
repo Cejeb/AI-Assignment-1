@@ -6,36 +6,39 @@
 
 namespace aipfg {
 
-struct Sprite
-{
-  Sprite(const raylib::Texture& tex,
-         const int ncols, const int nrows, const Vector2 posn,
-         const std::vector<int> frame_ids = { 0 }, const int sprite_fps = 0)
-    : tex_{ tex },
-      ncols_{ ncols },
-      nrows_{ nrows },
-      posn_{ posn },
-      sprite_fps_{ sprite_fps },
-      sprite_width_{ tex_.width / ncols_ },
-      sprite_height_{ tex_.height / nrows_ },
-      frame_ids_{ frame_ids },
-      frame_rec_{ calc_frame_rect(frame_ids_[0]) },
-      prev_time_{ GetTime() }
-      { }
+    struct Sprite
+    {
+        Sprite(const raylib::Texture& tex,
+            const int ncols, const int nrows, const Vector2 posn,
+            const std::vector<int> frame_ids = { 0 }, const int sprite_fps = 0,
+            const Vector2 scale = { 1.0f, 1.0f })
+            : tex_{ tex },
+            ncols_{ ncols },
+            nrows_{ nrows },
+            posn_{ posn },
+            sprite_fps_{ sprite_fps },
+            scale_{ scale },
+            sprite_width_{ tex_.width / ncols_ },
+            sprite_height_{ tex_.height / nrows_ },
+            frame_ids_{ frame_ids },
+            frame_rec_{ calc_frame_rect(frame_ids_[0]) },
+            prev_time_{ GetTime() }
+        { }
 
-  void set_posn(const Vector2 posn) { posn_ = posn; }
-  Vector2 get_posn() { return posn_; }
-  void set_angle(const float angle) { angle_ = angle; }
-  float get_angle() { return angle_; }
-  void set_rotation(const float delta) { delta_ = delta; }
-  float get_rotation() { return delta_; }
-  void set_animation(bool on) { animation_on_ = on; }
-  bool get_animation() { return animation_on_; }
-  void set_origin(const Vector2 origin) { origin_ = origin; }
-  Vector2 get_origin() { return origin_; }
-  auto get_frame_ids_size() { return frame_ids_.size(); }
-  int get_sprite_height() { return sprite_height_; }
-  int get_sprite_width() { return sprite_width_; }
+        void set_posn(const Vector2 posn) { posn_ = posn; }
+        Vector2 get_posn() { return posn_; }
+        Vector2 set_scale(const float scale);
+        void set_angle(const float angle);
+        float get_angle() { return angle_; }
+        void set_rotation(const float delta);
+        float get_rotation() { return delta_; }
+        void set_animation(bool on);
+        bool get_animation() { return animation_on_; }
+        void set_origin(const Vector2 origin) { origin_ = origin; }
+        Vector2 get_origin() { return origin_; }
+        auto get_frame_ids_size() { return frame_ids_.size(); }
+        int get_sprite_height() { return sprite_height_; }
+        int get_sprite_width() { return sprite_width_; }
 
   void draw()
   {

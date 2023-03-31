@@ -11,6 +11,8 @@
 #include <iostream>
 #include <algorithm>
 #include <map> 
+#include "raylib.h"
+
 void update_prompt(std::string& prompt, char c, const int font_size,
     const float max_text_width, int& tail_index_large,
     int& tail_index_small, int& nchars_entered);
@@ -190,8 +192,9 @@ int main(int argc, char* argv[])
     music.Play();
 
     //Sprite for Health Potion
-    raylib::Texture texPotion{ "../resourcesPotionImage.png"};
+    raylib::Texture texPotion{ "../resources/PotionImage.png"};
     Sprite potion(texPotion, 1, 1, { 300, 100 }, { 0 });
+    potion.set_scale(0.2f);
 
     //Sprite for reaper
     raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
