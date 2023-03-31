@@ -189,6 +189,11 @@ int main(int argc, char* argv[])
     float music_volume_normal = 1.0f, music_volume_quiet = 0.4f;
     music.Play();
 
+    //Sprite for Health Potion
+    raylib::Texture texPotion{ "../resourcesPotionImage.png"};
+    Sprite potion(texPotion, 1, 1, { 300, 100 }, { 0 });
+
+    //Sprite for reaper
     raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
     Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
 
@@ -633,8 +638,11 @@ int main(int argc, char* argv[])
             //Using the P key (PlayerShop) to detect when the player is opening the shop
             if (IsKeyDown(KEY_P) && !reaper_display_text_box && !fairy_display_text_box)
             {
-                shop();
-                SetExitKey(0);
+                if (Vector2Distance(knight.get_pos(), potion.get_posn()) < 30.0f)
+                {
+                    shop();
+                    SetExitKey(0);
+                }
             }
            
             //Using the N key (Navi!) to detect when the player is speaking to the fairy
@@ -881,6 +889,7 @@ int main(int argc, char* argv[])
         if (isSwordActive) sword.draw();
         knight.draw_health();
 
+        potion.draw();
         std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet2_gem, fairy.get_sprite() };
         std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
             return s1->get_posn().y < s2->get_posn().y;

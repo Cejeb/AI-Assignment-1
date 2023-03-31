@@ -2,6 +2,14 @@
 
 int currency = 0;
 
+int shop(void)
+{
+    if (currency >= 20)
+    {
+
+    }
+    return 0;
+}
 //This version uses a window pop up, but we think an ingame system similar to Spelunky would suit better, leaving this commented out for now
 /*int shop(void)
 {
