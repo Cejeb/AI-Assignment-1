@@ -1,12 +1,14 @@
 #include "raylib.h"
 
 int currency = 0;
+int HealthPotions = 0;
 
 int shop(void)
 {
     if (currency >= 20)
     {
-
+        currency = currency - 20;
+        HealthPotions++;
     }
     return 0;
 }

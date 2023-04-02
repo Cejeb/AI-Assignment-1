@@ -637,21 +637,29 @@ int main(int argc, char* argv[])
                 isSwordActive = false;
             }
 
-            //Using the P key (PlayerShop) to detect when the player is opening the shop
+            /*Using the P key(PlayerShop) to detect when the player is opening the shop
             if (IsKeyDown(KEY_P) && !reaper_display_text_box && !fairy_display_text_box)
             {
                 if (Vector2Distance(knight.get_pos(), potion.get_posn()) < 30.0f)
                 {
-                    shop();
-                    SetExitKey(0);
+                    
                 }
-            }
+            }*/
            
             //Using the N key (Navi!) to detect when the player is speaking to the fairy
             if (IsKeyDown(KEY_N) && !reaper_display_text_box)
             {
                 fairy_display_text_box = true;
                 SetExitKey(0);
+            }
+
+            if (Vector2Distance(knight.get_pos(), potion.get_posn()) < 30.0f)
+            {
+                if (!reaper_display_text_box && !fairy_display_text_box && IsKeyDown(KEY_P))
+                {
+                    shop();
+                    SetExitKey(0);
+                }
             }
 
             //Detects the player being close enough to the reaper to "collide"
@@ -751,6 +759,7 @@ int main(int argc, char* argv[])
 
         //Converts the gems collected integer into a string that can be displayed
         std::string gem_string = "Total Currency: " + std::to_string(currency);
+        std::string potion_string = "Health Potions Available: " + std::to_string(HealthPotions);
         std::string diamond_string = "Diamonds Collected: " + std::to_string(diamond_collected);
         std::string emerald_string = "Emeralds Collected: " + std::to_string(emerald_collected);
         std::string garnet_string = "Garnets Collected: " + std::to_string(garnet_collected);
@@ -992,7 +1001,8 @@ int main(int argc, char* argv[])
         DrawText(garnet_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 30, 20, BLACK);
         DrawText("N to talk to Navi", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 50, 20, BLACK);
         DrawText("Spacebar to attack", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 70, 20, BLACK);
-        DrawText("arrow keys to move", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 90, 20, BLACK);
+        DrawText("Arrow keys to move", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 90, 20, BLACK);
+        DrawText(potion_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 90, 20, BLACK);
 
         //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
         //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
