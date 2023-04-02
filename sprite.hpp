@@ -10,14 +10,12 @@ namespace aipfg {
     {
         Sprite(const raylib::Texture& tex,
             const int ncols, const int nrows, const Vector2 posn,
-            const std::vector<int> frame_ids = { 0 }, const int sprite_fps = 0,
-            const Vector2 scale = { 1.0f, 1.0f })
+            const std::vector<int> frame_ids = { 0 }, const int sprite_fps = 0)
             : tex_{ tex },
             ncols_{ ncols },
             nrows_{ nrows },
             posn_{ posn },
             sprite_fps_{ sprite_fps },
-            scale_{ scale },
             sprite_width_{ tex_.width / ncols_ },
             sprite_height_{ tex_.height / nrows_ },
             frame_ids_{ frame_ids },
@@ -27,7 +25,6 @@ namespace aipfg {
 
         void set_posn(const Vector2 posn) { posn_ = posn; }
         Vector2 get_posn() { return posn_; }
-        Vector2 set_scale(const float scale);
         void set_angle(const float angle);
         float get_angle() { return angle_; }
         void set_rotation(const float delta);
@@ -51,6 +48,8 @@ namespace aipfg {
     Vector2 origin{ sprite_width_ * origin_.x, sprite_height_ * origin_.y };
     DrawTexturePro(tex_, frame_rec_, dest, origin, angle_ += delta_, WHITE);
   }
+
+  float miniSize = 0.2f;
   void draw_minified()
   {
       if (animation_on_)
@@ -58,8 +57,8 @@ namespace aipfg {
           update_animation();
       }
       const Rectangle dest_m{ posn_.x, posn_.y,
-                            (float)sprite_width_*0.5, (float)sprite_height_*0.5 };
-      Vector2 origin{ sprite_width_*0.5 * origin_.x, sprite_height_ *0.5 *origin_.y
+                            (float)sprite_width_* miniSize, (float)sprite_height_* miniSize };
+      Vector2 origin{ sprite_width_* miniSize * origin_.x, sprite_height_ * miniSize *origin_.y
   };
       DrawTexturePro(tex_, frame_rec_, dest_m, origin, angle_ += delta_, WHITE);
   }

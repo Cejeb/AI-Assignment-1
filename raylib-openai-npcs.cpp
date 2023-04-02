@@ -194,7 +194,6 @@ int main(int argc, char* argv[])
     //Sprite for Health Potion
     raylib::Texture texPotion{ "../resources/PotionImage.png"};
     Sprite potion(texPotion, 1, 1, { 300, 100 }, { 0 });
-    potion.set_scale(0.2f);
 
     //Sprite for reaper
     raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
@@ -892,7 +891,7 @@ int main(int argc, char* argv[])
         if (isSwordActive) sword.draw();
         knight.draw_health();
 
-        potion.draw();
+        potion.draw_minified();
         std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet2_gem, fairy.get_sprite() };
         std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
             return s1->get_posn().y < s2->get_posn().y;
