@@ -4,6 +4,7 @@
 #include <string>
 #include <optional>
 #include <vector>
+#include "opencv2/opencv.hpp"
 
 // Basically, we need the OpenAI code in a separate translation unit than Raylib
 // https://github.com/raysan5/raylib/issues/1217

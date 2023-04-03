@@ -3,6 +3,7 @@
 #include "raylib-cpp.hpp"
 #include "entity.cpp"
 #include "raylib-tileson.h"
+#include "opencv2/opencv.hpp"
 #include <string>
 #include <optional>
 #include <vector>
@@ -10,6 +11,8 @@
 #include <iostream>
 #include <algorithm>
 #include <map> 
+#include <utility>
+
 void update_prompt(std::string& prompt, char c, const int font_size,
     const float max_text_width, int& tail_index_large,
     int& tail_index_small, int& nchars_entered);
