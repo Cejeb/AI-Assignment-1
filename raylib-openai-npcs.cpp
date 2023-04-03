@@ -294,8 +294,8 @@ int main(int argc, char* argv[])
 
     raylib::Texture tex4{ "../resources/time_fantasy"
                         "/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" };
-    //Map
-    Map map = LoadTiled("../resources/ashlands.json");
+   //Map
+    Map map = LoadTiled("../resources/New_World.tmj");
     //
     ncols = 8; nrows = 16;
     std::vector<int> frame_ids(ncols * nrows);
@@ -387,12 +387,20 @@ int main(int argc, char* argv[])
     int fairy_nchars_entered = 0;
     bool isGameOver = false;
     std::vector <Rectangle> walls{};
-    walls.push_back({ 0, -20 * 48, 48, 41 * 48 });
-    walls.push_back({ 20 * 48, -20 * 48, 48, 41 * 48 });
-    walls.push_back({ 0, -48, 10 * 48,48 * 2 });
-    walls.push_back({ 12 * 48, -48, 9 * 48, 48 * 2 });
+     walls.push_back({ 0, -20 * 48, 48, 58 * 48 });
+    walls.push_back({ 50 * 48, -20 * 48, 48, 58 * 48 });
+    walls.push_back({ 24 * 48, -1 * 48, 48, 32 * 48 });
+    walls.push_back({ 24 * 48, 36 * 48, 48, 2 * 48 });
+    walls.push_back({ 12 * 48, 38 * 48, 48, 2 * 48 });
+    walls.push_back({ 12 * 48, 31 * 48, 48, 3 * 48 });
+    walls.push_back({ 0, -1 * 48, 50 * 48, 48 });
     walls.push_back({ 0, -20 * 48, 20 * 48, 48 });
-    walls.push_back({ 0, 20 * 48, 20 * 48, 48 });
+    walls.push_back({ 0, 16 * 48, 11 * 48, 48 });
+    walls.push_back({ 24* 48, 22 * 48, 12 * 48, 48 });
+    walls.push_back({ 40* 48, 22 * 48, 12 * 48, 48 });
+    walls.push_back({ 0, 31 * 48, 13 * 48, 48 });
+    walls.push_back({ 0, 39 * 48, 50 * 48, 48 });
+    walls.push_back({ 14 * 48, 16 * 48, 11 * 48, 48 });
     //Detect window close button or ESC key
     while (!window.ShouldClose())
     {
@@ -758,98 +766,9 @@ int main(int argc, char* argv[])
 
         //draws the ground using a selection of sprites from the ground texture file.
         BeginMode2D(camera);
-
-        all_ground_cells.draw_cell(0, 0); // ROOM1/ LEFT, RIGHT & BOTTOM WALLS
-        for (int i = 0; i < 20; i++)
-        {
-
-            for (int j = 0; j < 1; j++)
-            {
-                grnd1.draw_cell(j, 1 + i % grnd1.get_frame_ids_size());
-                grnd1.draw_cell(20 + j, 1 + i % grnd1.get_frame_ids_size());
-                grnd1.draw_cell(i, 20 - j % grnd1.get_frame_ids_size());
-            }
-        }
-
-        //draws the ground using a selection of sprites from the ground texture file.
-        all_ground_cells.draw_cell(0, 0); //ROOM1/ GROUND
-        for (int i = 0; i < 19; i++)
-        {
-            for (int j = 0; j < 19; j++)
-            {
-                grnd2.draw_cell(1 + i, 1 + j, i % grnd2.get_frame_ids_size());
-
-            }
-        }
-
-        all_ground_cells.draw_cell(0, 0); //RO0M1/ TOP WALL
-        for (int i = 0; i < 10; i++)
-        {
-            for (int j = 0; j < 1; j++)
-            {
-                grnd1.draw_cell(i, j % grnd1.get_frame_ids_size());
-                grnd1.draw_cell(11 + i, j % grnd1.get_frame_ids_size());
-            }
-        }
-
-        all_ground_cells.draw_cell(0, 0); //ROOM1, DOOR
-        for (int i = 0; i < 2; i++)
-        {
-            for (int j = 0; j < 1; j++)
-            {
-                grnd3.draw_cell(10 + i, j % grnd1.get_frame_ids_size());
-            }
-        }
-
-        all_ground_cells.draw_cell(0, 0); //ROOM2/ GROUND
-        for (int i = 0; i < 19; i++)
-        {
-            for (int j = 0; j < 19; j++)
-            {
-                grnd2.draw_cell(1 + i, -20 + j, i % grnd2.get_frame_ids_size());
-
-            }
-        }
-
-        all_ground_cells.draw_cell(0, 0); // ROOM2/ LEFT, RIGHT & TOP WALLS
-        for (int i = 0; i < 20; i++)
-        {
-            for (int j = 0; j < 1; j++)
-            {
-                grnd1.draw_cell(j, -20 + i % grnd1.get_frame_ids_size());
-                grnd1.draw_cell(20 + j, -20 + i % grnd1.get_frame_ids_size());
-                grnd1.draw_cell(i, -20 - j % grnd1.get_frame_ids_size());
-            }
-        }
-
-        all_ground_cells.draw_cell(0, 0); //RO0M2/ TOP WALL
-        for (int i = 0; i < 10; i++)
-        {
-            for (int j = 0; j < 1; j++)
-            {
-                grnd1.draw_cell(i, -1 + j % grnd1.get_frame_ids_size());
-                grnd1.draw_cell(11 + i, -1 + j % grnd1.get_frame_ids_size());
-            }
-        }
-
-        all_ground_cells.draw_cell(0, 0); //ROOM2, DOOR
-        for (int i = 0; i < 2; i++)
-        {
-            for (int j = 0; j < 1; j++)
-            {
-                grnd3.draw_cell(10 + i, -1 + j % grnd1.get_frame_ids_size());
-                grnd4.draw_cell(8 + i, -2 + j % grnd4.get_frame_ids_size());
-
-            }
-        }
-
-
-        /*for (int j = 0; j < 12; j++)
-        {
-            grnd1.draw_cell(2 + j, 2, (2+ j) % grnd1.get_frame_ids_size());
-            grnd2.draw_cell(2 + j, 3, (5+ j) % grnd2.get_frame_ids_size());
-        }
-        */
+        
+         DrawTiled(map, 0, 0, WHITE);
+      
         //Draws the characters and gems in the appropriate order for which is infront
         if (!(reaper_display_text_box || fairy_display_text_box)) {
             damage(knight, enemies, sword_rect, zombie_sound, isGameOver);
