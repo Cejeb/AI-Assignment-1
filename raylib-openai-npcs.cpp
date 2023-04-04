@@ -132,7 +132,7 @@ aipfg::textbox make_reaper(raylib::Window& window, aipfg::openai_helper& oai_hel
         "reaper causes the victim's death by coming to collect that "
         " person's soul.\n\n";
     std::string const gambit = "Why are you here?";
-    std::string const name = "Reaper:";
+    std::string const name = "Reaper: ";
     return { window, nature, gambit, name, oai_help };
 }
 aipfg::textbox make_navi(raylib::Window& window, aipfg::openai_helper& oai_help) {
@@ -142,7 +142,7 @@ aipfg::textbox make_navi(raylib::Window& window, aipfg::openai_helper& oai_help)
                     "Navi knows the player is meant to be collecting gems, and is able to tell them this, but does not know how or why."
         "Navi will also sometimes tell them random facts about the grim reaper, diamonds or emeralds.\n\n";
     std::string const gambit = "Do you require help with anything?";
-    std::string const name = "Navi:";
+    std::string const name = "Navi: ";
     return { window, nature, gambit, name, oai_help };
 }
 int main(int argc, char* argv[])
@@ -364,9 +364,11 @@ int main(int argc, char* argv[])
                 textboxes.at(i).update(knight.get_pos());
             }
          } 
+        (*knight.get_sprite()).set_animation(false);
         //Changes the sprite and moves the character in the appropriate direction base on the characters input.
         if (!(textboxes.at(0).getActive() || textboxes.at(1).getActive())) {
             knight.move(grey_vector, enemies, walls);
+            
             //sword functionality
             sword_rect = {};
             if (attack(knight, last_sword, sword_rect, grey_vector, sword)) {

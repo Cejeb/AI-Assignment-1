@@ -216,9 +216,6 @@ namespace aipfg {
 						, get_pos().y });
 				}
 			}
-			else {
-				(*get_sprite()).set_animation(false);
-			}
 			
 
 			(*get_sprite()).set_posn(get_pos());

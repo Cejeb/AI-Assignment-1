@@ -183,7 +183,9 @@ namespace aipfg {
                 Color light_gray_transparent{ 80, 80, 80, 192 }; // 192/256 nontransparent
                 DrawRectangleRec(*text_box, light_gray_transparent);
                 unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
-                std::string s = &prompt_[*tail_index_];
+                //std::string s = &prompt_[*tail_index_];
+                std::string s = prompt_;
+                std::cout << s;
                 std::string help_s;
                 if ((milliseconds % 1000) > 500)
                 {
