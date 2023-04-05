@@ -78,7 +78,6 @@ namespace aipfg {
                 response_future_.wait_for(std::chrono::seconds(0)))
             {
                 response_future_.get(); // invalidates the future
-                std::cout << "done" << response_;
                 for (auto& c : response_)
                 {
                     c = (c == '\n') ? ' ' : c; // replace newlines with spaces

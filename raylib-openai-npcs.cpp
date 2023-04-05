@@ -630,6 +630,14 @@ int main(int argc, char* argv[])
             }
             fairy.follow(knight, 10000, fairy_vector, {});
         }
+        else {
+            for (int i = 0; i < enemies_bat.size(); i++) {
+                (*enemies_bat.at(i)).draw();
+            }
+            for (int i = 0; i < enemies.size(); i++) {
+                (*enemies.at(i)).draw();
+            }
+        }
         if (isSwordActive) sword.draw();
         knight.draw_health();
 
