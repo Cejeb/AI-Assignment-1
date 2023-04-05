@@ -2,6 +2,8 @@
 #include <future>
 #include "openai-helper.hpp"
 #include <iostream>
+#include <vector>
+#include <chrono>
 namespace aipfg {
 	class textbox {
 	private:
@@ -32,9 +34,16 @@ namespace aipfg {
         int lines_of_text_small{};
         int lines_of_text_large{};
         int lines_of_text{};
+        std::future<void> response_future_{};
+        std::string response_{};
+        std::string nature_;
+        std::string nature_prompt_;
+        const std::optional<std::vector<std::string>> stop_ = std::optional{ std::vector{name_str, human_stop_str} };
+
 	public:
 		textbox(raylib::Window& window, std::string nature, std::string gambit, std::string name, openai_helper &oai_help) {
 			new_lines = "\n\n\n\n\n\n\n\n\n";
+            nature_ = nature;
 			prompt_ = new_lines + name + gambit + '\n' + human_stop_str;
             windowx = window.GetWidth();
             windowy = window.GetHeight();
@@ -56,9 +65,28 @@ namespace aipfg {
             lines_of_text_small = box_height_small / (30 + 15);
             lines_of_text_large = box_height_large / (30 + 15);
             lines_of_text = lines_of_text_small;
+            if (response_future_.valid()) {
+                auto text = "std::future has no copy constructor."
+                    "We can only handle the member when in an invalid state.";
+                throw std::runtime_error{ text };
+            }
 		}
 		void update(Vector2 pos) {
-
+            bool waiting{ response_future_.valid() };
+            if (waiting &&
+                std::future_status::ready ==
+                response_future_.wait_for(std::chrono::seconds(0)))
+            {
+                response_future_.get(); // invalidates the future
+                std::cout << "done" << response_;
+                for (auto& c : response_)
+                {
+                    c = (c == '\n') ? ' ' : c; // replace newlines with spaces
+                }
+                response_ += '\n' + human_stop_str;
+                update_prompt(response_);
+                nchars_entered_ = 0;
+            }
             static bool once;
             if (!once) {
                     text_box_small_.y = pos.y + windowy * 0.1;
@@ -96,16 +124,14 @@ namespace aipfg {
 
             case KEY_ENTER:
             {
-                std::cout << "KEY_ENTER PRESSED!\n";
-                const auto stop = std::optional{ std::vector{human_stop_str, name_str} };
-                std::string response_str{};
-                prompt_.push_back('\n');
-                (*oai_help_).submit(prompt_ + name_str, response_str, stop);
-                //dresponse_str.push_back('\n');
-                
-                response_str = name_str + response_str +'\n' + human_stop_str;
-                std::cout << response_str;
-                update_prompt(response_str);
+                if (waiting)
+                {
+                    break;
+                }
+                update_prompt('\n' + name_str);
+                nature_prompt_ = nature_ + prompt_;
+                response_future_ = std::async(std::launch::async, &openai_helper::submit, std::ref((*oai_help_)),
+                    std::cref(nature_prompt_), std::ref(response_), std::cref(stop_));
 
             }
             break;
@@ -119,6 +145,10 @@ namespace aipfg {
 
                 //Allows the player to delete text from their current entry with the reaper.
             case KEY_BACKSPACE:
+                if (waiting)
+                {
+                    break;
+                }
                 if (nchars_entered_ > 0)
                 {
                     bool reposition = prompt_.back() == '\n'; // last char is newline
@@ -135,25 +165,14 @@ namespace aipfg {
 
             while (int key = GetCharPressed())
             {
-                //Sets which characters can be entered, so only normal letters and numbers, and not functional keys such as ESC
-                if ((key >= 32) && (key <= 125))
+                if (waiting)
                 {
-                    /*update_prompt(prompt, key, font_size, max_text_width, tail_index_large,
-                                  tail_index_small, nchars_entered);*/
-                    const char* psz = &prompt_[prompt_.rfind('\n') + 1];
-                    std::cout << psz;
-                    if ((char)key == ' ' && MeasureText(psz, font_size_) > max_text_width_)
-                    {
-                        prompt_.push_back('\n');
-                        tail_index_large_ = prompt_.find('\n', tail_index_large_) + 1;
-                        tail_index_small_ = prompt_.find('\n', tail_index_small_) + 1;
-                    }
-                    else
-                    {
-                        prompt_.push_back((char)key);
-                    }
-
-                    nchars_entered_++;
+                    continue;
+                }
+                //Sets which characters can be entered, so only normal letters and numbers, and not functional keys such as ESC
+                if ((key >= 32) && (key <= 125)) // e.g. don't grab the ESC key
+                {
+                    update_prompt(std::string{ (char)key });
                 }
             }
         }
@@ -185,7 +204,6 @@ namespace aipfg {
                 unsigned int milliseconds = (unsigned int)(GetTime() * 1000.0);
                 //std::string s = &prompt_[*tail_index_];
                 std::string s = prompt_;
-                std::cout << s;
                 std::string help_s;
                 if ((milliseconds % 1000) > 500)
                 {

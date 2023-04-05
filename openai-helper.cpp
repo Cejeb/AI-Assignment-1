@@ -40,18 +40,16 @@ void openai_helper::submit(const std::string& fairy_prompt, std::string& fairy_r
     const std::optional<std::function<bool(std::string, intptr_t)>> stream = std::nullopt;
     const std::optional<uint8_t> logprobs = std::nullopt;
     const std::optional<bool> echo = std::nullopt;
-    //  const std::optional<std::vector<std::string>> stop = std::nullopt;
+    const std::optional<std::vector<std::string>> stop1 = std::nullopt;
     const std::optional<float> presence_penalty = std::nullopt;
     const std::optional<float> frequency_penalty = std::nullopt;
     const std::optional<uint16_t> best_of = std::nullopt;
     const std::optional<std::unordered_map<std::string, int8_t>> logit_bias = std::nullopt;
     const std::optional<std::string> user = std::nullopt;
     try {
-
         liboai::Response response = (*oai_).Completion->create(model_id, fairy_prompt, suffix,
-            max_tokens, temperature, top_p, n, stream, logprobs, echo, stop,
+            max_tokens, temperature, top_p, n, stream, logprobs, echo, stop1,
             presence_penalty, frequency_penalty, best_of, logit_bias, user);
-
         fairy_response_str = response["choices"][0]["text"].get<std::string>();
     }
     catch (std::exception& e) {

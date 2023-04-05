@@ -365,6 +365,12 @@ int main(int argc, char* argv[])
             }
          } 
         (*knight.get_sprite()).set_animation(false);
+        for (int i = 0; i < enemies.size(); i++) {
+            enemies.at(i)->get_sprite()->set_animation(false);
+        }
+        for (int i = 0; i < enemies_bat.size(); i++) {
+            enemies_bat.at(i)->get_sprite()->set_animation(false);
+        }
         //Changes the sprite and moves the character in the appropriate direction base on the characters input.
         if (!(textboxes.at(0).getActive() || textboxes.at(1).getActive())) {
             knight.move(grey_vector, enemies, walls);
@@ -609,20 +615,21 @@ int main(int argc, char* argv[])
         */
         //Draws the characters and gems in the appropriate order for which is infront
         if (!(textboxes.at(0).getActive() || textboxes.at(1).getActive())) {
-        damage(knight, enemies, sword_rect, zombie_sound, isGameOver);
-        damage(knight, enemies_bat, sword_rect, bat_sound, isGameOver);
+            damage(knight, enemies, sword_rect, zombie_sound, isGameOver);
+            damage(knight, enemies_bat, sword_rect, bat_sound, isGameOver);
+
+            for (int i = 0; i < enemies_bat.size(); i++) {
+                (*enemies_bat.at(i)).follow(knight, 500, bat_vector, walls);
+                (*enemies_bat.at(i)).draw();
+                //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
+            }
+            for (int i = 0; i < enemies.size(); i++) {
+                (*enemies.at(i)).follow(knight, 300, zombie_vector, walls);
+                (*enemies.at(i)).draw();
+                //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
+            }
+            fairy.follow(knight, 10000, fairy_vector, {});
         }
-        for (int i = 0; i < enemies_bat.size(); i++) {
-            (*enemies_bat.at(i)).follow(knight, 500, bat_vector, walls);
-            (*enemies_bat.at(i)).draw();
-            //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
-        }
-        for (int i = 0; i < enemies.size(); i++) {
-            (*enemies.at(i)).follow(knight, 300, zombie_vector, walls);
-            (*enemies.at(i)).draw();
-            //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
-        }
-        fairy.follow(knight, 10000, fairy_vector, {});
         if (isSwordActive) sword.draw();
         knight.draw_health();
 
