@@ -125,48 +125,36 @@ bool attack(aipfg::entity &knight, unsigned int &last_sword, Rectangle &sword_re
     }
     return false;
 }
+
+void ranPosGen(float& d_gem_x, float& d_gem_y, float& e_gem_x, float& e_gem_y,  float& g_gem_x, float& g_gem_y, float fStart, float fEnd)
+{
+    srand(time(0));  // Initialize random number generator.
+    float myNumbers[6];
+    int n = 6;
+    for (int i = 0; i < n; i++)
+    {
+        float numbr = randomFloat(fStart, fEnd); //(rand() % 900) + 1; //
+        myNumbers[i] = numbr;
+
+
+    }
+     d_gem_x = myNumbers[n - 1];
+     d_gem_y = myNumbers[n - 2];
+     e_gem_x = myNumbers[n - 3];
+     e_gem_y = myNumbers[n - 4];
+     g_gem_x = myNumbers[n - 5];
+     g_gem_y = myNumbers[n - 6];
+}
+
 int main(int argc, char* argv[])
 {
     using namespace aipfg;
-    
     openai_helper oai_help;
     if (!oai_help.init())
     {
         return -1;
     }
-    
-    //Initial x and y values for the diamond.
-    float d_gem_x = randomFloat(100.0f, 900.0f);
-    float d_gem_y = randomFloat(100.0f, 900.0f);
-
-    //Initial x and y values for the emerald.
-    float e_gem_x = randomFloat(100.0f, 900.0f);
-    float e_gem_y = randomFloat(100.0f, 900.0f);
-    //Initial x and y values for the garnet.
-    float g_gem_x = randomFloat(100.0f, 900.0f);
-    float g_gem_y = randomFloat(100.0f, 900.0f);
-
-
-    //Initial x and y values for the 2nd diamond.
-    float d2_gem_x = randomFloat(100.0f, 900.0f);
-    float d2_gem_y = randomFloat(-100.0f, -900.0f);
-
-    //Initial x and y values for the 2nd emerald.
-    float e2_gem_x = randomFloat(100.0f, 900.0f);
-    float e2_gem_y = randomFloat(-100.0f, -900.0f);
-    //Initial x and y values for the 2nd garnet.
-    float g2_gem_x = randomFloat(100.0f, 900.0f);
-    float g2_gem_y = randomFloat(-100.0f, -900.0f);
-
-
-    //variable to track the number of gems collected
-    int gems_collected = 0;
-    int diamond_collected = 0;
-    int emerald_collected = 0;
-    int garnet_collected = 0;
-
     //sets the window size of the game
-
     raylib::Window window(1200, 570, "Raylib OpenAI NPCs");
 
     Camera2D camera = { 0 };
@@ -191,6 +179,32 @@ int main(int argc, char* argv[])
     raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
     Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
 
+    //..................GEM......................
+    float d_gem_x, d_gem_y, e_gem_x, e_gem_y, g_gem_x, g_gem_y = 0.0f;
+    float d2_gem_x, d2_gem_y, e2_gem_x, e2_gem_y, g2_gem_x, g2_gem_y = 0.0f;
+
+    //Initial x and y values for the 1st diamond, emerald and garnet.
+    ranPosGen(d_gem_x, d_gem_y, e_gem_x, e_gem_y, g_gem_x, g_gem_y, 100.0f, 900.0f);
+    //Initial x and y values for the 2st diamond, emerald and garnet.
+    ranPosGen(d2_gem_x, d2_gem_y, e2_gem_x, e2_gem_y, g2_gem_x, g2_gem_y, -100.0f, -900.0f);
+
+    //Initial x and y values for the 2nd diamond.
+    //float d2_gem_x = randomFloat(100.0f, 900.0f);
+    //float d2_gem_y = randomFloat(-100.0f, -900.0f);
+
+    //Initial x and y values for the 2nd emerald.
+    //float e2_gem_x = randomFloat(100.0f, 900.0f);
+    //float e2_gem_y = randomFloat(-100.0f, -900.0f);
+    //Initial x and y values for the 2nd garnet.
+    //float g2_gem_x = randomFloat(100.0f, 900.0f);
+    //float g2_gem_y = randomFloat(-100.0f, -900.0f);
+
+
+    //variable to track the number of gems collected
+    int gems_collected = 0;
+    int diamond_collected = 0;
+    int emerald_collected = 0;
+    int garnet_collected = 0;
     //Sprite for diamond.
     raylib::Texture diamond_tex{ "../resources/time_fantasy/diamond.png" };
     int d_cols = 6, d_rows = 1;
@@ -387,20 +401,21 @@ int main(int argc, char* argv[])
     int fairy_nchars_entered = 0;
     bool isGameOver = false;
     std::vector <Rectangle> walls{};
-     walls.push_back({ 0, -20 * 48, 48, 58 * 48 });
-    walls.push_back({ 50 * 48, -20 * 48, 48, 58 * 48 });
-    walls.push_back({ 24 * 48, -1 * 48, 48, 32 * 48 });
-    walls.push_back({ 24 * 48, 36 * 48, 48, 2 * 48 });
-    walls.push_back({ 12 * 48, 38 * 48, 48, 2 * 48 });
-    walls.push_back({ 12 * 48, 31 * 48, 48, 3 * 48 });
-    walls.push_back({ 0, -1 * 48, 50 * 48, 48 });
-    walls.push_back({ 0, -20 * 48, 20 * 48, 48 });
-    walls.push_back({ 0, 16 * 48, 11 * 48, 48 });
-    walls.push_back({ 24* 48, 22 * 48, 12 * 48, 48 });
-    walls.push_back({ 40* 48, 22 * 48, 12 * 48, 48 });
-    walls.push_back({ 0, 31 * 48, 13 * 48, 48 });
-    walls.push_back({ 0, 39 * 48, 50 * 48, 48 });
-    walls.push_back({ 14 * 48, 16 * 48, 11 * 48, 48 });
+   // walls.push_back({ 0, -20 * 48, 48, 58 * 48 });//0,-960,48,2784
+   // walls.push_back({ 50 * 48, -20 * 48, 48, 58 * 48 });//2400,-960,48,2784
+    walls.push_back({ 24 * 48, -1 * 48, 48, 32 * 48 });//1152,-48,48,1536
+    walls.push_back({ 24 * 48, 36 * 48, 48, 2 * 48 });//1152,1728,48,96
+    walls.push_back({ 12 * 48, 38 * 48, 48, 2 * 48 });//576,1824,48,96
+    walls.push_back({ 12 * 48, 31 * 48, 48, 3 * 48 });//576,1488,48,144
+
+    walls.push_back({ 0, -1 * 48, 50 * 48, 48 });//0,-48,2400,48
+    walls.push_back({ 0, -20 * 48, 20 * 48, 48 });//0,-960,960,48
+    walls.push_back({ 0, 16 * 48, 11 * 48, 48 });//0,768,528,48
+    walls.push_back({ 24* 48, 22 * 48, 12 * 48, 48 });//1522,1056,576,48
+    walls.push_back({ 40* 48, 22 * 48, 12 * 48, 48 });//1920,1056,576,48
+    walls.push_back({ 0, 31 * 48, 13 * 48, 48 });//0,1488,624,48
+    walls.push_back({ 0, 39 * 48, 50 * 48, 48 });//0,1872,2400,48
+    walls.push_back({ 14 * 48, 16 * 48, 11 * 48, 48 });//672,768,528,48
     //Detect window close button or ESC key
     while (!window.ShouldClose())
     {
