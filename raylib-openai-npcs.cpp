@@ -133,10 +133,8 @@ void ranPosGen(float& d_gem_x, float& d_gem_y, float& e_gem_x, float& e_gem_y,  
     int n = 6;
     for (int i = 0; i < n; i++)
     {
-        float numbr = randomFloat(fStart, fEnd); //(rand() % 900) + 1; //
+        float numbr = randomFloat(fStart, fEnd);
         myNumbers[i] = numbr;
-
-
     }
      d_gem_x = myNumbers[n - 1];
      d_gem_y = myNumbers[n - 2];
@@ -182,22 +180,17 @@ int main(int argc, char* argv[])
     //..................GEM......................
     float d_gem_x, d_gem_y, e_gem_x, e_gem_y, g_gem_x, g_gem_y = 0.0f;
     float d2_gem_x, d2_gem_y, e2_gem_x, e2_gem_y, g2_gem_x, g2_gem_y = 0.0f;
+    float d3_gem_x, d3_gem_y, e3_gem_x, e3_gem_y, g3_gem_x, g3_gem_y ;
+    float d4_gem_x, d4_gem_y, e4_gem_x, e4_gem_y, g4_gem_x, g4_gem_y ;
 
     //Initial x and y values for the 1st diamond, emerald and garnet.
-    ranPosGen(d_gem_x, d_gem_y, e_gem_x, e_gem_y, g_gem_x, g_gem_y, 100.0f, 900.0f);
-    //Initial x and y values for the 2st diamond, emerald and garnet.
-    ranPosGen(d2_gem_x, d2_gem_y, e2_gem_x, e2_gem_y, g2_gem_x, g2_gem_y, -100.0f, -900.0f);
-
-    //Initial x and y values for the 2nd diamond.
-    //float d2_gem_x = randomFloat(100.0f, 900.0f);
-    //float d2_gem_y = randomFloat(-100.0f, -900.0f);
-
-    //Initial x and y values for the 2nd emerald.
-    //float e2_gem_x = randomFloat(100.0f, 900.0f);
-    //float e2_gem_y = randomFloat(-100.0f, -900.0f);
-    //Initial x and y values for the 2nd garnet.
-    //float g2_gem_x = randomFloat(100.0f, 900.0f);
-    //float g2_gem_y = randomFloat(-100.0f, -900.0f);
+    ranPosGen(d_gem_x, d_gem_y, e_gem_x, e_gem_y, g_gem_x, g_gem_y, 50.0f, 700.0f);
+    //Initial x and y values for the 2nd diamond, emerald and garnet.
+    ranPosGen(d2_gem_x, d2_gem_y, e2_gem_x, e2_gem_y, g2_gem_x, g2_gem_y, 820.0f, 1100.0f);//x50-1100  y820-1400
+    //Initial x and y values for the 3rd diamond, emerald and garnet.
+    ranPosGen(d3_gem_x, d3_gem_y, e3_gem_x, e3_gem_y, g3_gem_x, g3_gem_y, 50.0f, 1000.0f);//x1200-2300 y0-1000
+    //Initial x and y values for the 4th diamond, emerald and garnet.
+    ranPosGen(d4_gem_x, d4_gem_y, e4_gem_x, e4_gem_y, g4_gem_x, g4_gem_y, 1300.0f, 1800.0f);//x1300-2300 y1100-1800
 
 
     //variable to track the number of gems collected
@@ -208,55 +201,65 @@ int main(int argc, char* argv[])
     //Sprite for diamond.
     raylib::Texture diamond_tex{ "../resources/time_fantasy/diamond.png" };
     int d_cols = 6, d_rows = 1;
-    int d_id = 1;
     Vector2 d_gem_posn{ d_gem_x, d_gem_y };
-    //Sprite dimond_gem{ diamond_tex, d_cols, d_rows, d_gem_posn, { d_id }, 1 };
     std::vector<int> frame_id_diamond(d_cols * d_rows);
     std::iota(frame_id_diamond.begin(), frame_id_diamond.end(), 0);
     Sprite dimond_gem{ diamond_tex, d_cols, d_rows, d_gem_posn, frame_id_diamond, 7 };
     dimond_gem.set_animation(true);
 
-
     Vector2 d2_gem_posn{ d2_gem_x, d2_gem_y };
     Sprite dimond2_gem{ diamond_tex, d_cols, d_rows, d2_gem_posn, frame_id_diamond, 7 };
     dimond2_gem.set_animation(true);
 
-    //Vector2 position = { 350.0f, 280.0f };
-    //Rectangle frameRec = { 0.0f, 0.0f, (float)diamond_tex.width / 6, (float)diamond_tex.height };
+    Vector2 d3_gem_posn{ d3_gem_x+1250, d3_gem_y };
+    Sprite dimond3_gem{ diamond_tex, d_cols, d_rows, d3_gem_posn, frame_id_diamond, 7 };
+    dimond3_gem.set_animation(true);
+
+    Vector2 d4_gem_posn{ d4_gem_x, d4_gem_y };
+    Sprite dimond4_gem{ diamond_tex, d_cols, d_rows, d4_gem_posn, frame_id_diamond, 7 };
+    dimond4_gem.set_animation(true);
 
     //Sprite for emerald.
     raylib::Texture emerald_tex{ "../resources/time_fantasy/emerald.png" };
     int e_cols = 6, e_rows = 1;
-    //int e_id = 5;
     Vector2 e_gem_posn{ e_gem_x, e_gem_y };
-    //Sprite emerald_gem{ emerald_tex, e_cols, e_rows, e_gem_posn, { e_id }, 1 };
     std::vector<int> frame_id_emerald(e_cols * e_rows);
     std::iota(frame_id_emerald.begin(), frame_id_emerald.end(), 0);
     Sprite emerald_gem{ emerald_tex, e_cols, e_rows, e_gem_posn, frame_id_emerald, 7 };
     emerald_gem.set_animation(true);
 
-
     Vector2 e2_gem_posn{ e2_gem_x, e2_gem_y };
     Sprite emerald2_gem{ emerald_tex, e_cols, e_rows, e2_gem_posn, frame_id_emerald, 7 };
     emerald2_gem.set_animation(true);
 
+    Vector2 e3_gem_posn{ e3_gem_x + 1250, e3_gem_y };
+    Sprite emerald3_gem{ emerald_tex, e_cols, e_rows, e3_gem_posn, frame_id_emerald, 7 };
+    emerald3_gem.set_animation(true);
+
+    Vector2 e4_gem_posn{ e4_gem_x, e4_gem_y };
+    Sprite emerald4_gem{ emerald_tex, e_cols, e_rows, e4_gem_posn, frame_id_emerald, 7 };
+    emerald4_gem.set_animation(true);
 
     //Sprite for garnet.
     raylib::Texture garnet_tex{ "../resources/time_fantasy/garnet.png" };
     int g_cols = 6, g_rows = 1;
-    //int g_id = 5;
     Vector2 g_gem_posn{ g_gem_x, g_gem_y };
-    //Sprite emerald_gem{ garnet_tex, e_cols, e_rows, e_gem_posn, { e_id }, 1 };
     std::vector<int> frame_id_garnet(g_cols * g_rows);
     std::iota(frame_id_garnet.begin(), frame_id_garnet.end(), 0);
     Sprite garnet_gem{ garnet_tex, g_cols, g_rows, g_gem_posn, frame_id_garnet, 7 };
     garnet_gem.set_animation(true);
 
-
     Vector2 g2_gem_posn{ g2_gem_x, g2_gem_y };
     Sprite garnet2_gem{ garnet_tex, g_cols, g_rows, g2_gem_posn, frame_id_garnet, 7 };
     garnet2_gem.set_animation(true);
 
+    Vector2 g3_gem_posn{ g3_gem_x + 1250, g3_gem_y };
+    Sprite garnet3_gem{ garnet_tex, g_cols, g_rows, g3_gem_posn, frame_id_garnet, 7 };
+    garnet3_gem.set_animation(true);
+
+    Vector2 g4_gem_posn{ g4_gem_x, g4_gem_y };
+    Sprite garnet4_gem{ garnet_tex, g_cols, g_rows, g4_gem_posn, frame_id_garnet, 7 };
+    garnet4_gem.set_animation(true);
 
     //loads the texture sheet and setup for the sprites the Knight uses
     raylib::Texture tex2{ "../resources/time_fantasy/knights_3x.png" };
@@ -401,21 +404,21 @@ int main(int argc, char* argv[])
     int fairy_nchars_entered = 0;
     bool isGameOver = false;
     std::vector <Rectangle> walls{};
-   // walls.push_back({ 0, -20 * 48, 48, 58 * 48 });//0,-960,48,2784
-   // walls.push_back({ 50 * 48, -20 * 48, 48, 58 * 48 });//2400,-960,48,2784
-    walls.push_back({ 24 * 48, -1 * 48, 48, 32 * 48 });//1152,-48,48,1536
-    walls.push_back({ 24 * 48, 36 * 48, 48, 2 * 48 });//1152,1728,48,96
-    walls.push_back({ 12 * 48, 38 * 48, 48, 2 * 48 });//576,1824,48,96
-    walls.push_back({ 12 * 48, 31 * 48, 48, 3 * 48 });//576,1488,48,144
+    walls.push_back({ 0, 0, 48, 58 * 48 });//0,0,48,2784                  left wall
+    walls.push_back({ 50 * 48, 0, 48, 58 * 48 });//2400,0,48,2784         right wall
+    walls.push_back({ 24 * 48,0, 48, 32 * 48 });//1152,0,48,1536          middle wall upper one
+    walls.push_back({ 24 * 48, 36 * 48, 48, 2 * 48 });//1152,1728,48,96   middle wall lower one
+    walls.push_back({ 12 * 48, 38 * 48, 48, 2 * 48 });//576,1824,48,96    the little wall of little room
+    walls.push_back({ 12 * 48, 31 * 48, 48, 3 * 48 });//576,1488,48,144   on the little wall of little room
 
-    walls.push_back({ 0, -1 * 48, 50 * 48, 48 });//0,-48,2400,48
-    walls.push_back({ 0, -20 * 48, 20 * 48, 48 });//0,-960,960,48
-    walls.push_back({ 0, 16 * 48, 11 * 48, 48 });//0,768,528,48
-    walls.push_back({ 24* 48, 22 * 48, 12 * 48, 48 });//1522,1056,576,48
-    walls.push_back({ 40* 48, 22 * 48, 12 * 48, 48 });//1920,1056,576,48
-    walls.push_back({ 0, 31 * 48, 13 * 48, 48 });//0,1488,624,48
-    walls.push_back({ 0, 39 * 48, 50 * 48, 48 });//0,1872,2400,48
-    walls.push_back({ 14 * 48, 16 * 48, 11 * 48, 48 });//672,768,528,48
+    walls.push_back({ 0, -1 * 48, 50 * 48, 48 });//0,-48,2400,48          upper wall
+    //walls.push_back({ 0, -20 * 48, 20 * 48, 48 });//0,-960,960,48       ???????????
+    walls.push_back({ 0, 16 * 48, 11 * 48, 48 });//0,768,528,48           2nd wall from x=0
+    walls.push_back({ 24* 48, 22 * 48, 12 * 48, 48 });//1522,1056,576,48  upper-rigt room lower-left wall
+    walls.push_back({ 40* 48, 22 * 48, 12 * 48, 48 });//1920,1056,576,48  upper-rigt room lower-right wall
+    walls.push_back({ 0, 31 * 48, 13 * 48, 48 });//0,1488,624,48          3rd wall from x=0
+    walls.push_back({ 0, 39 * 48, 50 * 48, 48 });//0,1872,2400,48         lower wall 
+    walls.push_back({ 14 * 48, 16 * 48, 11 * 48, 48 });//672,768,528,48    wall with white spot
     //Detect window close button or ESC key
     while (!window.ShouldClose())
     {
@@ -677,12 +680,12 @@ int main(int argc, char* argv[])
             }
 
 
-
+            ////x1300-2300 y1100-1800 4th
             //Detects the player collecting a dimond and updates the dimonds collected variable.
             if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f)
             {
-                d_gem_x = randomFloat(100.0f, 900.0f);
-                d_gem_y = randomFloat(100.0f, 900.0f);
+                d_gem_x = randomFloat(50.0f, 1100.0f);
+                d_gem_y = randomFloat(50.0f, 700.0f);
                 d_gem_posn = { d_gem_x , d_gem_y };
                 dimond_gem.set_posn(d_gem_posn);
                 coin_sound.Play();
@@ -693,19 +696,40 @@ int main(int argc, char* argv[])
             //Detects the player collecting a dimond and updates the dimonds collected variable.
             if (Vector2Distance(knight.get_pos(), dimond2_gem.get_posn()) < 40.0f)
             {
-                d2_gem_x = randomFloat(100.0f, 900.0f);
-                d2_gem_y = randomFloat(-100.0f, -900.0f);
+                d2_gem_x = randomFloat(50.0f, 1100.0f);
+                d2_gem_y = randomFloat(820.0f, 1400.0f);
                 d2_gem_posn = { d2_gem_x , d2_gem_y };
                 dimond2_gem.set_posn(d2_gem_posn);
                 coin_sound.Play();
                 diamond_collected++;
             }
 
+            //Detects the player collecting a dimond and updates the dimonds collected variable.
+            if (Vector2Distance(knight.get_pos(), dimond3_gem.get_posn()) < 40.0f)
+            {
+                d3_gem_x = randomFloat(1200.0f, 2300.0f);
+                d3_gem_y = randomFloat(50.0f, 1000.0f);
+                d3_gem_posn = { d3_gem_x , d3_gem_y };
+                dimond3_gem.set_posn(d3_gem_posn);
+                coin_sound.Play();
+                diamond_collected++;
+            }
+            if (Vector2Distance(knight.get_pos(), dimond4_gem.get_posn()) < 40.0f)//x1300-2300 y1100-1800 4th
+            {
+                d4_gem_x = randomFloat(1300.0f, 2300.0f);
+                d4_gem_y = randomFloat(1100.0f, 1800.0f);
+                d4_gem_posn = { d4_gem_x , d4_gem_y };
+                dimond4_gem.set_posn(d4_gem_posn);
+                coin_sound.Play();
+                diamond_collected++;
+                gems_collected++;
+            }
+
             //Detects the player collecting a emerald and updates the emeralds collected variable.
             if (Vector2Distance(knight.get_pos(), emerald_gem.get_posn()) < 40.0f)
             {
-                e_gem_x = randomFloat(150.0f, 900.0f);
-                e_gem_y = randomFloat(150.0f, 900.0f);
+                e_gem_x = randomFloat(50.0f, 1100.0f);
+                e_gem_y = randomFloat(50.0f, 700.0f);
                 e_gem_posn = { e_gem_x , e_gem_y };
                 emerald_gem.set_posn(e_gem_posn);
                 coin_sound.Play();
@@ -716,19 +740,40 @@ int main(int argc, char* argv[])
             //Detects the player collecting a emerald and updates the emeralds collected variable.
             if (Vector2Distance(knight.get_pos(), emerald2_gem.get_posn()) < 40.0f)
             {
-                e2_gem_x = randomFloat(100.0f, 900.0f);
-                e2_gem_y = randomFloat(-100.0f, -900.0f);
+                e2_gem_x = randomFloat(50.0f, 1100.0f);
+                e2_gem_y = randomFloat(820.0f, 1400.0f);
                 e2_gem_posn = { e2_gem_x , e2_gem_y };
                 emerald2_gem.set_posn(e2_gem_posn);
                 coin_sound.Play();
                 emerald_collected++;
             }
 
+            //Detects the player collecting a dimond and updates the dimonds collected variable.
+            if (Vector2Distance(knight.get_pos(), emerald3_gem.get_posn()) < 40.0f)
+            {
+                e3_gem_x = randomFloat(1200.0f, 2300.0f);
+                e3_gem_y = randomFloat(50.0f, 1000.0f);
+                e3_gem_posn = { e3_gem_x , d3_gem_y };
+                emerald3_gem.set_posn(e3_gem_posn);
+                coin_sound.Play();
+                emerald_collected++;
+            }
+            if (Vector2Distance(knight.get_pos(), emerald4_gem.get_posn()) < 40.0f)//x1300-2300 y1100-1800 4th
+            {
+                e4_gem_x = randomFloat(1300.0f, 2300.0f);
+                e4_gem_y = randomFloat(1100.0f, 1800.0f);
+                e4_gem_posn = { e4_gem_x , e4_gem_y };
+                emerald4_gem.set_posn(e4_gem_posn);
+                coin_sound.Play();
+                emerald_collected++;
+                gems_collected++;
+            }
+
             //Detects the player collecting a garnet and updates the garnets collected variable.
             if (Vector2Distance(knight.get_pos(), garnet_gem.get_posn()) < 40.0f)
             {
-                g_gem_x = randomFloat(150.0f, 900.0f);
-                g_gem_y = randomFloat(150.0f, 900.0f);
+                g_gem_x = randomFloat(50.0f, 1100.0f);
+                g_gem_y = randomFloat(50.0f, 700.0f);
                 g_gem_posn = { g_gem_x , g_gem_y };
                 garnet_gem.set_posn(g_gem_posn);
                 coin_sound.Play();
@@ -736,15 +781,36 @@ int main(int argc, char* argv[])
                 gems_collected++;
             }
 
+            ////Detects the player collecting a garnet and updates the garnets collected variable.
+            //if (Vector2Distance(knight.get_pos(), garnet2_gem.get_posn()) < 40.0f)
+            //{
+            //    g2_gem_x = randomFloat(50.0f, 1100.0f);
+            //    g2_gem_y = randomFloat(820.0f, 1400.0f);
+            //    g2_gem_posn = { g2_gem_x , g2_gem_y };
+            //    garnet2_gem.set_posn(g2_gem_posn);
+            //    coin_sound.Play();
+            //    garnet_collected++;
+            //}
+
             //Detects the player collecting a garnet and updates the garnets collected variable.
-            if (Vector2Distance(knight.get_pos(), garnet2_gem.get_posn()) < 40.0f)
+            if (Vector2Distance(knight.get_pos(), garnet3_gem.get_posn()) < 40.0f)
             {
-                g2_gem_x = randomFloat(100.0f, 900.0f);
-                g2_gem_y = randomFloat(-100.0f, -900.0f);
-                g2_gem_posn = { g2_gem_x , g2_gem_y };
-                garnet2_gem.set_posn(g2_gem_posn);
+                g3_gem_x = randomFloat(1200.0f, 2300.0f);
+                g3_gem_y = randomFloat(50.0f, 1000.0f);
+                g3_gem_posn = { g3_gem_x , g3_gem_y };
+                garnet3_gem.set_posn(g3_gem_posn);
                 coin_sound.Play();
                 garnet_collected++;
+            }
+            if (Vector2Distance(knight.get_pos(), garnet4_gem.get_posn()) < 40.0f)//x1300-2300 y1100-1800 4th
+            {
+                g4_gem_x = randomFloat(1300.0f, 2300.0f);
+                g4_gem_y = randomFloat(1100.0f, 1800.0f);
+                g4_gem_posn = { g4_gem_x , g4_gem_y };
+                garnet4_gem.set_posn(g4_gem_posn);
+                coin_sound.Play();
+                garnet_collected++;
+                gems_collected++;
             }
 
         }
@@ -803,7 +869,7 @@ int main(int argc, char* argv[])
         if (isSwordActive) sword.draw();
         knight.draw_health();
 
-        std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet2_gem, fairy.get_sprite() };
+        std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet3_gem, &dimond3_gem, &emerald3_gem, &garnet4_gem, &dimond4_gem, &emerald4_gem, fairy.get_sprite() };//,&garnet3_gem
         std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
             return s1->get_posn().y < s2->get_posn().y;
             }
