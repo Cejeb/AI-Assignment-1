@@ -172,6 +172,26 @@ aipfg::textbox make_navi(raylib::Window& window, aipfg::openai_helper& oai_help)
     return { window, nature, gambit, name, oai_help };
 }
 
+void gemGenerator( float& d_gem_x, float& d_gem_y, int& diamond_collected, int& gems_collected, raylib::Texture& diamond_tex, raylib::Sound& coin_sound, Vector2& d_gem_posn, aipfg::Sprite& gem) {
+    //raylib::Sound coin_sound{ "../resources/audio/coin.wav" };
+    //raylib::Texture diamond_tex{ "../resources/time_fantasy/diamond.png" };
+    int d_cols = 6, d_rows = 1;
+
+    std::vector<int> frame_id_diamond(d_cols * d_rows);
+    std::iota(frame_id_diamond.begin(), frame_id_diamond.end(), 0);
+
+
+
+        d_gem_x = randomFloat(50.0f, 1100.0f);
+        d_gem_y = randomFloat(50.0f, 700.0f);
+        d_gem_posn = { d_gem_x , d_gem_y };
+        gem.set_posn(d_gem_posn);
+        coin_sound.Play();
+        diamond_collected++;
+        gems_collected++;
+  
+}
+
 int main(int argc, char* argv[])
 {
     using namespace aipfg;
@@ -229,9 +249,12 @@ int main(int argc, char* argv[])
     //Sprite for diamond.
     raylib::Texture diamond_tex{ "../resources/time_fantasy/diamond.png" };
     int d_cols = 6, d_rows = 1;
-    Vector2 d_gem_posn{ d_gem_x, d_gem_y };
+
     std::vector<int> frame_id_diamond(d_cols * d_rows);
     std::iota(frame_id_diamond.begin(), frame_id_diamond.end(), 0);
+
+
+    Vector2 d_gem_posn{ d_gem_x, d_gem_y };
     Sprite dimond_gem{ diamond_tex, d_cols, d_rows, d_gem_posn, frame_id_diamond, 7 };
     dimond_gem.set_animation(true);
 
@@ -455,19 +478,22 @@ int main(int argc, char* argv[])
             textboxes.at(0).setActive(false);
         }
 
-
+        
+        if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f) {
+            gemGenerator(d_gem_x, d_gem_y, diamond_collected, gems_collected, diamond_tex, coin_sound, d_gem_posn, dimond_gem);
+        }
             ////x1300-2300 y1100-1800 4th
             //Detects the player collecting a dimond and updates the dimonds collected variable.
-            if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f)
-            {
-                d_gem_x = randomFloat(50.0f, 1100.0f);
-                d_gem_y = randomFloat(50.0f, 700.0f);
-                d_gem_posn = { d_gem_x , d_gem_y };
-                dimond_gem.set_posn(d_gem_posn);
-                coin_sound.Play();
-                diamond_collected++;
-                gems_collected++;
-            }
+            //if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f)
+            //{
+            //    d_gem_x = randomFloat(50.0f, 1100.0f);
+            //    d_gem_y = randomFloat(50.0f, 700.0f);
+            //    d_gem_posn = { d_gem_x , d_gem_y };
+            //    dimond_gem.set_posn(d_gem_posn);
+            //    coin_sound.Play();
+            //    diamond_collected++;
+            //    gems_collected++;
+            //}
 
             //Detects the player collecting a dimond and updates the dimonds collected variable.
             if (Vector2Distance(knight.get_pos(), dimond2_gem.get_posn()) < 40.0f)
@@ -664,7 +690,7 @@ int main(int argc, char* argv[])
         }
         if (isSwordActive) sword.draw();
         knight.draw_health();
-
+        
         std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet3_gem, &dimond3_gem, &emerald3_gem, &garnet4_gem, &dimond4_gem, &emerald4_gem, fairy.get_sprite() };//,&garnet3_gem
         std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
             return s1->get_posn().y < s2->get_posn().y;
