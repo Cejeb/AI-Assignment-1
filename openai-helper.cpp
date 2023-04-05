@@ -47,9 +47,11 @@ void openai_helper::submit(const std::string& fairy_prompt, std::string& fairy_r
     const std::optional<std::unordered_map<std::string, int8_t>> logit_bias = std::nullopt;
     const std::optional<std::string> user = std::nullopt;
     try {
+        std::cout << fairy_prompt;
         liboai::Response response = (*oai_).Completion->create(model_id, fairy_prompt, suffix,
             max_tokens, temperature, top_p, n, stream, logprobs, echo, stop1,
             presence_penalty, frequency_penalty, best_of, logit_bias, user);
+        std::cout << response;
         fairy_response_str = response["choices"][0]["text"].get<std::string>();
     }
     catch (std::exception& e) {

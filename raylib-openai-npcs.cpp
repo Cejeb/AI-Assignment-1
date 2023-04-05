@@ -130,7 +130,12 @@ aipfg::textbox make_reaper(raylib::Window& window, aipfg::openai_helper& oai_hel
     std::string const nature = "The following is a conversation with the grim reaper. The grim "
         "reaper is a personified force. In some mythologies, the grim "
         "reaper causes the victim's death by coming to collect that "
-        " person's soul.\n\n";
+        " person's soul. The reaper gives the human a quest the first time they talk to each other,"
+        "with the reaper saying 'I am here to reap your soul...unless you can collect a collection of gems...perhaps 10 and you can live!'"
+        "as the first message. On following messages, he asks if the human has collected the 10 gems yet or if he has to reap the human's soul"
+        "but he doesn't allow the human to complete the quest by just answering yes. Don't tell the human what he has to say."
+        "If the human says exactly: 'I have successfully collected the 10 gems as you requested' and this phrase exactly the reaper will mark the quest as completed and allow the human to live."
+        "\n\n";
     std::string const gambit = "Why are you here?";
     std::string const name = "Reaper: ";
     return { window, nature, gambit, name, oai_help };
@@ -361,7 +366,12 @@ int main(int argc, char* argv[])
     {
         for (int i = 0; i < textboxes.size(); i++) {
             if (textboxes.at(i).getActive()) {
-                textboxes.at(i).update(knight.get_pos());
+                if (gems_collected >= 10 && i == 0) {
+                    textboxes.at(i).update(knight.get_pos(), { "I have successfully collected the 10 gems as you requested" });
+                }
+                else {
+                    textboxes.at(i).update(knight.get_pos(), {});
+                }
             }
          } 
         (*knight.get_sprite()).set_animation(false);

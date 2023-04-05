@@ -38,6 +38,7 @@ namespace aipfg {
         std::string response_{};
         std::string nature_;
         std::string nature_prompt_;
+        bool custom_prompt_done_{ false };
         const std::optional<std::vector<std::string>> stop_ = std::optional{ std::vector{name_str, human_stop_str} };
 
 	public:
@@ -71,7 +72,8 @@ namespace aipfg {
                 throw std::runtime_error{ text };
             }
 		}
-		void update(Vector2 pos) {
+		void update(Vector2 pos, std::string custom_prompt_) {
+
             bool waiting{ response_future_.valid() };
             if (waiting &&
                 std::future_status::ready ==
@@ -85,6 +87,18 @@ namespace aipfg {
                 response_ += '\n' + human_stop_str;
                 update_prompt(response_);
                 nchars_entered_ = 0;
+            }
+            if (!custom_prompt_.empty() && !custom_prompt_done_) {
+                if (!waiting)
+                {
+                    prompt_ += custom_prompt_;
+                    update_prompt('\n' + name_str);
+                    nature_prompt_ = nature_ + prompt_;
+                    response_future_ = std::async(std::launch::async, &openai_helper::submit, std::ref((*oai_help_)),
+                        std::cref(nature_prompt_), std::ref(response_), std::cref(stop_));
+                    custom_prompt_done_ = true;
+
+                }
             }
             static bool once;
             if (!once) {
