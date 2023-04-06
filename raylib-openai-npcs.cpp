@@ -64,7 +64,38 @@ void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectan
         i++;
     }
 }
+void damage(aipfg::entity& knight, std::vector <aipfg::boss*>& boss, Rectangle sword_rect, raylib::Sound& attacksound, bool& isGameOver) {
+    int i = 0;
 
+        Rectangle enemyrect = (*boss.at(0)).calculate_rectangle();
+        //slightly shifted as enemy and player cannot move into each other
+        enemyrect.x -= 1;
+        enemyrect.y -= 1;
+        enemyrect.width += 2;
+        enemyrect.height += 2;
+        if (detectCollision(enemyrect, knight.calculate_rectangle())) {
+            if ((unsigned int)(GetTime() * 1000.0) - knight.get_lastdamage() > 1000) {
+                knight.set_hp(knight.get_hp() - (*boss.at(0)).get_damage());
+                attacksound.Play();
+                knight.set_lastdamage((unsigned int)(GetTime() * 1000.0));
+                if (knight.get_hp() <= 0) {
+                    std::cout << "Dead";
+                    isGameOver = true;
+                }
+            }
+        }
+        if (detectCollision((*boss.at(0)).calculate_rectangle(), sword_rect) &&
+            (unsigned int)(GetTime() * 1000.0) - (*boss.at(0)).get_lastdamage() > 1000) {
+
+            (*boss.at(0)).set_hp((*boss.at(0)).get_hp() - knight.get_damage());
+            (*boss.at(0)).set_lastdamage((unsigned int)(GetTime() * 1000.0));
+            if ((*boss.at(0)).get_hp() <= 0) {
+                boss.clear();
+            }
+        
+        
+    }
+}
 void generate_enemies(std::vector <aipfg::entity*>& enemies, int amount, aipfg::Sprite* sprite, int width, int height, int hp, float speed, int damage, int x_start, int y_start) {
     for (int i = 0; i < amount; i++) {
         float XE = randomFloat(x_start, width);
@@ -154,13 +185,13 @@ aipfg::textbox make_navi(raylib::Window& window, aipfg::openai_helper& oai_help)
 int main(int argc, char* argv[])
 {
     using namespace aipfg;
-    
+
     openai_helper oai_help;
     if (!oai_help.init())
     {
         return -1;
     }
-    
+
     //Initial x and y values for the diamond.
     float d_gem_x = randomFloat(100.0f, 900.0f);
     float d_gem_y = randomFloat(100.0f, 900.0f);
@@ -291,7 +322,7 @@ int main(int argc, char* argv[])
     raylib::Texture tex6{ "../resources/time_fantasy/ayy_gray_3x.png" };
 
     //entity zombie;
-    Vector2 zombie_pos{ randomFloat(0, 20*48), randomFloat(-20*48, 20*48)};
+    Vector2 zombie_pos{ randomFloat(0, 20 * 48), randomFloat(-20 * 48, 20 * 48) };
     Sprite zombie_down{ tex6, 3, 4,
         zombie_pos,{0,1,2},6 };
     Sprite zombie_left{ tex6, 3, 4,
@@ -320,7 +351,7 @@ int main(int argc, char* argv[])
 
     raylib::Texture tex4{ "../resources/time_fantasy"
                         "/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" };
-   //Map
+    //Map
     Map map = LoadTiled("../resources/New_World.tmj");
     //
     ncols = 8; nrows = 16;
@@ -339,16 +370,19 @@ int main(int argc, char* argv[])
     Sprite* zombie_sprite = &zombie_down;
     Sprite* bat_sprite = &bat_down;
     //(*zombie_sprite).set_animation(false);
-    raylib::Texture bosstex{ "../resources/time_fantasy/boss_2x.png" };
-    Sprite boss_s{ bosstex,3,1,{600, 220}, {0,1,2},0 };
-    Sprite* boss_sprite = &boss_s;
+    raylib::Texture bosstex{ "../resources/time_fantasy/boss_2x_extended.png" };
+    std::vector <Sprite> boss_sprites;
+    for (int i = 0; i < 6; i++) {
+    boss_sprites.push_back({ bosstex,6,1,{600, 220}, {i},0 });
+    }
+    Sprite* boss_sprite = &boss_sprites.at(0);
     std::vector <entity*> enemies;
-    boss boss(boss_sprite, 500, 1, true, 0);
-    boss.get_sprite()->set_animation(true);
+    std::vector <boss*> boss_vector;
+    boss_vector.push_back(&boss(boss_sprite, 500, 1, true, 0));
     std::vector <entity*> enemies_bat;
     generate_enemies(enemies, 2, zombie_sprite, 20*48, 20*48, 100, 1.5, 15, 48, -(20*48));
     generate_enemies(enemies_bat, 2, bat_sprite, 20*48, 20*48, 100, 3, 10, 48 ,-(20*48));
-    entity knight(grey_knight, 1000, 5, false, 25);
+    entity knight(grey_knight, 1000, 5, false, 150);
     entity fairy(fairy_sprite, 0, 3, false, 0);
     const float grey_speed = 2.5f;
     Rectangle sword_rect{};
@@ -552,16 +586,24 @@ int main(int argc, char* argv[])
         if (!(textboxes.at(0).getActive() || textboxes.at(1).getActive())) {
             damage(knight, enemies, sword_rect, zombie_sound, isGameOver);
             damage(knight, enemies_bat, sword_rect, bat_sound, isGameOver);
-
+            
             for (int i = 0; i < enemies_bat.size(); i++) {
                 (*enemies_bat.at(i)).follow(knight, 500, bat_vector, walls);
                 (*enemies_bat.at(i)).draw();
                 //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
             }
             //boss.follow(knight, 1000, {}, walls);
-            boss.hover();
-            boss.draw(); 
-            DrawRectangleLines(boss.calculate_rectangle().x, boss.calculate_rectangle().y, boss.calculate_rectangle().width, boss.calculate_rectangle().height, BLACK);
+            
+            if (!boss_vector.empty()) {
+                damage(knight, boss_vector, sword_rect, bat_sound, isGameOver);
+                //if (!boss_vector.empty()) {
+                    (*boss_vector.at(0)).hover();
+                    (*boss_vector.at(0)).draw();
+                    (*boss_vector.at(0)).changeStage(boss_sprites);
+                    (*boss_vector.at(0)).follow(knight, 1000, boss_sprites, walls);
+                    DrawRectangleLines((*boss_vector.at(0)).calculate_rectangle().x, (*boss_vector.at(0)).calculate_rectangle().y, (*boss_vector.at(0)).calculate_rectangle().width, (*boss_vector.at(0)).calculate_rectangle().height, BLACK);
+                //}
+            }
             //DrawRectangle(boss.calculate_rectangle().x, boss.calculate_rectangle().y, boss.calculate_rectangle().width, boss.calculate_rectangle().height, BLACK);
             for (int i = 0; i < enemies.size(); i++) {
                 (*enemies.at(i)).follow(knight, 300, zombie_vector, walls);

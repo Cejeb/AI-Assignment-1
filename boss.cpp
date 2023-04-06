@@ -23,14 +23,16 @@ namespace aipfg {
 			get_sprite()->set_posn(get_pos());
 			t = t + 0.02;
 		}
-		void changeStage() {
+		void changeStage(std::vector<Sprite>& vector) {
 			if (hp_ < 0.7 * maxhp) {
 				currentStage = STAGE2;
 				set_speed(0.6 * get_speed());
+				set_sprite(vector.at(2));
 			}
 			if (hp_ <= 0.3 * maxhp) {
 				currentStage = STAGE3;
 				set_speed(0.8 * get_speed());
+				set_sprite(vector.at(4));
 			}
 
 		}
@@ -39,7 +41,7 @@ namespace aipfg {
 			DrawRectangle(get_pos().x - diff, get_pos().y - 25, maxhp, 25, GRAY);
 			DrawRectangle(get_pos().x - diff, get_pos().y - 25, get_hp(), 25, DARKPURPLE);
 			DrawText("Ophidian, the Orb Guardian", get_pos().x, get_pos().y - 50, 20, BLACK);
-
+		
 		}
 		void draw() {
 			(*get_sprite()).draw();
@@ -50,12 +52,94 @@ namespace aipfg {
 				return { get_pos().x + 35, get_pos().y + 15,(float)(*get_sprite()).get_sprite_width() - 85, (float)(*get_sprite()).get_sprite_height() - 28 };
 			}
 			else if (currentStage == STAGE2) {
-
+				return { get_pos().x + 35, get_pos().y + 15,(float)(*get_sprite()).get_sprite_width() - 85, (float)(*get_sprite()).get_sprite_height() - 28 };
 			}
 			else {
-				return { get_pos().x + 12, get_pos().y + 23,(float)(*get_sprite()).get_sprite_width() - 26, (float)(*get_sprite()).get_sprite_height() - 23 };
+				return { get_pos().x + 35, get_pos().y + 15,(float)(*get_sprite()).get_sprite_width() - 85, (float)(*get_sprite()).get_sprite_height() - 28 };
 			}
 		}
-		
+		void follow(entity entity, int distance, std::vector<Sprite>& vector, std::vector<Rectangle> walls) {
+			Rectangle entityrect = entity.calculate_rectangle();
+			Rectangle selfrect = calculate_rectangle();
+			Vector2 entitycenter = { entityrect.x + entityrect.width / 2, entityrect.y + entityrect.height / 2 };
+			bool collision = false;
+			if (CheckCollisionCircleRec(entitycenter, (float)distance, calculate_rectangle())) {
+				if (abs(get_pos().x - entity.get_pos().x)
+					>= abs(get_pos().y - entity.get_pos().y)) {
+
+					if (get_pos().x - entity.get_pos().x >= 0) {
+						selfrect.x -= get_speed();
+						for (int i = 0; i < walls.size(); i++) {
+							if (CheckCollisionRecs(walls.at(i), selfrect)) {
+								collision = true;
+							}
+						}
+						if (!CheckCollisionRecs(entityrect, selfrect) && !collision) {
+							set_pos({ get_pos().x - get_speed()
+								, get_pos().y });
+							if (currentStage == STAGE1) {
+								set_sprite(vector.at(1));
+							}
+							else if (currentStage == STAGE2) {
+								set_sprite(vector.at(3));
+							}
+							else {
+								set_sprite(vector.at(5));
+							}
+							
+						}
+					}
+					else {
+						selfrect.x += get_speed();
+						for (int i = 0; i < walls.size(); i++) {
+							if (CheckCollisionRecs(walls.at(i), selfrect)) {
+								collision = true;
+							}
+						}
+						if (!CheckCollisionRecs(entityrect, selfrect) && !collision) {
+							set_pos({ get_pos().x + get_speed()
+							   , get_pos().y });
+							if (currentStage == STAGE1) {
+								set_sprite(vector.at(0));
+							}
+							else if (currentStage == STAGE2) {
+								set_sprite(vector.at(2));
+							}
+							else {
+								set_sprite(vector.at(4));
+							}
+						}
+					}
+
+				}
+				else if (get_pos().y - entity.get_pos().y >= 0) {
+					selfrect.y -= get_speed();
+					for (int i = 0; i < walls.size(); i++) {
+						if (CheckCollisionRecs(walls.at(i), selfrect)) {
+							collision = true;
+						}
+					}
+					if (!CheckCollisionRecs(entityrect, selfrect) && !collision) {
+						set_pos({ get_pos().x
+											, get_pos().y - get_speed() });
+					}
+
+				}
+				else {
+					selfrect.y += get_speed();
+					for (int i = 0; i < walls.size(); i++) {
+						if (CheckCollisionRecs(walls.at(i), selfrect)) {
+							collision = true;
+						}
+					}
+					if (!CheckCollisionRecs(entityrect, selfrect) && !collision) {
+						set_pos({ get_pos().x
+											, get_pos().y + get_speed() });
+					}
+
+				}
+			}
+			(*get_sprite()).set_posn(get_pos());
+		}
 	};
 }
