@@ -1,7 +1,7 @@
 #include <vector>
 namespace aipfg {
 	class entity {
-	private:
+	protected:
 		Sprite* sprite_{};
 		Vector2 pos_{};
 		//raylib::Texture tex_;
@@ -26,7 +26,7 @@ namespace aipfg {
 		void set_damage(int damage) { damage_ = damage; }
 		void set_lastdamage(unsigned int lastdamage) { lastdamage_ = lastdamage; }
 		unsigned int get_lastdamage() { return lastdamage_; }
-		entity(Sprite* sprite, float hp, float speed, bool isHostile, int damage)
+		explicit entity(Sprite* sprite, float hp, float speed, bool isHostile, int damage)
 			: sprite_{ sprite },
 			pos_{ (*sprite).get_posn()},
 			hp_{ hp},

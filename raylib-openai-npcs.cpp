@@ -11,6 +11,7 @@
 #include <iostream>
 #include <algorithm>
 #include <map> 
+#include "boss.cpp"
 void update_prompt(std::string& prompt, char c, const int font_size,
     const float max_text_width, int& tail_index_large,
     int& tail_index_small, int& nchars_entered);
@@ -338,11 +339,16 @@ int main(int argc, char* argv[])
     Sprite* zombie_sprite = &zombie_down;
     Sprite* bat_sprite = &bat_down;
     //(*zombie_sprite).set_animation(false);
+    raylib::Texture bosstex{ "../resources/time_fantasy/boss_2x.png" };
+    Sprite boss_s{ bosstex,3,1,{600, 220}, {0,1,2},0 };
+    Sprite* boss_sprite = &boss_s;
     std::vector <entity*> enemies;
+    boss boss(boss_sprite, 500, 1, true, 0);
+    boss.get_sprite()->set_animation(true);
     std::vector <entity*> enemies_bat;
     generate_enemies(enemies, 2, zombie_sprite, 20*48, 20*48, 100, 1.5, 15, 48, -(20*48));
     generate_enemies(enemies_bat, 2, bat_sprite, 20*48, 20*48, 100, 3, 10, 48 ,-(20*48));
-    entity knight(grey_knight, 100, 2.6, false, 25);
+    entity knight(grey_knight, 1000, 5, false, 25);
     entity fairy(fairy_sprite, 0, 3, false, 0);
     const float grey_speed = 2.5f;
     Rectangle sword_rect{};
@@ -552,6 +558,11 @@ int main(int argc, char* argv[])
                 (*enemies_bat.at(i)).draw();
                 //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
             }
+            //boss.follow(knight, 1000, {}, walls);
+            boss.hover();
+            boss.draw(); 
+            DrawRectangleLines(boss.calculate_rectangle().x, boss.calculate_rectangle().y, boss.calculate_rectangle().width, boss.calculate_rectangle().height, BLACK);
+            //DrawRectangle(boss.calculate_rectangle().x, boss.calculate_rectangle().y, boss.calculate_rectangle().width, boss.calculate_rectangle().height, BLACK);
             for (int i = 0; i < enemies.size(); i++) {
                 (*enemies.at(i)).follow(knight, 300, zombie_vector, walls);
                 (*enemies.at(i)).draw();
@@ -570,7 +581,7 @@ int main(int argc, char* argv[])
         if (isSwordActive) sword.draw();
         knight.draw_health();
 
-        std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet2_gem, fairy.get_sprite() };
+        std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet2_gem, fairy.get_sprite()};
         std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
             return s1->get_posn().y < s2->get_posn().y;
             }
