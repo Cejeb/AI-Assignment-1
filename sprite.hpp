@@ -25,11 +25,11 @@ namespace aipfg {
 
         void set_posn(const Vector2 posn) { posn_ = posn; }
         Vector2 get_posn() { return posn_; }
-        void set_angle(const float angle);
+        void set_angle(const float angle) { angle_ = angle; }
         float get_angle() { return angle_; }
-        void set_rotation(const float delta);
+        void set_rotation(const float delta) { delta_ = delta; }
         float get_rotation() { return delta_; }
-        void set_animation(bool on);
+        void set_animation(bool on) { animation_on_ = on; }
         bool get_animation() { return animation_on_; }
         void set_origin(const Vector2 origin) { origin_ = origin; }
         Vector2 get_origin() { return origin_; }

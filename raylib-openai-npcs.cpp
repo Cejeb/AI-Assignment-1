@@ -1002,7 +1002,7 @@ int main(int argc, char* argv[])
         DrawText("N to talk to Navi", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 50, 20, BLACK);
         DrawText("Spacebar to attack", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 70, 20, BLACK);
         DrawText("Arrow keys to move", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 90, 20, BLACK);
-        DrawText(potion_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 90, 20, BLACK);
+        DrawText(potion_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 110, 20, BLACK);
 
         //DrawLine((int)camera.target.x, -1280 * 10, (int)camera.target.x, 1280 * 10, GREEN);
         //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
