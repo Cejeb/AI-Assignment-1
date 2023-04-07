@@ -72,7 +72,7 @@ namespace aipfg {
                 throw std::runtime_error{ text };
             }
 		}
-		void update(Vector2 pos, std::string custom_prompt_) {
+		void update(Vector2 pos, std::string custom_prompt_, raylib::Sound& music) {
 
             bool waiting{ response_future_.valid() };
             if (waiting &&
@@ -130,8 +130,7 @@ namespace aipfg {
                     SetExitKey(KEY_ESCAPE);
                     once = false;
                     active_ = false;
-                    //music.SetVolume(music_volume_normal);
-                    //QuestGiven = true;
+                    music.SetVolume(1.0f);
                 }
                 break;
 

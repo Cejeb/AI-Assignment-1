@@ -11,6 +11,8 @@
 #include <iostream>
 #include <algorithm>
 #include <map> 
+#include "boss.cpp"
+#include "orb.cpp"
 void update_prompt(std::string& prompt, char c, const int font_size,
     const float max_text_width, int& tail_index_large,
     int& tail_index_small, int& nchars_entered);
@@ -63,7 +65,38 @@ void damage(aipfg::entity& knight, std::vector <aipfg::entity*>& enemies, Rectan
         i++;
     }
 }
+void damage(aipfg::entity& knight, std::vector <aipfg::boss*>& boss, Rectangle sword_rect, raylib::Sound& attacksound, bool& isGameOver) {
+    int i = 0;
 
+        Rectangle enemyrect = (*boss.at(0)).calculate_rectangle();
+        //slightly shifted as enemy and player cannot move into each other
+        enemyrect.x -= 1;
+        enemyrect.y -= 1;
+        enemyrect.width += 2;
+        enemyrect.height += 2;
+        if (detectCollision(enemyrect, knight.calculate_rectangle())) {
+            if ((unsigned int)(GetTime() * 1000.0) - knight.get_lastdamage() > 1000) {
+                knight.set_hp(knight.get_hp() - (*boss.at(0)).get_damage());
+                attacksound.Play();
+                knight.set_lastdamage((unsigned int)(GetTime() * 1000.0));
+                if (knight.get_hp() <= 0) {
+                    std::cout << "Dead";
+                    isGameOver = true;
+                }
+            }
+        }
+        if (detectCollision((*boss.at(0)).calculate_rectangle(), sword_rect) &&
+            (unsigned int)(GetTime() * 1000.0) - (*boss.at(0)).get_lastdamage() > 1000) {
+
+            (*boss.at(0)).set_hp((*boss.at(0)).get_hp() - knight.get_damage());
+            (*boss.at(0)).set_lastdamage((unsigned int)(GetTime() * 1000.0));
+            if ((*boss.at(0)).get_hp() <= 0) {
+                boss.clear();
+            }
+        
+        
+    }
+}
 void generate_enemies(std::vector <aipfg::entity*>& enemies, int amount, aipfg::Sprite* sprite, int width, int height, int hp, float speed, int damage, int x_start, int y_start) {
     for (int i = 0; i < amount; i++) {
         float XE = randomFloat(x_start, width);
@@ -166,12 +199,37 @@ aipfg::textbox make_navi(raylib::Window& window, aipfg::openai_helper& oai_help)
                     "is a personified force in a fairy body. Navi is a companion "
                     "who will be sarcastic and unhelpful to the player, often stating the obvious. "
                     "Navi knows the player is meant to be collecting gems, and is able to tell them this, but does not know how or why."
-        "Navi will also sometimes tell them random facts about the grim reaper, diamonds or emeralds.\n\n";
+        "Navi will also sometimes tell them random facts about the grim reaper, diamonds or emeralds."
+        "Navi also warns the human about 'Ophidian, the Orb Guardian', who is an evil sorcerer who might be lurking in this dungeon. \n\n";
     std::string const gambit = "Do you require help with anything?";
     std::string const name = "Navi: ";
     return { window, nature, gambit, name, oai_help };
 }
 
+void orb_collision(aipfg::entity& knight, std::vector <aipfg::orb*> &orb_vector, bool& isGameOver) {
+    int i = 0;
+    if (!orb_vector.empty()) {
+        while (i < orb_vector.size()) {
+            if (CheckCollisionCircleRec((*orb_vector.at(i)).get_pos_center(), 16, knight.calculate_rectangle())) {
+                knight.set_hp(knight.get_hp() - (*orb_vector.at(i)).get_damage());
+                if (knight.get_hp() <= 0) {
+                    std::cout << "Dead";
+                    isGameOver = true;
+                }
+                delete orb_vector.at(i);
+                orb_vector.erase(orb_vector.begin() + i);
+                i--;
+
+            }else if (!CheckCollisionCircles((*orb_vector.at(i)).get_pos_center(), 16, knight.get_pos(), 1000)) {
+                delete orb_vector.at(i);
+                orb_vector.erase(orb_vector.begin() + i);
+                i--;
+           }
+            i++;
+        }
+    }
+    
+}
 int main(int argc, char* argv[])
 {
     using namespace aipfg;
@@ -196,12 +254,15 @@ int main(int argc, char* argv[])
     raylib::AudioDevice audio{}; // necessary: initialises the audio
     raylib::Sound coin_sound{ "../resources/audio/coin.wav" };
     raylib::Sound sword_sound{ "../resources/audio/sword.wav" };
-    raylib::Music music{ "../resources/audio/Magic-Clock-Shop.mp3" };
+    raylib::Sound music{ "../resources/audio/Magic-Clock-Shop.mp3" };
     raylib::Sound zombie_sound{ "../resources/audio/zombie.wav" };
     raylib::Sound bat_sound{ "../resources/audio/bat.wav" };
+    raylib::Sound orb_sound{ "../resources/audio/orb.wav" };
+    raylib::Sound boss_sound{ "../resources/audio/boss.wav" };
+    raylib::Sound boss_song{ "../resources/audio/boss_song.mp3" };
     float music_volume_normal = 1.0f, music_volume_quiet = 0.4f;
     music.Play();
-
+    raylib::Sound* currentMusic = &music;
     raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
     Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
 
@@ -310,7 +371,7 @@ int main(int argc, char* argv[])
     raylib::Texture tex6{ "../resources/time_fantasy/ayy_gray_3x.png" };
 
     //entity zombie;
-    Vector2 zombie_pos{ randomFloat(0, 20*48), randomFloat(-20*48, 20*48)};
+    Vector2 zombie_pos{ randomFloat(0, 20 * 48), randomFloat(-20 * 48, 20 * 48) };
     Sprite zombie_down{ tex6, 3, 4,
         zombie_pos,{0,1,2},6 };
     Sprite zombie_left{ tex6, 3, 4,
@@ -339,7 +400,7 @@ int main(int argc, char* argv[])
 
     raylib::Texture tex4{ "../resources/time_fantasy"
                         "/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" };
-   //Map
+    //Map
     Map map = LoadTiled("../resources/New_World.tmj");
     //
     ncols = 8; nrows = 16;
@@ -358,11 +419,26 @@ int main(int argc, char* argv[])
     Sprite* zombie_sprite = &zombie_down;
     Sprite* bat_sprite = &bat_down;
     //(*zombie_sprite).set_animation(false);
+    raylib::Texture orbtex{ "../resources/time_fantasy/orbs.png" };
+    std::vector <Sprite> orb_sprites;
+    for (int i = 0; i < 3; i++) {
+        orb_sprites.push_back({ orbtex,3,1,{0,0}, {i},0 });
+    }
+    std::vector <aipfg::orb*> orb_vector;
+    raylib::Texture bosstex{ "../resources/time_fantasy/boss_2x_extended.png" };
+    std::vector <Sprite> boss_sprites;
+    for (int i = 0; i < 6; i++) {
+    boss_sprites.push_back({ bosstex,6,1,{1650, 0}, {i},0 });
+    }
+    int bossdistance = 500;
+    Sprite* boss_sprite = &boss_sprites.at(0);
     std::vector <entity*> enemies;
+    std::vector <boss*> boss_vector;
+    boss_vector.push_back(&boss(boss_sprite, 500, 1, true, 10));
     std::vector <entity*> enemies_bat;
     generate_enemies(enemies, 2, zombie_sprite, 20*48, 20*48, 100, 1.5, 15, 48, -(20*48));
     generate_enemies(enemies_bat, 2, bat_sprite, 20*48, 20*48, 100, 3, 10, 48 ,-(20*48));
-    entity knight(grey_knight, 100, 2.6, false, 25);
+    entity knight(grey_knight, 150, 2.5, false, 25);
     entity fairy(fairy_sprite, 0, 3, false, 0);
     const float grey_speed = 2.5f;
     Rectangle sword_rect{};
@@ -393,13 +469,17 @@ int main(int argc, char* argv[])
     //Detect window close button or ESC key
     while (!window.ShouldClose())
     {
+        if (boss_song.IsPlaying()) {
+            currentMusic = &boss_song;
+        }
         for (int i = 0; i < textboxes.size(); i++) {
             if (textboxes.at(i).getActive()) {
                 if (gems_collected >= 10 && i == 0) {
-                    textboxes.at(i).update(knight.get_pos(), { "I have successfully collected the 10 gems as you requested" });
+                        textboxes.at(i).update(knight.get_pos(), { "I have successfully collected the 10 gems as you requested" }, (*currentMusic));
+                    
                 }
                 else {
-                    textboxes.at(i).update(knight.get_pos(), {});
+                    textboxes.at(i).update(knight.get_pos(), {}, (*currentMusic));
                 }
             }
          } 
@@ -413,7 +493,6 @@ int main(int argc, char* argv[])
         //Changes the sprite and moves the character in the appropriate direction base on the characters input.
         if (!(textboxes.at(0).getActive() || textboxes.at(1).getActive())) {
             knight.move(grey_vector, enemies, walls);
-            
             //sword functionality
             sword_rect = {};
             if (attack(knight, last_sword, sword_rect, grey_vector, sword)) {
@@ -429,7 +508,8 @@ int main(int argc, char* argv[])
         {
             textboxes.at(1).setActive(true);
             SetExitKey(0);
-            music.SetVolume(music_volume_quiet);
+            (*currentMusic).SetVolume(music_volume_quiet);
+            boss_song.SetVolume(music_volume_quiet);
         } 
         //Detects the player being close enough to the reaper to "collide"
         if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 30.0f)
@@ -444,8 +524,7 @@ int main(int argc, char* argv[])
                     }
                     //reaper_display_text_box = true;
                     SetExitKey(0);
-                    coin_sound.Play();
-                    music.SetVolume(music_volume_quiet);
+                    (*currentMusic).SetVolume(music_volume_quiet);
                 }
         }
         
@@ -641,12 +720,43 @@ int main(int argc, char* argv[])
         if (!(textboxes.at(0).getActive() || textboxes.at(1).getActive())) {
             damage(knight, enemies, sword_rect, zombie_sound, isGameOver);
             damage(knight, enemies_bat, sword_rect, bat_sound, isGameOver);
-
+            
             for (int i = 0; i < enemies_bat.size(); i++) {
                 (*enemies_bat.at(i)).follow(knight, 500, bat_vector, walls);
                 (*enemies_bat.at(i)).draw();
                 //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
             }
+            //boss.follow(knight, 1000, {}, walls);
+            
+            if (!boss_vector.empty()) {
+                damage(knight, boss_vector, sword_rect, boss_sound, isGameOver);
+                if (!boss_vector.empty()) {
+                    (*boss_vector.at(0)).hover();
+                    (*boss_vector.at(0)).draw();
+                    (*boss_vector.at(0)).changeStage(boss_sprites);
+                    if ((*boss_vector.at(0)).follow(knight, bossdistance, boss_sprites, walls)) {
+                        if (music.IsPlaying()) {
+                            music.Stop();
+                            if (!boss_song.IsPlaying()) {
+                                boss_song.Play();
+                            }
+                        }
+                        bossdistance = 1000;
+                    }
+                    
+                    (*boss_vector.at(0)).attack(knight, orb_vector, walls, orb_sprites, orb_sound);
+                    if (!orb_vector.empty()) {
+                        for (int i = 0; i < orb_vector.size(); i++) {
+                            (*orb_vector.at(i)).move();
+                            (*orb_vector.at(i)).draw();
+                            
+                        }
+                    }
+                    orb_collision(knight, orb_vector,isGameOver);
+                    //DrawRectangleLines((*boss_vector.at(0)).calculate_rectangle().x, (*boss_vector.at(0)).calculate_rectangle().y, (*boss_vector.at(0)).calculate_rectangle().width, (*boss_vector.at(0)).calculate_rectangle().height, BLACK);
+                }
+            }
+            //DrawRectangle(boss.calculate_rectangle().x, boss.calculate_rectangle().y, boss.calculate_rectangle().width, boss.calculate_rectangle().height, BLACK);
             for (int i = 0; i < enemies.size(); i++) {
                 (*enemies.at(i)).follow(knight, 300, zombie_vector, walls);
                 (*enemies.at(i)).draw();
@@ -655,6 +765,13 @@ int main(int argc, char* argv[])
             fairy.follow(knight, 10000, fairy_vector, {});
         }
         else {
+            (*boss_vector.at(0)).draw();
+            if (!orb_vector.empty()) {
+                for (int i = 0; i < orb_vector.size(); i++) {
+                    (*orb_vector.at(i)).get_sprite()->set_posn((*orb_vector.at(i)).get_pos());
+                    (*orb_vector.at(i)).draw();
+                }
+            }
             for (int i = 0; i < enemies_bat.size(); i++) {
                 (*enemies_bat.at(i)).draw();
             }
@@ -666,6 +783,7 @@ int main(int argc, char* argv[])
         knight.draw_health();
 
         std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet3_gem, &dimond3_gem, &emerald3_gem, &garnet4_gem, &dimond4_gem, &emerald4_gem, fairy.get_sprite() };//,&garnet3_gem
+
         std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
             return s1->get_posn().y < s2->get_posn().y;
             }

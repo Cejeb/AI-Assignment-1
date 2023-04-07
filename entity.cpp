@@ -1,7 +1,7 @@
 #include <vector>
 namespace aipfg {
 	class entity {
-	private:
+	protected:
 		Sprite* sprite_{};
 		Vector2 pos_{};
 		//raylib::Texture tex_;
@@ -10,6 +10,7 @@ namespace aipfg {
 		bool isHostile_{};
 		int damage_{};
 		unsigned int lastdamage_{0};
+		float maxhp{ hp_ };
 	public:
 		void set_sprite(Sprite& sprite) { sprite_ = &sprite; }
 		Sprite* get_sprite() { return sprite_; }
@@ -26,7 +27,7 @@ namespace aipfg {
 		void set_damage(int damage) { damage_ = damage; }
 		void set_lastdamage(unsigned int lastdamage) { lastdamage_ = lastdamage; }
 		unsigned int get_lastdamage() { return lastdamage_; }
-		entity(Sprite* sprite, float hp, float speed, bool isHostile, int damage)
+		explicit entity(Sprite* sprite, float hp, float speed, bool isHostile, int damage)
 			: sprite_{ sprite },
 			pos_{ (*sprite).get_posn()},
 			hp_{ hp},
@@ -221,8 +222,8 @@ namespace aipfg {
 			(*get_sprite()).set_posn(get_pos());
 					}
 		void draw_health() {
-			int diff = (100 -get_sprite()->get_sprite_width()  ) / 2;
-			DrawRectangle(get_pos().x -diff, get_pos().y , 100, 10, GRAY);
+			int diff = (maxhp -get_sprite()->get_sprite_width()  ) / 2;
+			DrawRectangle(get_pos().x -diff, get_pos().y , maxhp, 10, GRAY);
 			if (get_isHostile())
 				DrawRectangle(get_pos().x - diff, get_pos().y , get_hp(), 10, RED);
 			else
