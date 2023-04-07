@@ -13,7 +13,6 @@ namespace aipfg {
 	class boss : public entity {
 		using entity::entity;
 	private:
-		float maxhp{ hp_ };
 		float offset;
 		float t = 0;
 		float starty = get_pos().y;

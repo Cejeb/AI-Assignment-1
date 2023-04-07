@@ -265,14 +265,15 @@ int main(int argc, char* argv[])
     raylib::AudioDevice audio{}; // necessary: initialises the audio
     raylib::Sound coin_sound{ "../resources/audio/coin.wav" };
     raylib::Sound sword_sound{ "../resources/audio/sword.wav" };
-    raylib::Music music{ "../resources/audio/Magic-Clock-Shop.mp3" };
+    raylib::Sound music{ "../resources/audio/Magic-Clock-Shop.mp3" };
     raylib::Sound zombie_sound{ "../resources/audio/zombie.wav" };
     raylib::Sound bat_sound{ "../resources/audio/bat.wav" };
     raylib::Sound orb_sound{ "../resources/audio/orb.wav" };
     raylib::Sound boss_sound{ "../resources/audio/boss.wav" };
+    raylib::Sound boss_song{ "../resources/audio/boss_song.mp3" };
     float music_volume_normal = 1.0f, music_volume_quiet = 0.4f;
     music.Play();
-
+    raylib::Sound* currentMusic = &music;
     raylib::Texture tex1{ "../resources/time_fantasy/reaper_blade_3.png" };
     Sprite reaper{ tex1, 3, 4, { 340, 192 }, { 0 } };
 
@@ -417,7 +418,7 @@ int main(int argc, char* argv[])
     std::vector <entity*> enemies_bat;
     generate_enemies(enemies, 2, zombie_sprite, 20*48, 20*48, 100, 1.5, 15, 48, -(20*48));
     generate_enemies(enemies_bat, 2, bat_sprite, 20*48, 20*48, 100, 3, 10, 48 ,-(20*48));
-    entity knight(grey_knight, 300, 5, false, 150);
+    entity knight(grey_knight, 150, 2.5, false, 25);
     entity fairy(fairy_sprite, 0, 3, false, 0);
     const float grey_speed = 2.5f;
     Rectangle sword_rect{};
@@ -447,13 +448,17 @@ int main(int argc, char* argv[])
     //Detect window close button or ESC key
     while (!window.ShouldClose())
     {
+        if (boss_song.IsPlaying()) {
+            currentMusic = &boss_song;
+        }
         for (int i = 0; i < textboxes.size(); i++) {
             if (textboxes.at(i).getActive()) {
                 if (gems_collected >= 10 && i == 0) {
-                    textboxes.at(i).update(knight.get_pos(), { "I have successfully collected the 10 gems as you requested" });
+                        textboxes.at(i).update(knight.get_pos(), { "I have successfully collected the 10 gems as you requested" }, (*currentMusic));
+                    
                 }
                 else {
-                    textboxes.at(i).update(knight.get_pos(), {});
+                    textboxes.at(i).update(knight.get_pos(), {}, (*currentMusic));
                 }
             }
          } 
@@ -482,7 +487,8 @@ int main(int argc, char* argv[])
         {
             textboxes.at(1).setActive(true);
             SetExitKey(0);
-            music.SetVolume(music_volume_quiet);
+            (*currentMusic).SetVolume(music_volume_quiet);
+            boss_song.SetVolume(music_volume_quiet);
         } 
         //Detects the player being close enough to the reaper to "collide"
         if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 30.0f)
@@ -497,8 +503,7 @@ int main(int argc, char* argv[])
                     }
                     //reaper_display_text_box = true;
                     SetExitKey(0);
-                    coin_sound.Play();
-                    music.SetVolume(music_volume_quiet);
+                    (*currentMusic).SetVolume(music_volume_quiet);
                 }
         }
         
@@ -635,6 +640,12 @@ int main(int argc, char* argv[])
                     (*boss_vector.at(0)).draw();
                     (*boss_vector.at(0)).changeStage(boss_sprites);
                     if ((*boss_vector.at(0)).follow(knight, bossdistance, boss_sprites, walls)) {
+                        if (music.IsPlaying()) {
+                            music.Stop();
+                            if (!boss_song.IsPlaying()) {
+                                boss_song.Play();
+                            }
+                        }
                         bossdistance = 1000;
                     }
                     

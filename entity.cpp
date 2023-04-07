@@ -10,6 +10,7 @@ namespace aipfg {
 		bool isHostile_{};
 		int damage_{};
 		unsigned int lastdamage_{0};
+		float maxhp{ hp_ };
 	public:
 		void set_sprite(Sprite& sprite) { sprite_ = &sprite; }
 		Sprite* get_sprite() { return sprite_; }
@@ -221,8 +222,8 @@ namespace aipfg {
 			(*get_sprite()).set_posn(get_pos());
 					}
 		void draw_health() {
-			int diff = (100 -get_sprite()->get_sprite_width()  ) / 2;
-			DrawRectangle(get_pos().x -diff, get_pos().y , 100, 10, GRAY);
+			int diff = (maxhp -get_sprite()->get_sprite_width()  ) / 2;
+			DrawRectangle(get_pos().x -diff, get_pos().y , maxhp, 10, GRAY);
 			if (get_isHostile())
 				DrawRectangle(get_pos().x - diff, get_pos().y , get_hp(), 10, RED);
 			else
