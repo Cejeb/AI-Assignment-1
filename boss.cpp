@@ -6,7 +6,9 @@
 enum STAGE {
 	STAGE1, STAGE2, STAGE3
 };
-
+enum DIRECTION {
+	LEFT, RIGHT
+};
 namespace aipfg {
 	class boss : public entity {
 		using entity::entity;
@@ -17,6 +19,7 @@ namespace aipfg {
 		float starty = get_pos().y;
 		STAGE currentStage{ STAGE1 };
 		int lastspawn{};
+		DIRECTION currentDirection{ RIGHT };
 	public:
 		void hover() {
 			offset = AMPLITUDE * sin(2 * M_PI * 0.15 * t + 0) + ZERO_OFFSET;
@@ -25,14 +28,14 @@ namespace aipfg {
 			t = t + 0.02;
 		}
 		void changeStage(std::vector<Sprite>& vector) {
-			if (hp_ < 0.7 * maxhp) {
+			if (hp_ < 0.7 * maxhp && currentStage != STAGE2 && currentStage != STAGE3) {
 				currentStage = STAGE2;
-				set_speed(0.6 * get_speed());
+				set_speed(1.2 * get_speed());
 				set_sprite(vector.at(2));
 			}
-			if (hp_ <= 0.3 * maxhp) {
+			if (hp_ <= 0.3 * maxhp && currentStage != STAGE3) {
 				currentStage = STAGE3;
-				set_speed(0.8 * get_speed());
+				set_speed(1.1 * get_speed());
 				set_sprite(vector.at(4));
 			}
 
@@ -50,13 +53,28 @@ namespace aipfg {
 		}
 		Rectangle calculate_rectangle() {
 			if (currentStage == STAGE1) {
-				return { get_pos().x + 35, get_pos().y + 15,(float)(*get_sprite()).get_sprite_width() - 85, (float)(*get_sprite()).get_sprite_height() - 28 };
+				if (currentDirection == RIGHT) {
+					return { get_pos().x + 35, get_pos().y + 15,(float)(*get_sprite()).get_sprite_width() - 85, (float)(*get_sprite()).get_sprite_height() - 28 };
+				}
+				else {
+					return { get_pos().x + 55, get_pos().y + 15,(float)(*get_sprite()).get_sprite_width() - 90, (float)(*get_sprite()).get_sprite_height() - 28 };
+				}
 			}
 			else if (currentStage == STAGE2) {
-				return { get_pos().x + 35, get_pos().y + 15,(float)(*get_sprite()).get_sprite_width() - 85, (float)(*get_sprite()).get_sprite_height() - 28 };
+				if (currentDirection == RIGHT) {
+					return { get_pos().x + 35, get_pos().y ,(float)(*get_sprite()).get_sprite_width() - 35 , (float)(*get_sprite()).get_sprite_height() };
+				}
+				else {
+					return { get_pos().x  , get_pos().y ,(float)(*get_sprite()).get_sprite_width() - 35, (float)(*get_sprite()).get_sprite_height() };
+				}
 			}
 			else {
-				return { get_pos().x + 35, get_pos().y + 15,(float)(*get_sprite()).get_sprite_width() - 85, (float)(*get_sprite()).get_sprite_height() - 28 };
+				if (currentDirection == RIGHT) {
+					return { get_pos().x + 35, get_pos().y ,(float)(*get_sprite()).get_sprite_width() - 65, (float)(*get_sprite()).get_sprite_height()};
+				}
+				else {
+					return { get_pos().x + 35, get_pos().y ,(float)(*get_sprite()).get_sprite_width() - 65, (float)(*get_sprite()).get_sprite_height()};
+				}
 			}
 		}
 		void follow(entity entity, int distance, std::vector<Sprite>& vector, std::vector<Rectangle> walls) {
@@ -78,6 +96,7 @@ namespace aipfg {
 						if (!CheckCollisionRecs(entityrect, selfrect) && !collision) {
 							set_pos({ get_pos().x - get_speed()
 								, get_pos().y });
+								currentDirection = LEFT;
 							if (currentStage == STAGE1) {
 								set_sprite(vector.at(1));
 							}
@@ -100,6 +119,7 @@ namespace aipfg {
 						if (!CheckCollisionRecs(entityrect, selfrect) && !collision) {
 							set_pos({ get_pos().x + get_speed()
 							   , get_pos().y });
+							currentDirection = RIGHT;
 							if (currentStage == STAGE1) {
 								set_sprite(vector.at(0));
 							}
@@ -152,13 +172,13 @@ namespace aipfg {
 				break;
 			case STAGE2:
 				spawntime = 1500;
-				currentSprite = (&orb_sprite.at(1));
+				currentSprite = (&orb_sprite.at(2));
 				orbspeed = 5;
 				orbdamage = 1.5 * damage_;
 				break;
 			case STAGE3:
 				spawntime = 750;
-				currentSprite = (&orb_sprite.at(2));
+				currentSprite = (&orb_sprite.at(1));
 				orbspeed = 6;
 				orbdamage = 2 * damage_;
 				break;
