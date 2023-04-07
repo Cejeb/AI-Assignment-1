@@ -2,7 +2,7 @@
 #include <math.h>
 #define ZERO_OFFSET   0
 #define AMPLITUDE    0.5 
-
+#include "orb.cpp"
 enum STAGE {
 	STAGE1, STAGE2, STAGE3
 };
@@ -16,6 +16,7 @@ namespace aipfg {
 		float t = 0;
 		float starty = get_pos().y;
 		STAGE currentStage{ STAGE1 };
+		int lastspawn{};
 	public:
 		void hover() {
 			offset = AMPLITUDE * sin(2 * M_PI * 0.15 * t + 0) + ZERO_OFFSET;
@@ -140,6 +141,38 @@ namespace aipfg {
 				}
 			}
 			(*get_sprite()).set_posn(get_pos());
+		}
+		void attack(entity knight, std::vector<orb*>& vector, std::vector<Rectangle> walls, std::vector <Sprite>& orb_sprite, raylib::Sound& attacksound){
+			int spawntime = 3000;
+			Sprite* currentSprite= (&orb_sprite.at(0));
+			int orbspeed = 3;
+			int orbdamage = damage_;
+			switch (currentStage) {
+			case STAGE1:
+				break;
+			case STAGE2:
+				spawntime = 1500;
+				currentSprite = (&orb_sprite.at(1));
+				orbspeed = 5;
+				orbdamage = 1.5 * damage_;
+				break;
+			case STAGE3:
+				spawntime = 750;
+				currentSprite = (&orb_sprite.at(2));
+				orbspeed = 6;
+				orbdamage = 2 * damage_;
+				break;
+			}
+			if ((unsigned int)(GetTime() * 1000.0) - lastspawn >= spawntime) {
+				Vector2 unit_vector = {knight.get_pos().x+ knight.calculate_rectangle().width/2 - (get_pos().x + calculate_rectangle().width / 2)
+					, knight.get_pos().y + knight.calculate_rectangle().height / 2 - (get_pos().y + calculate_rectangle().height / 2)};
+				double magnitude = sqrt(pow(unit_vector.x, 2) + pow(unit_vector.y, 2));
+				unit_vector.x = unit_vector.x * (1 / magnitude);
+				unit_vector.y = unit_vector.y * (1 / magnitude);
+				vector.push_back(new orb(currentSprite, orbspeed, orbdamage, unit_vector, { get_pos().x + calculate_rectangle().width /2, get_pos().y + calculate_rectangle().height /2}));
+				attacksound.Play();
+				lastspawn = (unsigned int)(GetTime() * 1000.0);
+			}
 		}
 	};
 }

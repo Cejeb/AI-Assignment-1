@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <map> 
 #include "boss.cpp"
+#include "orb.cpp"
 void update_prompt(std::string& prompt, char c, const int font_size,
     const float max_text_width, int& tail_index_large,
     int& tail_index_small, int& nchars_entered);
@@ -177,10 +178,35 @@ aipfg::textbox make_navi(raylib::Window& window, aipfg::openai_helper& oai_help)
                     "is a personified force in a fairy body. Navi is a companion "
                     "who will be sarcastic and unhelpful to the player, often stating the obvious. "
                     "Navi knows the player is meant to be collecting gems, and is able to tell them this, but does not know how or why."
-        "Navi will also sometimes tell them random facts about the grim reaper, diamonds or emeralds.\n\n";
+        "Navi will also sometimes tell them random facts about the grim reaper, diamonds or emeralds."
+        "Navi also warns the human about 'Ophidian, the Orb Guardian', who is an evil sorcerer who might be lurking in this dungeon. \n\n";
     std::string const gambit = "Do you require help with anything?";
     std::string const name = "Navi: ";
     return { window, nature, gambit, name, oai_help };
+}
+void orb_collision(aipfg::entity& knight, std::vector <aipfg::orb*> &orb_vector, bool& isGameOver) {
+    int i = 0;
+    if (!orb_vector.empty()) {
+        while (i < orb_vector.size()) {
+            if (CheckCollisionCircleRec((*orb_vector.at(i)).get_pos_center(), 16, knight.calculate_rectangle())) {
+                knight.set_hp(knight.get_hp() - (*orb_vector.at(i)).get_damage());
+                if (knight.get_hp() <= 0) {
+                    std::cout << "Dead";
+                    isGameOver = true;
+                }
+                delete orb_vector.at(i);
+                orb_vector.erase(orb_vector.begin() + i);
+                i--;
+
+            }else if (!CheckCollisionCircles((*orb_vector.at(i)).get_pos_center(), 16, knight.get_pos(), 1000)) {
+                delete orb_vector.at(i);
+                orb_vector.erase(orb_vector.begin() + i);
+                i--;
+           }
+            i++;
+        }
+    }
+    
 }
 int main(int argc, char* argv[])
 {
@@ -242,6 +268,8 @@ int main(int argc, char* argv[])
     raylib::Music music{ "../resources/audio/Magic-Clock-Shop.mp3" };
     raylib::Sound zombie_sound{ "../resources/audio/zombie.wav" };
     raylib::Sound bat_sound{ "../resources/audio/bat.wav" };
+    raylib::Sound orb_sound{ "../resources/audio/orb.wav" };
+    raylib::Sound boss_sound{ "../resources/audio/boss.wav" };
     float music_volume_normal = 1.0f, music_volume_quiet = 0.4f;
     music.Play();
 
@@ -370,6 +398,12 @@ int main(int argc, char* argv[])
     Sprite* zombie_sprite = &zombie_down;
     Sprite* bat_sprite = &bat_down;
     //(*zombie_sprite).set_animation(false);
+    raylib::Texture orbtex{ "../resources/time_fantasy/orbs.png" };
+    std::vector <Sprite> orb_sprites;
+    for (int i = 0; i < 3; i++) {
+        orb_sprites.push_back({ orbtex,3,1,{0,0}, {i},0 });
+    }
+    std::vector <aipfg::orb*> orb_vector;
     raylib::Texture bosstex{ "../resources/time_fantasy/boss_2x_extended.png" };
     std::vector <Sprite> boss_sprites;
     for (int i = 0; i < 6; i++) {
@@ -378,11 +412,11 @@ int main(int argc, char* argv[])
     Sprite* boss_sprite = &boss_sprites.at(0);
     std::vector <entity*> enemies;
     std::vector <boss*> boss_vector;
-    boss_vector.push_back(&boss(boss_sprite, 500, 1, true, 0));
+    boss_vector.push_back(&boss(boss_sprite, 500, 1, true, 10));
     std::vector <entity*> enemies_bat;
     generate_enemies(enemies, 2, zombie_sprite, 20*48, 20*48, 100, 1.5, 15, 48, -(20*48));
     generate_enemies(enemies_bat, 2, bat_sprite, 20*48, 20*48, 100, 3, 10, 48 ,-(20*48));
-    entity knight(grey_knight, 1000, 5, false, 150);
+    entity knight(grey_knight, 300, 5, false, 150);
     entity fairy(fairy_sprite, 0, 3, false, 0);
     const float grey_speed = 2.5f;
     Rectangle sword_rect{};
@@ -595,14 +629,23 @@ int main(int argc, char* argv[])
             //boss.follow(knight, 1000, {}, walls);
             
             if (!boss_vector.empty()) {
-                damage(knight, boss_vector, sword_rect, bat_sound, isGameOver);
-                //if (!boss_vector.empty()) {
+                damage(knight, boss_vector, sword_rect, boss_sound, isGameOver);
+                if (!boss_vector.empty()) {
                     (*boss_vector.at(0)).hover();
                     (*boss_vector.at(0)).draw();
                     (*boss_vector.at(0)).changeStage(boss_sprites);
                     (*boss_vector.at(0)).follow(knight, 1000, boss_sprites, walls);
+                    (*boss_vector.at(0)).attack(knight, orb_vector, walls, orb_sprites, orb_sound);
+                    if (!orb_vector.empty()) {
+                        for (int i = 0; i < orb_vector.size(); i++) {
+                            (*orb_vector.at(i)).move();
+                            (*orb_vector.at(i)).draw();
+                            
+                        }
+                    }
+                    orb_collision(knight, orb_vector,isGameOver);
                     DrawRectangleLines((*boss_vector.at(0)).calculate_rectangle().x, (*boss_vector.at(0)).calculate_rectangle().y, (*boss_vector.at(0)).calculate_rectangle().width, (*boss_vector.at(0)).calculate_rectangle().height, BLACK);
-                //}
+                }
             }
             //DrawRectangle(boss.calculate_rectangle().x, boss.calculate_rectangle().y, boss.calculate_rectangle().width, boss.calculate_rectangle().height, BLACK);
             for (int i = 0; i < enemies.size(); i++) {
