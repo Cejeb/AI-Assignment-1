@@ -20,6 +20,7 @@ namespace aipfg {
 		STAGE currentStage{ STAGE1 };
 		int lastspawn{};
 		DIRECTION currentDirection{ RIGHT };
+		bool initialize{ false };
 	public:
 		void hover() {
 			offset = AMPLITUDE * sin(2 * M_PI * 0.15 * t + 0) + ZERO_OFFSET;
@@ -77,12 +78,14 @@ namespace aipfg {
 				}
 			}
 		}
-		void follow(entity entity, int distance, std::vector<Sprite>& vector, std::vector<Rectangle> walls) {
+		bool follow(entity entity, int distance, std::vector<Sprite>& vector, std::vector<Rectangle> walls) {
+			
 			Rectangle entityrect = entity.calculate_rectangle();
 			Rectangle selfrect = calculate_rectangle();
 			Vector2 entitycenter = { entityrect.x + entityrect.width / 2, entityrect.y + entityrect.height / 2 };
 			bool collision = false;
 			if (CheckCollisionCircleRec(entitycenter, (float)distance, calculate_rectangle())) {
+				initialize = true;
 				if (abs(get_pos().x - entity.get_pos().x)
 					>= abs(get_pos().y - entity.get_pos().y)) {
 
@@ -96,7 +99,7 @@ namespace aipfg {
 						if (!CheckCollisionRecs(entityrect, selfrect) && !collision) {
 							set_pos({ get_pos().x - get_speed()
 								, get_pos().y });
-								currentDirection = LEFT;
+							currentDirection = LEFT;
 							if (currentStage == STAGE1) {
 								set_sprite(vector.at(1));
 							}
@@ -106,7 +109,7 @@ namespace aipfg {
 							else {
 								set_sprite(vector.at(5));
 							}
-							
+
 						}
 					}
 					else {
@@ -159,39 +162,43 @@ namespace aipfg {
 					}
 
 				}
+				return true;
 			}
 			(*get_sprite()).set_posn(get_pos());
+			return false;
 		}
 		void attack(entity knight, std::vector<orb*>& vector, std::vector<Rectangle> walls, std::vector <Sprite>& orb_sprite, raylib::Sound& attacksound){
-			int spawntime = 3000;
-			Sprite* currentSprite= (&orb_sprite.at(0));
-			int orbspeed = 3;
-			int orbdamage = damage_;
-			switch (currentStage) {
-			case STAGE1:
-				break;
-			case STAGE2:
-				spawntime = 1500;
-				currentSprite = (&orb_sprite.at(2));
-				orbspeed = 5;
-				orbdamage = 1.5 * damage_;
-				break;
-			case STAGE3:
-				spawntime = 750;
-				currentSprite = (&orb_sprite.at(1));
-				orbspeed = 6;
-				orbdamage = 2 * damage_;
-				break;
-			}
-			if ((unsigned int)(GetTime() * 1000.0) - lastspawn >= spawntime) {
-				Vector2 unit_vector = {knight.get_pos().x+ knight.calculate_rectangle().width/2 - (get_pos().x + calculate_rectangle().width / 2)
-					, knight.get_pos().y + knight.calculate_rectangle().height / 2 - (get_pos().y + calculate_rectangle().height / 2)};
-				double magnitude = sqrt(pow(unit_vector.x, 2) + pow(unit_vector.y, 2));
-				unit_vector.x = unit_vector.x * (1 / magnitude);
-				unit_vector.y = unit_vector.y * (1 / magnitude);
-				vector.push_back(new orb(currentSprite, orbspeed, orbdamage, unit_vector, { get_pos().x + calculate_rectangle().width /2, get_pos().y + calculate_rectangle().height /2}));
-				attacksound.Play();
-				lastspawn = (unsigned int)(GetTime() * 1000.0);
+			if (initialize) {
+				int spawntime = 3000;
+				Sprite* currentSprite = (&orb_sprite.at(0));
+				int orbspeed = 3;
+				int orbdamage = damage_;
+				switch (currentStage) {
+				case STAGE1:
+					break;
+				case STAGE2:
+					spawntime = 1500;
+					currentSprite = (&orb_sprite.at(2));
+					orbspeed = 5;
+					orbdamage = 1.5 * damage_;
+					break;
+				case STAGE3:
+					spawntime = 750;
+					currentSprite = (&orb_sprite.at(1));
+					orbspeed = 6;
+					orbdamage = 2 * damage_;
+					break;
+				}
+				if ((unsigned int)(GetTime() * 1000.0) - lastspawn >= spawntime) {
+					Vector2 unit_vector = { knight.get_pos().x + knight.calculate_rectangle().width / 2 - (get_pos().x + calculate_rectangle().width / 2)
+						, knight.get_pos().y + knight.calculate_rectangle().height / 2 - (get_pos().y + calculate_rectangle().height / 2) };
+					double magnitude = sqrt(pow(unit_vector.x, 2) + pow(unit_vector.y, 2));
+					unit_vector.x = unit_vector.x * (1 / magnitude);
+					unit_vector.y = unit_vector.y * (1 / magnitude);
+					vector.push_back(new orb(currentSprite, orbspeed, orbdamage, unit_vector, { get_pos().x + calculate_rectangle().width / 2, get_pos().y + calculate_rectangle().height / 2 }));
+					attacksound.Play();
+					lastspawn = (unsigned int)(GetTime() * 1000.0);
+				}
 			}
 		}
 	};

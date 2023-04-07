@@ -407,8 +407,9 @@ int main(int argc, char* argv[])
     raylib::Texture bosstex{ "../resources/time_fantasy/boss_2x_extended.png" };
     std::vector <Sprite> boss_sprites;
     for (int i = 0; i < 6; i++) {
-    boss_sprites.push_back({ bosstex,6,1,{600, 220}, {i},0 });
+    boss_sprites.push_back({ bosstex,6,1,{1650, 0}, {i},0 });
     }
+    int bossdistance = 500;
     Sprite* boss_sprite = &boss_sprites.at(0);
     std::vector <entity*> enemies;
     std::vector <boss*> boss_vector;
@@ -466,7 +467,6 @@ int main(int argc, char* argv[])
         //Changes the sprite and moves the character in the appropriate direction base on the characters input.
         if (!(textboxes.at(0).getActive() || textboxes.at(1).getActive())) {
             knight.move(grey_vector, enemies, walls);
-            
             //sword functionality
             sword_rect = {};
             if (attack(knight, last_sword, sword_rect, grey_vector, sword)) {
@@ -634,7 +634,10 @@ int main(int argc, char* argv[])
                     (*boss_vector.at(0)).hover();
                     (*boss_vector.at(0)).draw();
                     (*boss_vector.at(0)).changeStage(boss_sprites);
-                    (*boss_vector.at(0)).follow(knight, 1000, boss_sprites, walls);
+                    if ((*boss_vector.at(0)).follow(knight, bossdistance, boss_sprites, walls)) {
+                        bossdistance = 1000;
+                    }
+                    
                     (*boss_vector.at(0)).attack(knight, orb_vector, walls, orb_sprites, orb_sound);
                     if (!orb_vector.empty()) {
                         for (int i = 0; i < orb_vector.size(); i++) {
@@ -644,7 +647,7 @@ int main(int argc, char* argv[])
                         }
                     }
                     orb_collision(knight, orb_vector,isGameOver);
-                    DrawRectangleLines((*boss_vector.at(0)).calculate_rectangle().x, (*boss_vector.at(0)).calculate_rectangle().y, (*boss_vector.at(0)).calculate_rectangle().width, (*boss_vector.at(0)).calculate_rectangle().height, BLACK);
+                    //DrawRectangleLines((*boss_vector.at(0)).calculate_rectangle().x, (*boss_vector.at(0)).calculate_rectangle().y, (*boss_vector.at(0)).calculate_rectangle().width, (*boss_vector.at(0)).calculate_rectangle().height, BLACK);
                 }
             }
             //DrawRectangle(boss.calculate_rectangle().x, boss.calculate_rectangle().y, boss.calculate_rectangle().width, boss.calculate_rectangle().height, BLACK);
@@ -656,6 +659,13 @@ int main(int argc, char* argv[])
             fairy.follow(knight, 10000, fairy_vector, {});
         }
         else {
+            (*boss_vector.at(0)).draw();
+            if (!orb_vector.empty()) {
+                for (int i = 0; i < orb_vector.size(); i++) {
+                    (*orb_vector.at(i)).get_sprite()->set_posn((*orb_vector.at(i)).get_pos());
+                    (*orb_vector.at(i)).draw();
+                }
+            }
             for (int i = 0; i < enemies_bat.size(); i++) {
                 (*enemies_bat.at(i)).draw();
             }
