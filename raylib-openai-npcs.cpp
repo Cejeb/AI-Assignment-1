@@ -658,8 +658,16 @@ int main(int argc, char* argv[])
                 if (!reaper_display_text_box && !fairy_display_text_box && IsKeyDown(KEY_P))
                 {
                     shop();
-                    SetExitKey(0);
                 }
+            }
+            else 
+            {
+                busy = false;
+            }
+
+            if (IsKeyDown(KEY_H) && HealthPotions > 0)
+            {
+                
             }
 
             //Detects the player being close enough to the reaper to "collide"
