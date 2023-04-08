@@ -230,6 +230,27 @@ void orb_collision(aipfg::entity& knight, std::vector <aipfg::orb*> &orb_vector,
     }
     
 }
+
+void gemGenerator(float x, float y, float width, float height, int& diamond_collected, int& gems_collected, raylib::Texture& diamond_tex, raylib::Sound& coin_sound, Vector2& d_gem_posn, aipfg::Sprite& gem) {
+    //raylib::Sound coin_sound{ "../resources/audio/coin.wav" };
+    //raylib::Texture diamond_tex{ "../resources/time_fantasy/diamond.png" };
+    int d_cols = 6, d_rows = 1;
+
+    std::vector<int> frame_id_diamond(d_cols * d_rows);
+    std::iota(frame_id_diamond.begin(), frame_id_diamond.end(), 0);
+
+
+    // sprite_width_, (float)sprite_height_
+    float d_gem_x = randomFloat(x, width);
+    float d_gem_y = randomFloat(y, height);
+    d_gem_posn = { d_gem_x , d_gem_y };
+    gem.set_posn(d_gem_posn);
+    coin_sound.Play();
+    diamond_collected++;
+    gems_collected++;
+
+}
+
 int main(int argc, char* argv[])
 {
     using namespace aipfg;
@@ -280,7 +301,6 @@ int main(int argc, char* argv[])
     ranPosGen(d3_gem_x, d3_gem_y, e3_gem_x, e3_gem_y, g3_gem_x, g3_gem_y, 50.0f, 1000.0f);//x1200-2300 y0-1000
     //Initial x and y values for the 4th diamond, emerald and garnet.
     ranPosGen(d4_gem_x, d4_gem_y, e4_gem_x, e4_gem_y, g4_gem_x, g4_gem_y, 1300.0f, 1800.0f);//x1300-2300 y1100-1800
-
 
     //variable to track the number of gems collected
     int gems_collected = 0;
@@ -371,7 +391,7 @@ int main(int argc, char* argv[])
     raylib::Texture tex6{ "../resources/time_fantasy/ayy_gray_3x.png" };
 
     //entity zombie;
-    Vector2 zombie_pos{ randomFloat(0, 20 * 48), randomFloat(-20 * 48, 20 * 48) };
+    Vector2 zombie_pos{ randomFloat(0, 20 * 48), randomFloat(0, 20 * 48) };
     Sprite zombie_down{ tex6, 3, 4,
         zombie_pos,{0,1,2},6 };
     Sprite zombie_left{ tex6, 3, 4,
@@ -436,8 +456,10 @@ int main(int argc, char* argv[])
     std::vector <boss*> boss_vector;
     boss_vector.push_back(&boss(boss_sprite, 500, 1, true, 10));
     std::vector <entity*> enemies_bat;
-    generate_enemies(enemies, 2, zombie_sprite, 20*48, 20*48, 100, 1.5, 15, 48, -(20*48));
-    generate_enemies(enemies_bat, 2, bat_sprite, 20*48, 20*48, 100, 3, 10, 48 ,-(20*48));
+    generate_enemies(enemies_bat, 1, bat_sprite, 20 * 48, 14 * 48, 80, 2.5, 10, 7 * 48, 1 * 48);
+    generate_enemies(enemies, 1, zombie_sprite, 20 * 48, 20 * 48, 80, 1.5, 10, 1 * 48, 27 * 48);
+    generate_enemies(enemies, 1, zombie_sprite, 47 * 48, 30 * 48, 100, 1.5, 15, 27 * 48, 25 * 48);
+    generate_enemies(enemies_bat, 1, bat_sprite, 47 * 48, 30 * 48, 100, 3.0, 10, 27 * 48, 25 * 48);
     entity knight(grey_knight, 150, 2.5, false, 25);
     entity fairy(fairy_sprite, 0, 3, false, 0);
     const float grey_speed = 2.5f;
@@ -534,153 +556,42 @@ int main(int argc, char* argv[])
             textboxes.at(0).setActive(false);
         }
 
-
-            ////x1300-2300 y1100-1800 4th
-            //Detects the player collecting a dimond and updates the dimonds collected variable.
-            if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f)
-            {
-                d_gem_x = randomFloat(50.0f, 1100.0f);
-                d_gem_y = randomFloat(50.0f, 700.0f);
-                d_gem_posn = { d_gem_x , d_gem_y };
-                dimond_gem.set_posn(d_gem_posn);
-                coin_sound.Play();
-                diamond_collected++;
-                gems_collected++;
-            }
-
-            //Detects the player collecting a dimond and updates the dimonds collected variable.
-            if (Vector2Distance(knight.get_pos(), dimond2_gem.get_posn()) < 40.0f)
-            {
-                d2_gem_x = randomFloat(50.0f, 1100.0f);
-                d2_gem_y = randomFloat(820.0f, 1400.0f);
-                d2_gem_posn = { d2_gem_x , d2_gem_y };
-                dimond2_gem.set_posn(d2_gem_posn);
-                coin_sound.Play();
-                diamond_collected++;
-            }
-
-            //Detects the player collecting a dimond and updates the dimonds collected variable.
-            if (Vector2Distance(knight.get_pos(), dimond3_gem.get_posn()) < 40.0f)
-            {
-                d3_gem_x = randomFloat(1200.0f, 2300.0f);
-                d3_gem_y = randomFloat(50.0f, 1000.0f);
-                d3_gem_posn = { d3_gem_x , d3_gem_y };
-                dimond3_gem.set_posn(d3_gem_posn);
-                coin_sound.Play();
-                diamond_collected++;
-            }
-            if (Vector2Distance(knight.get_pos(), dimond4_gem.get_posn()) < 40.0f)//x1300-2300 y1100-1800 4th
-            {
-                d4_gem_x = randomFloat(1300.0f, 2300.0f);
-                d4_gem_y = randomFloat(1100.0f, 1800.0f);
-                d4_gem_posn = { d4_gem_x , d4_gem_y };
-                dimond4_gem.set_posn(d4_gem_posn);
-                coin_sound.Play();
-                diamond_collected++;
-                gems_collected++;
-            }
-
-            //Detects the player collecting a emerald and updates the emeralds collected variable.
-            if (Vector2Distance(knight.get_pos(), emerald_gem.get_posn()) < 40.0f)
-            {
-                e_gem_x = randomFloat(50.0f, 1100.0f);
-                e_gem_y = randomFloat(50.0f, 700.0f);
-                e_gem_posn = { e_gem_x , e_gem_y };
-                emerald_gem.set_posn(e_gem_posn);
-                coin_sound.Play();
-                emerald_collected++;
-                gems_collected++;
-            }
-
-            //Detects the player collecting a emerald and updates the emeralds collected variable.
-            if (Vector2Distance(knight.get_pos(), emerald2_gem.get_posn()) < 40.0f)
-            {
-                e2_gem_x = randomFloat(50.0f, 1100.0f);
-                e2_gem_y = randomFloat(820.0f, 1400.0f);
-                e2_gem_posn = { e2_gem_x , e2_gem_y };
-                emerald2_gem.set_posn(e2_gem_posn);
-                coin_sound.Play();
-                emerald_collected++;
-            }
-
-            //Detects the player collecting a dimond and updates the dimonds collected variable.
-            if (Vector2Distance(knight.get_pos(), emerald3_gem.get_posn()) < 40.0f)
-            {
-                e3_gem_x = randomFloat(1200.0f, 2300.0f);
-                e3_gem_y = randomFloat(50.0f, 1000.0f);
-                e3_gem_posn = { e3_gem_x , d3_gem_y };
-                emerald3_gem.set_posn(e3_gem_posn);
-                coin_sound.Play();
-                emerald_collected++;
-            }
-            if (Vector2Distance(knight.get_pos(), emerald4_gem.get_posn()) < 40.0f)//x1300-2300 y1100-1800 4th
-            {
-                e4_gem_x = randomFloat(1300.0f, 2300.0f);
-                e4_gem_y = randomFloat(1100.0f, 1800.0f);
-                e4_gem_posn = { e4_gem_x , e4_gem_y };
-                emerald4_gem.set_posn(e4_gem_posn);
-                coin_sound.Play();
-                emerald_collected++;
-                gems_collected++;
-            }
-
-            //Detects the player collecting a garnet and updates the garnets collected variable.
-            if (Vector2Distance(knight.get_pos(), garnet_gem.get_posn()) < 40.0f)
-            {
-                g_gem_x = randomFloat(50.0f, 1100.0f);
-                g_gem_y = randomFloat(50.0f, 700.0f);
-                g_gem_posn = { g_gem_x , g_gem_y };
-                garnet_gem.set_posn(g_gem_posn);
-                coin_sound.Play();
-                garnet_collected++;
-                gems_collected++;
-            }
-
-            ////Detects the player collecting a garnet and updates the garnets collected variable.
-            //if (Vector2Distance(knight.get_pos(), garnet2_gem.get_posn()) < 40.0f)
-            //{
-            //    g2_gem_x = randomFloat(50.0f, 1100.0f);
-            //    g2_gem_y = randomFloat(820.0f, 1400.0f);
-            //    g2_gem_posn = { g2_gem_x , g2_gem_y };
-            //    garnet2_gem.set_posn(g2_gem_posn);
-            //    coin_sound.Play();
-            //    garnet_collected++;
-            //}
-
-            //Detects the player collecting a garnet and updates the garnets collected variable.
-            if (Vector2Distance(knight.get_pos(), garnet3_gem.get_posn()) < 40.0f)
-            {
-                g3_gem_x = randomFloat(1200.0f, 2300.0f);
-                g3_gem_y = randomFloat(50.0f, 1000.0f);
-                g3_gem_posn = { g3_gem_x , g3_gem_y };
-                garnet3_gem.set_posn(g3_gem_posn);
-                coin_sound.Play();
-                garnet_collected++;
-            }
-            if (Vector2Distance(knight.get_pos(), garnet4_gem.get_posn()) < 40.0f)//x1300-2300 y1100-1800 4th
-            {
-                g4_gem_x = randomFloat(1300.0f, 2300.0f);
-                g4_gem_y = randomFloat(1100.0f, 1800.0f);
-                g4_gem_posn = { g4_gem_x , g4_gem_y };
-                garnet4_gem.set_posn(g4_gem_posn);
-                coin_sound.Play();
-                garnet_collected++;
-                gems_collected++;
-            }
-
-        //Detects the player collecting a garnet and updates the garnets collected variable.
-        if (Vector2Distance(knight.get_pos(), garnet2_gem.get_posn()) < 40.0f)
-        {
-            g2_gem_x = randomFloat(100.0f, 900.0f);
-            g2_gem_y = randomFloat(-100.0f, -900.0f);
-            g2_gem_posn = { g2_gem_x , g2_gem_y };
-            garnet2_gem.set_posn(g2_gem_posn);
-            coin_sound.Play();
-            garnet_collected++;
+        //Detects the player collecting a dimond and updates the dimonds collected variable.
+        if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f) {
+            gemGenerator(50.0f, 50.0f, 1100.0f, 700.0f, diamond_collected, gems_collected, diamond_tex, coin_sound, d_gem_posn, dimond_gem);
         }
-
-
-
+        if (Vector2Distance(knight.get_pos(), dimond2_gem.get_posn()) < 40.0f) {
+            gemGenerator(50.0f, 820.0f, 1100.0f, 1400.0f, diamond_collected, gems_collected, diamond_tex, coin_sound, d2_gem_posn, dimond2_gem);
+        }
+        if (Vector2Distance(knight.get_pos(), dimond3_gem.get_posn()) < 40.0f) {
+            gemGenerator(1200.0f, 50.0f, 2300.0f, 1000.0f, diamond_collected, gems_collected, diamond_tex, coin_sound, d3_gem_posn, dimond3_gem);
+        }
+        if (Vector2Distance(knight.get_pos(), dimond4_gem.get_posn()) < 40.0f) {
+            gemGenerator(1300.0f, 1200.0f, 2300.0f, 1700.0f, diamond_collected, gems_collected, diamond_tex, coin_sound, d4_gem_posn, dimond4_gem);
+        }
+        //Detects the player collecting a emerald and updates the emeralds collected variable.
+        if (Vector2Distance(knight.get_pos(), emerald_gem.get_posn()) < 40.0f) {
+            gemGenerator(50.0f, 50.0f, 1100.0f, 700.0f, emerald_collected, gems_collected, emerald_tex, coin_sound, e_gem_posn, emerald_gem);
+        }
+        if (Vector2Distance(knight.get_pos(), emerald2_gem.get_posn()) < 40.0f) {
+            gemGenerator(50.0f, 820.0f, 1100.0f, 1400.0f, emerald_collected, gems_collected, emerald_tex, coin_sound, e2_gem_posn, emerald2_gem);
+        }
+        if (Vector2Distance(knight.get_pos(), emerald3_gem.get_posn()) < 40.0f) {
+            gemGenerator(1200.0f, 50.0f, 2300.0f, 1000.0f, emerald_collected, gems_collected, emerald_tex, coin_sound, e3_gem_posn, emerald3_gem);
+        }
+        if (Vector2Distance(knight.get_pos(), emerald4_gem.get_posn()) < 40.0f) {
+            gemGenerator(1300.0f, 1200.0f, 2300.0f, 1700.0f, emerald_collected, gems_collected, emerald_tex, coin_sound, e4_gem_posn, emerald4_gem);
+        }
+        //Detects the player collecting a garnet and updates the garnets collected variable.
+        if (Vector2Distance(knight.get_pos(), garnet_gem.get_posn()) < 40.0f) {
+            gemGenerator(50.0f, 50.0f, 1100.0f, 700.0f, garnet_collected, gems_collected, garnet_tex, coin_sound, g_gem_posn, garnet_gem);
+        }
+        if (Vector2Distance(knight.get_pos(), garnet3_gem.get_posn()) < 40.0f) {
+            gemGenerator(1200.0f, 50.0f, 2300.0f, 1000.0f, garnet_collected, gems_collected, garnet_tex, coin_sound, g3_gem_posn, garnet3_gem);
+        }
+        if (Vector2Distance(knight.get_pos(), garnet4_gem.get_posn()) < 40.0f) {
+            gemGenerator(1300.0f, 1200.0f, 2300.0f, 1700.0f, garnet_collected, gems_collected, garnet_tex, coin_sound, g4_gem_posn, garnet4_gem);
+        }
 
         //Converts the gems collected integer into a string that can be displayed
         std::string gem_string = "Total Score: " + std::to_string((diamond_collected * 10) + (emerald_collected * 5) + (garnet_collected * 5));
@@ -829,4 +740,3 @@ int main(int argc, char* argv[])
     //UnloadMap(map);
     return 0;
 }
-
