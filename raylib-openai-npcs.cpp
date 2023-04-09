@@ -261,6 +261,7 @@ int main(int argc, char* argv[])
     }
     //sets the window size of the game
     raylib::Window window(1200, 800, "Raylib OpenAI NPCs");
+    window.SetState(FLAG_WINDOW_RESIZABLE);
 
     Camera2D camera = { 0 };
     Vector2 grey_posn{ 40.0f, 100.0f };
@@ -771,9 +772,9 @@ int main(int argc, char* argv[])
         //DrawLine(-720 * 10, (int)camera.target.y, 720 * 10, (int)camera.target.y, GREEN);
 
         if (isGameOver) {
-            DrawRectangle(knight.get_pos().x - window.GetWidth() / 2, knight.get_pos().y - window.GetHeight(),
+            DrawRectangle(camera.target.x - window.GetWidth() / 2, camera.target.y - window.GetHeight(),
                 window.GetWidth(), window.GetHeight() * 2, GRAY);
-            DrawText("Game Over!", knight.get_pos().x - window.GetWidth() / 3, knight.get_pos().y - window.GetHeight() / 6, 120, BLACK);
+            DrawText("Game Over!", camera.target.x - window.GetWidth() / 3, camera.target.y - window.GetHeight() / 6, 120, BLACK);
         }
         //Draws map, for testing purposes
         //DrawTiled(map, 0, 0, WHITE);
