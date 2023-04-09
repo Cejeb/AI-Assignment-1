@@ -268,7 +268,7 @@ int main(int argc, char* argv[])
     camera.target = Vector2{ grey_posn.x + 20.0f, grey_posn.y + 20.0f };
     camera.offset = Vector2{ 1280 / 2.0f, 720 / 2.0f };
     camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
+    camera.zoom = 1.03f;
 
     SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
 
@@ -514,11 +514,11 @@ int main(int argc, char* argv[])
         for (int i = 0; i < textboxes.size(); i++) {
             if (textboxes.at(i).getActive()) {
                 if (gems_collected >= 10 && i == 0) {
-                        textboxes.at(i).update(knight.get_pos(), { "I have successfully collected the 10 gems as you requested" }, (*currentMusic));
+                        textboxes.at(i).update(camera.target, { "I have successfully collected the 10 gems as you requested" }, (*currentMusic));
                     
                 }
                 else {
-                    textboxes.at(i).update(knight.get_pos(), {}, (*currentMusic));
+                    textboxes.at(i).update(camera.target, {}, (*currentMusic));
                 }
             }
          } 
@@ -629,7 +629,7 @@ int main(int argc, char* argv[])
         // Camera reset (zoom and rotation)
         if (IsKeyPressed(KEY_R))
         {
-            camera.zoom = 1.0f;
+            camera.zoom = 1.03f;
             camera.rotation = 0.0f;
         }
 
@@ -642,21 +642,21 @@ int main(int argc, char* argv[])
         //SHOP ROOM
         if (CheckCollisionRecs(knight.calculate_rectangle(), rect2)) {
             DrawText("Collided", 5, 5, 25, BLACK);
-            camera.target = Vector2{ 500, 1700 };
-            camera.zoom = 1.3f;
+            camera.target = Vector2{ 620, 1900 };
+            camera.zoom = 1.03f;
         }
         // ROOM 3
         if (CheckCollisionRecs(knight.calculate_rectangle(), rect3)) {
             DrawText("Collided", 5, 5, 25, BLACK);
             camera.target = Vector2{ 1810, 1145 };
-            camera.zoom = 1.02f;
+            camera.zoom = 1.03f;
         }
 
         //ROOM 4
         if (CheckCollisionRecs(knight.calculate_rectangle(), rect4)) {
             DrawText("Collided", 5, 5, 25, BLACK);
             camera.target = Vector2{ 1820, 360 };
-            camera.zoom = 1.0f;
+            camera.zoom = 1.03f;
         }
 
         //begins drawing the sprites and text onto the screen
@@ -756,13 +756,13 @@ int main(int argc, char* argv[])
 
         //Draws text onto the screen displaying how many gems have been collected.
 
-        DrawText(gem_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 30, 20, BLACK);
-        DrawText(diamond_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 10, 20, BLACK);
-        DrawText(emerald_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 10, 20, BLACK);
-        DrawText(garnet_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 30, 20, BLACK);
-        DrawText("N to talk to Navi", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 50, 20, BLACK);
-        DrawText("Spacebar to attack", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 70, 20, BLACK);
-        DrawText("arrow keys to move", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 90, 20, BLACK);
+        DrawText(gem_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y- window.GetHeight() / 2 +70, 20, BLACK);
+        DrawText(diamond_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 +90, 20, BLACK);
+        DrawText(emerald_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 110, 20, BLACK);
+        DrawText(garnet_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 130, 20, BLACK);
+        DrawText("N to talk to Navi", camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 150, 20, BLACK);
+        DrawText("Spacebar to attack", camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 170, 20, BLACK);
+        DrawText("arrow keys to move", camera.target.x - window.GetWidth() / 2-10, camera.target.y - window.GetHeight() / 2 + 190, 20, BLACK);
 
         for (int i = 0; i < textboxes.size(); i++) {
             textboxes.at(i).draw();
