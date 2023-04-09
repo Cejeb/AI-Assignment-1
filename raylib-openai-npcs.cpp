@@ -417,9 +417,7 @@ int main(int argc, char* argv[])
     Sprite fairy_up{ tex8, 12, 8, fairy_pos, {36,37,38},6 };
     std::vector<Sprite*> fairy_vector = { &fairy_down, &fairy_left, &fairy_right, &fairy_up };
     raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
-
-    raylib::Texture tex4{ "../resources/time_fantasy"
-                        "/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" };
+    raylib::Texture tex4{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" };
     //Map
     Map map = LoadTiled("../resources/New_World.tmj");
     //

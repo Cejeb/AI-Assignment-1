@@ -9,13 +9,13 @@
  <tileset firstgid="193" name="tf_A5_ashlands_3" tilewidth="48" tileheight="48" tilecount="128" columns="8">
   <image source="time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" width="384" height="768"/>
  </tileset>
- <tileset firstgid="321" name="shop" tilewidth="59" tileheight="48" tilecount="4" columns="2">
+ <tileset firstgid="321" name="shop" tilewidth="59" tileheight="48" tilecount="0" columns="2">
   <image source="../../aipfg-ass2/code/resources/time_fantasy/tf_ashlands/oak_woods_v1.0/decorations/shop.png" width="118" height="98"/>
  </tileset>
  <tileset firstgid="325" name="tf_A2_ashlands_3" tilewidth="48" tileheight="48" tilecount="192" columns="16">
-  <image source="../../aipfg-ass2/code/resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A2_ashlands_3.png" width="768" height="576"/>
+  <image source="time_fantasy/tf_ashlands/3x_RMMV/tf_A2_ashlands_3.png" width="768" height="576"/>
  </tileset>
- <tileset firstgid="517" name="tf_B_ashlands_3" tilewidth="48" tileheight="48" tilecount="256" columns="16">
+ <tileset firstgid="517" name="tf_B_ashlands_3" tilewidth="48" tileheight="48" tilecount="0" columns="16">
   <image source="../../aipfg-ass2/code/resources/time_fantasy/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" width="768" height="768"/>
  </tileset>
  <layer id="1" name="Tile Layer 1" width="50" height="40">
