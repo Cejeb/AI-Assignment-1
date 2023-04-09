@@ -102,10 +102,10 @@ namespace aipfg {
             }
             static bool once;
             if (!once) {
-                    text_box_small_.y = pos.y + windowy * 0.1;
-                    text_box_small_.x = pos.x - windowx * 0.48;
+                    text_box_small_.y = pos.y + windowy * 0.30;
+                    text_box_small_.x = pos.x - windowx * 0.51;
                     text_box_large_.x = text_box_small_.x;
-                    text_box_large_.y = text_box_small_.y - windowy * 0.61;
+                    text_box_large_.y = text_box_small_.y - windowy * 0.72;
                     if (text_box = &text_box_small_) {
                         text_box = &text_box_small_;
                     }

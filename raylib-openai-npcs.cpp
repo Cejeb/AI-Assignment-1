@@ -260,7 +260,7 @@ int main(int argc, char* argv[])
         return -1;
     }
     //sets the window size of the game
-    raylib::Window window(1200, 570, "Raylib OpenAI NPCs");
+    raylib::Window window(1200, 800, "Raylib OpenAI NPCs");
 
     Camera2D camera = { 0 };
     Vector2 grey_posn{ 40.0f, 100.0f };
@@ -268,7 +268,7 @@ int main(int argc, char* argv[])
     camera.target = Vector2{ grey_posn.x + 20.0f, grey_posn.y + 20.0f };
     camera.offset = Vector2{ 1280 / 2.0f, 720 / 2.0f };
     camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
+    camera.zoom = 1.03f;
 
     SetTargetFPS(60);            // Set our game to run at 60 frames-per-second
 
@@ -417,9 +417,7 @@ int main(int argc, char* argv[])
     Sprite fairy_up{ tex8, 12, 8, fairy_pos, {36,37,38},6 };
     std::vector<Sprite*> fairy_vector = { &fairy_down, &fairy_left, &fairy_right, &fairy_up };
     raylib::Texture tex3{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" };
-
-    raylib::Texture tex4{ "../resources/time_fantasy"
-                        "/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" };
+    raylib::Texture tex4{ "../resources/time_fantasy/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" };
     //Map
     Map map = LoadTiled("../resources/New_World.tmj");
     //
@@ -473,21 +471,38 @@ int main(int argc, char* argv[])
     // n.b. "spacing" varies with the font & font size
     bool isGameOver = false;
     std::vector <Rectangle> walls{};
-    walls.push_back({ 0, 0, 48, 58 * 48 });//0,0,48,2784                  left wall
-    walls.push_back({ 50 * 48, 0, 48, 58 * 48 });//2400,0,48,2784         right wall
-    walls.push_back({ 24 * 48,0, 48, 32 * 48 });//1152,0,48,1536          middle wall upper one
-    walls.push_back({ 24 * 48, 36 * 48, 48, 2 * 48 });//1152,1728,48,96   middle wall lower one
-    walls.push_back({ 12 * 48, 38 * 48, 48, 2 * 48 });//576,1824,48,96    the little wall of little room
-    walls.push_back({ 12 * 48, 31 * 48, 48, 3 * 48 });//576,1488,48,144   on the little wall of little room
+    //ROOM1,2 & SHOP LEFT WALL
+    walls.push_back({ 0, -20 * 48, 48, 58 * 48 });
+    // ROOM2 &2 RIGHT WALL
+    walls.push_back({ 50 * 48, -20 * 48, 48, 58 * 48 });
+    //Room 1&2 Right wall
+    walls.push_back({ 24 * 48, -1 * 48, 48, 27 * 48 });
+    //Room 2 door way corner wall
+    walls.push_back({ 24 * 48, 30 * 48, 48, 2 * 48 });
+    //Shop Right wall
+    walls.push_back({ 19 * 48, 33 * 48, 48, 5 * 48 });
+    //Room 1&4 Top Wall
+    walls.push_back({ 0, -1 * 48, 50 * 48, 48 });
+    //Shop bottom Wall
+    walls.push_back({ 0, 39 * 48, 25 * 48, 48 });
+    //Room 2&3 Bottom Wall
+    walls.push_back({ 4 * 48, 32 * 48, 50 * 48, 48 });
+    //Room 1 left doorway wall
+    walls.push_back({ 0, 16 * 48, 11 * 48, 48 });
+    //Room 1 Right doorway wall  
+    walls.push_back({ 15 * 48, 16 * 48, 9 * 48, 48 });
+    //Room 4 left door way wall
+    walls.push_back({ 25 * 48, 16 * 48, 12 * 48, 48 });
+    // Room 4 right door way wall
+    walls.push_back({ 41 * 48, 16 * 48, 12 * 48, 48 });
 
-    walls.push_back({ 0, -1 * 48, 50 * 48, 48 });//0,-48,2400,48          upper wall
-    //walls.push_back({ 0, -20 * 48, 20 * 48, 48 });//0,-960,960,48       ???????????
-    walls.push_back({ 0, 16 * 48, 11 * 48, 48 });//0,768,528,48           2nd wall from x=0
-    walls.push_back({ 24* 48, 22 * 48, 12 * 48, 48 });//1522,1056,576,48  upper-rigt room lower-left wall
-    walls.push_back({ 40* 48, 22 * 48, 12 * 48, 48 });//1920,1056,576,48  upper-rigt room lower-right wall
-    walls.push_back({ 0, 31 * 48, 13 * 48, 48 });//0,1488,624,48          3rd wall from x=0
-    walls.push_back({ 0, 39 * 48, 50 * 48, 48 });//0,1872,2400,48         lower wall 
-    walls.push_back({ 14 * 48, 16 * 48, 11 * 48, 48 });//672,768,528,48    wall with white spot
+
+
+    //Room Change collision
+    Rectangle rect1 = { 0,800,1150,760 };
+    Rectangle rect2 = { 0,1560,950,340 };
+    Rectangle rect3 = { 1190,800,1160,760 };
+    Rectangle rect4 = { 1190,20,1160,760 };
     //Detect window close button or ESC key
     while (!window.ShouldClose())
     {
@@ -497,11 +512,11 @@ int main(int argc, char* argv[])
         for (int i = 0; i < textboxes.size(); i++) {
             if (textboxes.at(i).getActive()) {
                 if (gems_collected >= 10 && i == 0) {
-                        textboxes.at(i).update(knight.get_pos(), { "I have successfully collected the 10 gems as you requested" }, (*currentMusic));
+                        textboxes.at(i).update(camera.target, { "I have successfully collected the 10 gems as you requested" }, (*currentMusic));
                     
                 }
                 else {
-                    textboxes.at(i).update(knight.get_pos(), {}, (*currentMusic));
+                    textboxes.at(i).update(camera.target, {}, (*currentMusic));
                 }
             }
          } 
@@ -600,7 +615,8 @@ int main(int argc, char* argv[])
         std::string garnet_string = "Garnets Collected: " + std::to_string(garnet_collected);
 
         // Camera target follows player
-        camera.target = Vector2{ knight.get_pos().x + 40, knight.get_pos().y + 40 };
+        camera.target = Vector2{ 640, 370 };
+        //camera.target = Vector2{ knight.get_pos().x + 40, knight.get_pos().y + 40 };
 
         // Camera zoom controls
         camera.zoom += ((float)GetMouseWheelMove() * 0.05f);
@@ -611,8 +627,34 @@ int main(int argc, char* argv[])
         // Camera reset (zoom and rotation)
         if (IsKeyPressed(KEY_R))
         {
-            camera.zoom = 1.0f;
+            camera.zoom = 1.03f;
             camera.rotation = 0.0f;
+        }
+
+        //Collisions for each room - ROOM 2
+        if (CheckCollisionRecs(knight.calculate_rectangle(), rect1)) {
+            DrawText("Collided", 5, 5, 25, BLACK);
+            camera.target = Vector2{ 620, 1145 };
+            camera.zoom = 1.03f;
+        }
+        //SHOP ROOM
+        if (CheckCollisionRecs(knight.calculate_rectangle(), rect2)) {
+            DrawText("Collided", 5, 5, 25, BLACK);
+            camera.target = Vector2{ 620, 1900 };
+            camera.zoom = 1.03f;
+        }
+        // ROOM 3
+        if (CheckCollisionRecs(knight.calculate_rectangle(), rect3)) {
+            DrawText("Collided", 5, 5, 25, BLACK);
+            camera.target = Vector2{ 1810, 1145 };
+            camera.zoom = 1.03f;
+        }
+
+        //ROOM 4
+        if (CheckCollisionRecs(knight.calculate_rectangle(), rect4)) {
+            DrawText("Collided", 5, 5, 25, BLACK);
+            camera.target = Vector2{ 1820, 360 };
+            camera.zoom = 1.03f;
         }
 
         //begins drawing the sprites and text onto the screen
@@ -712,13 +754,13 @@ int main(int argc, char* argv[])
 
         //Draws text onto the screen displaying how many gems have been collected.
 
-        DrawText(gem_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 30, 20, BLACK);
-        DrawText(diamond_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 10, 20, BLACK);
-        DrawText(emerald_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 10, 20, BLACK);
-        DrawText(garnet_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 30, 20, BLACK);
-        DrawText("N to talk to Navi", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 50, 20, BLACK);
-        DrawText("Spacebar to attack", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 70, 20, BLACK);
-        DrawText("arrow keys to move", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 90, 20, BLACK);
+        DrawText(gem_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y- window.GetHeight() / 2 +70, 20, BLACK);
+        DrawText(diamond_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 +90, 20, BLACK);
+        DrawText(emerald_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 110, 20, BLACK);
+        DrawText(garnet_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 130, 20, BLACK);
+        DrawText("N to talk to Navi", camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 150, 20, BLACK);
+        DrawText("Spacebar to attack", camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 170, 20, BLACK);
+        DrawText("arrow keys to move", camera.target.x - window.GetWidth() / 2-10, camera.target.y - window.GetHeight() / 2 + 190, 20, BLACK);
 
         for (int i = 0; i < textboxes.size(); i++) {
             textboxes.at(i).draw();
