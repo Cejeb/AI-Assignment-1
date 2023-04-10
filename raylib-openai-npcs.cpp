@@ -633,20 +633,20 @@ int main(int argc, char* argv[])
         if (CheckCollisionRecs(knight.calculate_rectangle(), rect2)) {
             DrawText("Collided", 5, 5, 25, BLACK);
             camera.target = Vector2{ 500, 1700 };
-            camera.zoom = 1.3f;
+            camera.zoom = 1.03f;
         }
         // ROOM 3
         if (CheckCollisionRecs(knight.calculate_rectangle(), rect3)) {
             DrawText("Collided", 5, 5, 25, BLACK);
             camera.target = Vector2{ 1810, 1145 };
-            camera.zoom = 1.02f;
+            camera.zoom = 1.03f;
         }
 
         //ROOM 4
         if (CheckCollisionRecs(knight.calculate_rectangle(), rect4)) {
             DrawText("Collided", 5, 5, 25, BLACK);
             camera.target = Vector2{ 1820, 360 };
-            camera.zoom = 1.0f;
+            camera.zoom = 1.03f;
         }
 
         //begins drawing the sprites and text onto the screen
