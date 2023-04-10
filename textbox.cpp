@@ -46,9 +46,9 @@ namespace aipfg {
 			new_lines = "\n\n\n\n\n\n\n\n\n";
             nature_ = nature;
 			prompt_ = new_lines + name + gambit + '\n' + human_stop_str;
-            windowx = window.GetWidth();
-            windowy = window.GetHeight();
-			box_width = (float)windowx - (2 * border_);
+            windowx = 400;
+            windowy = 800;
+			box_width = (float)windowx - (-20 * border_);
 			box_ypos = (float)windowy - 200;
 			box_height_large = (float)windowy - (2 * border_);
 			box_height_small = (float)windowy - box_ypos - border_;
