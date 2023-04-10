@@ -13,6 +13,8 @@
 #include <map> 
 #include "boss.cpp"
 #include "orb.cpp"
+#include "player-shop.cpp"
+
 void update_prompt(std::string& prompt, char c, const int font_size,
     const float max_text_width, int& tail_index_large,
     int& tail_index_small, int& nchars_entered);
@@ -307,6 +309,12 @@ int main(int argc, char* argv[])
     int diamond_collected = 0;
     int emerald_collected = 0;
     int garnet_collected = 0;
+
+    //Sprite for Health Potion
+    raylib::Texture texPotion{ "../resources/PotionImage.png" };
+    Sprite potion(texPotion, 1, 1, { 300, 100 }, { 0 });
+    bool healing = false;
+
     //Sprite for diamond.
     raylib::Texture diamond_tex{ "../resources/time_fantasy/diamond.png" };
     int d_cols = 6, d_rows = 1;
@@ -540,6 +548,7 @@ int main(int argc, char* argv[])
                 isSwordActive = false;
             }
         }
+
         //Using the N key (Navi!) to detect when the player is speaking to the fairy
         if (IsKeyDown(KEY_N) && !textboxes.at(0).getActive())
         {
@@ -548,6 +557,31 @@ int main(int argc, char* argv[])
             (*currentMusic).SetVolume(music_volume_quiet);
             boss_song.SetVolume(music_volume_quiet);
         } 
+
+        //code for the shop
+        if (Vector2Distance(knight.get_pos(), potion.get_posn()) < 30.0f)
+        {
+            if (!textboxes.at(0).getActive() && IsKeyDown(KEY_P) && busy == false)
+            {
+                shop();
+            }
+            else if (!IsKeyDown(KEY_P) && busy == true)
+            {
+                busy = false;
+            }
+        }
+
+        if (IsKeyDown(KEY_H) && HealthPotions > 0 && healing == false && knight.get_hp() < 150)
+        {
+            healing = true;
+            HealthPotions -= 1;
+            knight.set_hp(150.0f);
+        }
+        else if (!IsKeyDown(KEY_H) && healing == true)
+        {
+            healing = false;
+        }
+
         //Detects the player being close enough to the reaper to "collide"
         if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 30.0f)
         {
@@ -563,53 +597,66 @@ int main(int argc, char* argv[])
                     SetExitKey(0);
                     (*currentMusic).SetVolume(music_volume_quiet);
                 }
-        }
-        
+        }        
         else
         {
             reaper_collision = false;
             textboxes.at(0).setActive(false);
         }
 
+
+
         //Detects the player collecting a dimond and updates the dimonds collected variable.
         if (Vector2Distance(knight.get_pos(), dimond_gem.get_posn()) < 40.0f) {
             gemGenerator(50.0f, 50.0f, 1100.0f, 700.0f, diamond_collected, gems_collected, diamond_tex, coin_sound, d_gem_posn, dimond_gem);
+            currency = currency + 10;
         }
         if (Vector2Distance(knight.get_pos(), dimond2_gem.get_posn()) < 40.0f) {
             gemGenerator(50.0f, 820.0f, 1100.0f, 1400.0f, diamond_collected, gems_collected, diamond_tex, coin_sound, d2_gem_posn, dimond2_gem);
+            currency = currency + 10;
         }
         if (Vector2Distance(knight.get_pos(), dimond3_gem.get_posn()) < 40.0f) {
             gemGenerator(1200.0f, 50.0f, 2300.0f, 1000.0f, diamond_collected, gems_collected, diamond_tex, coin_sound, d3_gem_posn, dimond3_gem);
+            currency = currency + 10;
         }
         if (Vector2Distance(knight.get_pos(), dimond4_gem.get_posn()) < 40.0f) {
             gemGenerator(1300.0f, 1200.0f, 2300.0f, 1700.0f, diamond_collected, gems_collected, diamond_tex, coin_sound, d4_gem_posn, dimond4_gem);
+            currency = currency + 10;
         }
         //Detects the player collecting a emerald and updates the emeralds collected variable.
         if (Vector2Distance(knight.get_pos(), emerald_gem.get_posn()) < 40.0f) {
             gemGenerator(50.0f, 50.0f, 1100.0f, 700.0f, emerald_collected, gems_collected, emerald_tex, coin_sound, e_gem_posn, emerald_gem);
+            currency = currency + 5;
         }
         if (Vector2Distance(knight.get_pos(), emerald2_gem.get_posn()) < 40.0f) {
             gemGenerator(50.0f, 820.0f, 1100.0f, 1400.0f, emerald_collected, gems_collected, emerald_tex, coin_sound, e2_gem_posn, emerald2_gem);
+            currency = currency + 5;
         }
         if (Vector2Distance(knight.get_pos(), emerald3_gem.get_posn()) < 40.0f) {
             gemGenerator(1200.0f, 50.0f, 2300.0f, 1000.0f, emerald_collected, gems_collected, emerald_tex, coin_sound, e3_gem_posn, emerald3_gem);
+            currency = currency + 5;
         }
         if (Vector2Distance(knight.get_pos(), emerald4_gem.get_posn()) < 40.0f) {
             gemGenerator(1300.0f, 1200.0f, 2300.0f, 1700.0f, emerald_collected, gems_collected, emerald_tex, coin_sound, e4_gem_posn, emerald4_gem);
+            currency = currency + 5;
         }
         //Detects the player collecting a garnet and updates the garnets collected variable.
         if (Vector2Distance(knight.get_pos(), garnet_gem.get_posn()) < 40.0f) {
             gemGenerator(50.0f, 50.0f, 1100.0f, 700.0f, garnet_collected, gems_collected, garnet_tex, coin_sound, g_gem_posn, garnet_gem);
+            currency = currency + 3;
         }
         if (Vector2Distance(knight.get_pos(), garnet3_gem.get_posn()) < 40.0f) {
             gemGenerator(1200.0f, 50.0f, 2300.0f, 1000.0f, garnet_collected, gems_collected, garnet_tex, coin_sound, g3_gem_posn, garnet3_gem);
+            currency = currency + 3;
         }
         if (Vector2Distance(knight.get_pos(), garnet4_gem.get_posn()) < 40.0f) {
             gemGenerator(1300.0f, 1200.0f, 2300.0f, 1700.0f, garnet_collected, gems_collected, garnet_tex, coin_sound, g4_gem_posn, garnet4_gem);
+            currency = currency + 3;
         }
 
         //Converts the gems collected integer into a string that can be displayed
-        std::string gem_string = "Total Score: " + std::to_string((diamond_collected * 10) + (emerald_collected * 5) + (garnet_collected * 5));
+        std::string gem_string = "Total Currency: " + std::to_string(currency);
+        std::string potion_string = "Health Potions: " + std::to_string(HealthPotions);
         std::string diamond_string = "Diamonds Collected: " + std::to_string(diamond_collected);
         std::string emerald_string = "Emeralds Collected: " + std::to_string(emerald_collected);
         std::string garnet_string = "Garnets Collected: " + std::to_string(garnet_collected);
@@ -680,6 +727,14 @@ int main(int argc, char* argv[])
                 //DrawRectangle((*enemies.at(i)).calculate_rectangle().x, (*enemies.at(i)).calculate_rectangle().y, (*enemies.at(i)).calculate_rectangle().width, (*enemies.at(i)).calculate_rectangle().height ,BLACK);
             }
             //boss.follow(knight, 1000, {}, walls);
+
+            potion.set_posn({ 700, 1600});
+            potion.draw_minified();
+            std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet2_gem, fairy.get_sprite() };
+            std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
+                return s1->get_posn().y < s2->get_posn().y;
+                }
+            );
             
             if (!boss_vector.empty()) {
                 damage(knight, boss_vector, sword_rect, boss_sound, isGameOver);
@@ -747,20 +802,17 @@ int main(int argc, char* argv[])
             s->draw();
         }
 
-        //Displays the text box for speaking to the fairy
-
-
-
-
         //Draws text onto the screen displaying how many gems have been collected.
-
         DrawText(gem_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y- window.GetHeight() / 2 +70, 20, BLACK);
         DrawText(diamond_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 +90, 20, BLACK);
         DrawText(emerald_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 110, 20, BLACK);
         DrawText(garnet_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 130, 20, BLACK);
         DrawText("N to talk to Navi", camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 150, 20, BLACK);
         DrawText("Spacebar to attack", camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 170, 20, BLACK);
-        DrawText("arrow keys to move", camera.target.x - window.GetWidth() / 2-10, camera.target.y - window.GetHeight() / 2 + 190, 20, BLACK);
+        DrawText("Arrow keys to move", camera.target.x - window.GetWidth() / 2-10, camera.target.y - window.GetHeight() / 2 + 190, 20, BLACK);
+        DrawText(potion_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 210, 20, BLACK);
+        DrawText("Each Health Potion costs 20! Stand on the gem and press P to buy one!", 300, 2000, 20, BLACK);
+        DrawText("Press H to use Health Potion", 300, 2030, 20, BLACK);
 
         for (int i = 0; i < textboxes.size(); i++) {
             textboxes.at(i).draw();
