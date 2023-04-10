@@ -662,7 +662,7 @@ int main(int argc, char* argv[])
                     shop();
                 }
             }
-            else if(!IsKeyDown(KEY_P) && busy = true)
+            else if(!IsKeyDown(KEY_P) && busy == true)
             {
                 busy = false;
             }
@@ -671,7 +671,7 @@ int main(int argc, char* argv[])
             {
                 healing = true;
                 HealthPotions -= 1;
-                
+                knight.set_hp(100.0f);
             }
             else if (!IsKeyDown(KEY_H) && healing == true)
             {
