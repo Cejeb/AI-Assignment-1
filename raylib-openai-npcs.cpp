@@ -559,7 +559,7 @@ int main(int argc, char* argv[])
         } 
 
         //code for the shop
-        if (Vector2Distance(knight.get_pos(), potion.get_posn()) < 30.0f)
+        if (Vector2Distance(knight.get_pos(), potion.get_posn()) < 60.0f)
         {
             if (!textboxes.at(0).getActive() && IsKeyDown(KEY_P) && busy == false)
             {
@@ -583,7 +583,7 @@ int main(int argc, char* argv[])
         }
 
         //Detects the player being close enough to the reaper to "collide"
-        if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 50.0f)
+        if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 30.0f)
         {
             //makes sure player is not already colliding with the reaper
             
@@ -728,7 +728,7 @@ int main(int argc, char* argv[])
             }
             //boss.follow(knight, 1000, {}, walls);
 
-            potion.set_posn({ 700, 1800});
+            potion.set_posn({ 700, 1700});
             potion.draw_minified();
             std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet2_gem, fairy.get_sprite() };
             std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
