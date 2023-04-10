@@ -137,6 +137,8 @@ int main(int argc, char* argv[])
     {
         return -1;
     }
+
+    bool healing = false;
     
     //Initial x and y values for the diamond.
     float d_gem_x = randomFloat(100.0f, 900.0f);
@@ -660,14 +662,20 @@ int main(int argc, char* argv[])
                     shop();
                 }
             }
-            else 
+            else if(!IsKeyDown(KEY_P) && busy = true)
             {
                 busy = false;
             }
-
-            if (IsKeyDown(KEY_H) && HealthPotions > 0)
+            
+            if (IsKeyDown(KEY_H) && HealthPotions > 0 && healing == false)
             {
+                healing = true;
+                HealthPotions -= 1;
                 
+            }
+            else if (!IsKeyDown(KEY_H) && healing == true)
+            {
+                healing = false;
             }
 
             //Detects the player being close enough to the reaper to "collide"
