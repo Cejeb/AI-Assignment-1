@@ -504,11 +504,11 @@ int main(int argc, char* argv[])
         for (int i = 0; i < textboxes.size(); i++) {
             if (textboxes.at(i).getActive()) {
                 if (gems_collected >= 10 && i == 0) {
-                        textboxes.at(i).update(knight.get_pos(), { "I have successfully collected the 10 gems as you requested" }, (*currentMusic));
+                        textboxes.at(i).update(camera.target, { "I have successfully collected the 10 gems as you requested" }, (*currentMusic));
                     
                 }
                 else {
-                    textboxes.at(i).update(knight.get_pos(), {}, (*currentMusic));
+                    textboxes.at(i).update(camera.target, {}, (*currentMusic));
                 }
             }
          } 
