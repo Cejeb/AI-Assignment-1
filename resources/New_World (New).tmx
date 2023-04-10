@@ -10,10 +10,10 @@
   <image source="time_fantasy/tf_ashlands/3x_RMMV/tf_A5_ashlands_3.png" width="384" height="768"/>
  </tileset>
  <tileset firstgid="321" name="tf_A2_ashlands_3" tilewidth="48" tileheight="48" tilecount="192" columns="16">
-  <image source="../../aipfg-ass2/code/resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A2_ashlands_3.png" width="768" height="576"/>
+  <image source="../../AI Lab/aipfg-ass2/code/resources/time_fantasy/tf_ashlands/3x_RMMV/tf_A2_ashlands_3.png" width="768" height="576"/>
  </tileset>
  <tileset firstgid="513" name="tf_B_ashlands_3" tilewidth="48" tileheight="48" tilecount="256" columns="16">
-  <image source="../../aipfg-ass2/code/resources/time_fantasy/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" width="768" height="768"/>
+  <image source="../../AI Lab/aipfg-ass2/code/resources/time_fantasy/tf_ashlands/3x_RMMV/tf_B_ashlands_3.png" width="768" height="768"/>
  </tileset>
  <tileset firstgid="769" name="shop" tilewidth="59" tileheight="48" tilecount="4" columns="2">
   <image source="shop.png" width="118" height="98"/>
