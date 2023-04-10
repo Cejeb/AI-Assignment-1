@@ -583,7 +583,7 @@ int main(int argc, char* argv[])
         }
 
         //Detects the player being close enough to the reaper to "collide"
-        if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 30.0f)
+        if (Vector2Distance(knight.get_pos(), reaper.get_posn()) < 50.0f)
         {
             //makes sure player is not already colliding with the reaper
             
@@ -811,7 +811,7 @@ int main(int argc, char* argv[])
         DrawText("Spacebar to attack", camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 170, 20, BLACK);
         DrawText("Arrow keys to move", camera.target.x - window.GetWidth() / 2-10, camera.target.y - window.GetHeight() / 2 + 190, 20, BLACK);
         DrawText(potion_string.c_str(), camera.target.x - window.GetWidth() / 2 - 10, camera.target.y - window.GetHeight() / 2 + 210, 20, BLACK);
-        DrawText("Each Health Potion costs 20! Stand on the gem and press P to buy one!", 300, 2000, 20, BLACK);
+        DrawText("Each Health Potion costs 20! Stand on the potion and press P to buy one!", 300, 2000, 20, BLACK);
         DrawText("Press H to use Health Potion", 300, 2030, 20, BLACK);
 
         for (int i = 0; i < textboxes.size(); i++) {
