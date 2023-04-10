@@ -728,7 +728,7 @@ int main(int argc, char* argv[])
             }
             //boss.follow(knight, 1000, {}, walls);
 
-            potion.set_posn({ 700, 1600});
+            potion.set_posn({ 700, 1800});
             potion.draw_minified();
             std::vector<Sprite*> vsp{ knight.get_sprite(), &reaper, &dimond_gem, &emerald_gem, &garnet_gem, &dimond2_gem, &emerald2_gem, &garnet2_gem, fairy.get_sprite() };
             std::sort(vsp.begin(), vsp.end(), [](Sprite* s1, Sprite* s2) {
