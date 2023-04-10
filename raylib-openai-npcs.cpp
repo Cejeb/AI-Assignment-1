@@ -474,30 +474,19 @@ int main(int argc, char* argv[])
     // n.b. "spacing" varies with the font & font size
     bool isGameOver = false;
     std::vector <Rectangle> walls{};
-    //ROOM1,2 & SHOP LEFT WALL
-    walls.push_back({ 0, -20 * 48, 48, 58 * 48 });
-    // ROOM2 &2 RIGHT WALL
-    walls.push_back({ 50 * 48, -20 * 48, 48, 58 * 48 });
-    //Room 1&2 Right wall
-    walls.push_back({ 24 * 48, -1 * 48, 48, 27 * 48 });
-    //Room 2 door way corner wall
-    walls.push_back({ 24 * 48, 30 * 48, 48, 2 * 48 });
-    //Shop Right wall
-    walls.push_back({ 19 * 48, 33 * 48, 48, 5 * 48 });
-    //Room 1&4 Top Wall
-    walls.push_back({ 0, -1 * 48, 50 * 48, 48 });
-    //Shop bottom Wall
-    walls.push_back({ 0, 39 * 48, 25 * 48, 48 });
-    //Room 2&3 Bottom Wall
-    walls.push_back({ 4 * 48, 32 * 48, 50 * 48, 48 });
-    //Room 1 left doorway wall
-    walls.push_back({ 0, 16 * 48, 11 * 48, 48 });
-    //Room 1 Right doorway wall  
-    walls.push_back({ 15 * 48, 16 * 48, 9 * 48, 48 });
-    //Room 4 left door way wall
-    walls.push_back({ 25 * 48, 16 * 48, 12 * 48, 48 });
-    // Room 4 right door way wall
-    walls.push_back({ 41 * 48, 16 * 48, 12 * 48, 48 });
+   
+    walls.push_back({ 0, -20 * 48, 48, 58 * 48 }); //ROOM1,2 & SHOP LEFT WALL
+    walls.push_back({ 50 * 48, -20 * 48, 48, 58 * 48 });  // ROOM2 &2 RIGHT WALL
+    walls.push_back({ 24 * 48, -1 * 48, 48, 27 * 48 }); //Room 1&2 Right wall
+    walls.push_back({ 24 * 48, 30 * 48, 48, 2 * 48 }); //Room 2 door way corner wall
+    walls.push_back({ 19 * 48, 33 * 48, 48, 5 * 48 }); //Shop Right wall
+    walls.push_back({ 0, -1 * 48, 50 * 48, 48 });  //Room 1&4 Top Wall
+    walls.push_back({ 0, 39 * 48, 25 * 48, 48 }); //Shop bottom Wall
+    walls.push_back({ 4 * 48, 32 * 48, 50 * 48, 48 }); //Room 2&3 Bottom Wall
+    walls.push_back({ 0, 16 * 48, 11 * 48, 48 }); //Room 1 left doorway wall
+    walls.push_back({ 15 * 48, 16 * 48, 9 * 48, 48 }); //Room 1 Right doorway wall 
+    walls.push_back({ 25 * 48, 16 * 48, 12 * 48, 48 }); //Room 4 left door way wall
+    walls.push_back({ 41 * 48, 16 * 48, 12 * 48, 48 }); // Room 4 right door way wall
 
 
 
@@ -757,13 +746,13 @@ int main(int argc, char* argv[])
 
         //Draws text onto the screen displaying how many gems have been collected.
 
-        DrawText(gem_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 30, 20, BLACK);
-        DrawText(diamond_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 - 10, 20, BLACK);
-        DrawText(emerald_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 10, 20, BLACK);
-        DrawText(garnet_string.c_str(), knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 30, 20, BLACK);
-        DrawText("N to talk to Navi", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 50, 20, BLACK);
-        DrawText("Spacebar to attack", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 70, 20, BLACK);
-        DrawText("arrow keys to move", knight.get_pos().x - window.GetWidth() / 2 + 20, knight.get_pos().y - window.GetHeight() / 2 + 90, 20, BLACK);
+        DrawText(gem_string.c_str(), camera.target.x - window.GetWidth() / 2 + 20, camera.target.y - window.GetHeight() / 2 + 70, 20, BLACK);
+        DrawText(diamond_string.c_str(), camera.target.x - window.GetWidth() / 2 + 20, camera.target.y - window.GetHeight() / 2 + 90, 20, BLACK);
+        DrawText(emerald_string.c_str(), camera.target.x - window.GetWidth() / 2 + 20, camera.target.y - window.GetHeight() / 2 + 110, 20, BLACK);
+        DrawText(garnet_string.c_str(), camera.target.x - window.GetWidth() / 2 + 20, camera.target.y - window.GetHeight() / 2 + 130, 20, BLACK);
+        DrawText("N to talk to Navi", camera.target.x - window.GetWidth() / 2 + 20, camera.target.y - window.GetHeight() / 2 + 150, 20, BLACK);
+        DrawText("Spacebar to attack", camera.target.x - window.GetWidth() / 2 + 20, camera.target.y - window.GetHeight() / 2 + 170, 20, BLACK);
+        DrawText("arrow keys to move", camera.target.x - window.GetWidth() / 2 + 20, camera.target.y - window.GetHeight() / 2 + 190, 20, BLACK);
 
         for (int i = 0; i < textboxes.size(); i++) {
             textboxes.at(i).draw();
