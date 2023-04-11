@@ -336,7 +336,7 @@ int main(int argc, char* argv[])
     Sprite dimond_gem{ diamond_tex, d_cols, d_rows, d_gem_posn, frame_id_diamond, 7 };
     dimond_gem.set_animation(true);
 
-    Vector2 d2_gem_posn{ 100, 1000 };
+    Vector2 d2_gem_posn{ d2_gem_x, d2_gem_y };
     Sprite dimond2_gem{ diamond_tex, d_cols, d_rows, d2_gem_posn, frame_id_diamond, 7 };
     dimond2_gem.set_animation(true);
 
