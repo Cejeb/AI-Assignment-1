@@ -531,6 +531,11 @@ int main(int argc, char* argv[])
         if (boss_song.IsPlaying()) {
             currentMusic = &boss_song;
         }
+
+        if (!(*currentMusic).IsPlaying()) {
+            (*currentMusic).Play(); 
+        }
+
         for (int i = 0; i < textboxes.size(); i++) {
             if (textboxes.at(i).getActive()) {
                 if (gems_collected >= 10 && i == 0) {
