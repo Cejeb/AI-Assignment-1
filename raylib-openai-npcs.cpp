@@ -269,7 +269,7 @@ int main(int argc, char* argv[])
         return -1;
     }
     //sets the window size of the game
-    raylib::Window window(1200, 700, "Raylib OpenAI NPCs");
+    raylib::Window window(1200, 800, "Raylib OpenAI NPCs");
 
     Camera2D camera = { 0 };
     Vector2 grey_posn{ 40.0f, 100.0f };
